@@ -107,7 +107,8 @@ instance : IsBdform (peanoarithmeticRel 1) where
 
 notation "S(" n ")" => Succ.succ n
 notation n "add" m => Add.add n m
-notation n "times" m => Mul.mult n m
+notation n "times" m => Mul.mul n m
+-- infixl:70 " times " => Mul.mult
 notation n "⬝∧" m => And.and n m
 notation n "⬝∨" m => Or.or n m
 notation "⬝∼" n => Neg.neg n
@@ -120,5 +121,10 @@ notation "Const(" c ")" => IsConst.const c
 notation "Term(" t ")" => IsTerm.term t
 notation "BdForm(" t ")" => IsBdform.bdform t
 
+abbrev ℒ := Language.peanoarithmetic
 
 #check (∀' ∼(peanoarithmetic.null =' S(&0)))
+#check (peanoarithmetic.null times peanoarithmetic.null)
+#check (peanoarithmetic.null add peanoarithmetic.null)
+
+end Language.peanoarithmetic
