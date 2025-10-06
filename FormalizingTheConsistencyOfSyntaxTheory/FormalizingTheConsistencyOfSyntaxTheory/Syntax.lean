@@ -35,9 +35,18 @@ universe u
 instance : Zero (peanoarithmetic.Term α) where
   zero := Constants.term .zero
 
+def null : Term peanoarithmetic α :=
+  Constants.term .zero
+
 def numeral : ℕ → peanoarithmetic.Term α
-  | .zero => Constants.term .zero
+  | .zero => null
   | .succ n => Term.func peanoarithmeticFunc.succ (λ _ => numeral n)
+
+class Succ (α : Type u) where
+  succ : α → α
+
+instance : Succ (peanoarithmetic.Term α) where
+  succ := Functions.apply₁ .succ
 
 instance : Add (peanoarithmetic.Term α) where
   add := Functions.apply₂ .add
@@ -96,17 +105,20 @@ instance : IsTerm (peanoarithmeticRel 1) where
 instance : IsBdform (peanoarithmeticRel 1) where
   bdform := peanoarithmeticRel.bdform
 
-notation "S(" n ")" => Term.func peanoarithmeticFunc.succ ![n]
-notation n "add" m => Term.func peanoarithmeticFunc ![n,m]
-notation n "times" m => Term.func peanoarithmeticFunc.mult ![n,m]
-notation n "⬝∧" m => Term.func peanoarithmeticFunc.and ![n,m]
-notation n "⬝∨" m => Term.func peanoarithmeticFunc.or ![n,m]
-notation "⬝∼" n => Term.func peanoarithmeticFunc.neg ![n]
-notation n "⬝⟹" m => Term.func peanoarithmeticFunc.imp ![n,m]
-notation "⬝∀" n => Term.func peanoarithmeticFunc.all ![n]
-notation "⬝∃" n => Term.func peanoarithmeticFunc.ex ![n]
+notation "S(" n ")" => Succ.succ n
+notation n "add" m => Add.add n m
+notation n "times" m => Mul.mult n m
+notation n "⬝∧" m => And.and n m
+notation n "⬝∨" m => Or.or n m
+notation "⬝∼" n => Neg.neg n
+notation n "⬝⟹" m => Imp.imp n m
+notation "⬝∀" n => Univ.all n
+notation "⬝∃" n => Ex.ex n
 
-notation "Var(" x ")" => BoundedFormula.rel peanoarithmeticRel.var ![x]
-notation "Const(" c ")" => BoundedFormula.rel peanoarithmeticRel.const ![c]
-notation "Term(" t ")" => BoundedFormula.rel peanoarithmeticRel.term ![t]
-notation "BdForm(" t ")" => BoundedFormula.rel peanoarithmeticRel.bdform ![t]
+notation "Var(" x ")" => IsVar.var x
+notation "Const(" c ")" => IsConst.const c
+notation "Term(" t ")" => IsTerm.term t
+notation "BdForm(" t ")" => IsBdform.bdform t
+
+
+#check (∀' ∼(peanoarithmetic.null =' S(&0)))
