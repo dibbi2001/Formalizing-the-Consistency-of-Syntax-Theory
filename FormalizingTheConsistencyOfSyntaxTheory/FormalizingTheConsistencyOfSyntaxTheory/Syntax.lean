@@ -1,6 +1,5 @@
 import Mathlib.ModelTheory.Semantics
-import Mathlib.Computability.Encoding
-import Mathlib.Computability.Primrec
+import Mathlib.ModelTheory.Encoding
 
 open FirstOrder
 open Language
@@ -122,10 +121,11 @@ instance {n} : ToString (Language.peanoarithmetic.Relations n) := ⟨relToStr⟩
 
 namespace Language
   namespace peanoarithmetic
-
+    -- Syntax
     instance : Zero (peanoarithmetic.Term α) where
       zero := Constants.term .zero
 
+    -- some nice definitions
     def null : Term peanoarithmetic α :=
       Constants.term .zero
 
@@ -133,12 +133,7 @@ namespace Language
       | .zero => null
       | .succ n => Term.func peanoarithmeticFunc.succ (λ _ => numeral n)
 
-    instance {α : Type _} : OfNat (Term peanoarithmetic α) (n : Nat) where
-      ofNat := numeral n
-
-    instance : Inhabited (peanoarithmetic.Term α) :=
-      ⟨peanoarithmetic.null⟩
-
+    -- Syntax
     class Succ (α : Type u) where
       succ : α → α
 
@@ -217,27 +212,9 @@ namespace Language
     notation "Term(" t ")" => IsTerm.term t
     notation "BdForm(" t ")" => IsBdform.bdform t
 
-    -- notation "S(" n ")" => Term.func peanoarithmeticFunc.succ ![n]
-    -- notation "zero" => Term.func peanoarithmeticFunc.zero ![]
-    -- notation n "add" m => Term.func peanoarithmeticFunc.add ![n,m]
-    -- notation n "times" m => Term.func peanoarithmeticFunc.mult ![n,m]
-    -- notation n "⬝∧" m => Term.func peanoarithmeticFunc.and ![n,m]
-    -- notation n "⬝∨" m => Term.func peanoarithmeticFunc.or ![n,m]
-    -- notation "⬝∼" n => Term.func peanoarithmeticFunc.neg ![n]
-    -- notation n "⬝⟹" m => Term.func peanoarithmeticFunc.imp ![n,m]
-    -- notation "⬝∀" n => Term.func peanoarithmeticFunc.all ![n]
-    -- notation "⬝∃" n => Term.func peanoarithmeticFunc.ex ![n]
-
     abbrev ℒ := Language.peanoarithmetic
 
-    -- @[simp]
-    -- def null : Term peanoarithmetic α :=
-    --   Term.func .zero ![]
-
-    -- @[simp]
-    -- def numeral : ℕ → Term peanoarithmetic α
-    --   | .zero => null
-    --   | .succ n => S(numeral n)
+    -- Semantics
 
     -- variable {M : Type*} {v : α → M}
 
@@ -269,10 +246,103 @@ namespace Language
     #check S(S(null))
     #check (peanoarithmetic.null + peanoarithmetic.null)
 
-    #eval ((S(null) + S(null) : Term peanoarithmetic ℕ))
-
-
+    #eval ((S(null) + S(S(null)) : Term peanoarithmetic ℕ))
+    #eval (peanoarithmetic.null + peanoarithmetic.null : Term peanoarithmetic ℕ)
 
     -- end
 
+    section Coding
+          variable {k : ℕ}
+          def Func_enc : peanoarithmetic.Functions k → ℕ
+            | .zero => Nat.pair 0 0 + 1
+            | .succ => Nat.pair 1 0 + 1
+            | .neg => Nat.pair 1 1 + 1
+            | .all => Nat.pair 1 2 + 1
+            | .ex => Nat.pair 1 3 + 1
+            | .add => Nat.pair 2 0 + 1
+            | .mult => Nat.pair 2 1 + 1
+            | .and => Nat.pair 2 2 + 1
+            | .or => Nat.pair 2 3 + 1
+            | .imp => Nat.pair 2 4 + 1
+
+          def Func_dec : (n : ℕ) → Option (peanoarithmetic.Functions k)
+            | 0 => none
+            | e + 1 =>
+              match k with
+                | 0 =>
+                  match e.unpair.2 with
+                    | 0 => some (.zero)
+                    | _ => none
+                | 1 =>
+                  match e.unpair.2 with
+                    | 0 => some (.succ)
+                    | 1 => some (.neg)
+                    | 2 => some (.all)
+                    | 3 => some (.ex)
+                    | _ => none
+                | 2 =>
+                  match e.unpair.2 with
+                    | 0 => some (.add)
+                    | 1 => some (.mult)
+                    | 2 => some (.and)
+                    | 3 => some (.or)
+                    | 4 => some (.imp)
+                    | _ => none
+                | _ => none
+
+          lemma Func_enc_dec : ∀ f : peanoarithmetic.Functions k, Func_dec (Func_enc f) = some f := by
+            intro f
+            cases f <;> simp [Func_enc, Func_dec]
+
+          instance enc_f : Encodable (peanoarithmetic.Functions k) where
+            encode := Func_enc
+            decode := Func_dec
+            encodek := Func_enc_dec
+
+          def Rel_enc : peanoarithmetic.Relations k → ℕ
+            | .var => Nat.pair 1 0 + 1
+            | .term => Nat.pair 1 1 + 1
+            | .const => Nat.pair 1 2 + 1
+            | .bdform => Nat.pair 1 3 + 1
+
+
+          def Rel_dec : (n : ℕ) → Option (peanoarithmetic.Relations k)
+            | 0 => none
+            | e + 1 =>
+              match k with
+                | 1 =>
+                  match e.unpair.2 with
+                    | 0 => some .var
+                    | 1 => some .term
+                    | 2 => some .const
+                    | 3 => some .bdform
+                    | _ => none
+                | _ => none
+
+          lemma Rel_enc_dec : ∀ f : peanoarithmetic.Relations k, Rel_dec (Rel_enc f) = some f := by
+            intro f
+            cases f <;> simp [Rel_enc, Rel_dec]
+
+          instance enc_r : Encodable (peanoarithmetic.Relations k) where
+            encode := Rel_enc
+            decode := Rel_dec
+            encodek := Rel_enc_dec
+
+    end Coding
 end Language.peanoarithmetic
+
+namespace TermEncoding
+  variable {L : Language}[∀i, Encodable (L.Functions i)][∀i, Encodable (L.Relations i)]
+  /-- Encodes terms as natural numbers -/
+  def term_tonat : Term L (ℕ ⊕ Fin 0) → ℕ :=
+    fun t => Encodable.encodeList (Term.listEncode t)
+  def sentence_term_tonat : Term L (Empty ⊕ Fin 0) → ℕ :=
+    fun t => Encodable.encodeList (Term.listEncode t)
+
+/-- Encodes BoundedFormulas as natural numbers -/
+  def sent_tonat : BoundedFormula L Empty 0 → ℕ :=
+    fun f => Encodable.encodeList (BoundedFormula.listEncode f)
+  def formula_tonat {n : ℕ} : BoundedFormula L ℕ n → ℕ :=
+    fun f => Encodable.encodeList (BoundedFormula.listEncode f)
+
+end TermEncoding
