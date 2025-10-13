@@ -69,6 +69,7 @@ namespace BoundedFormula
         apply Nat.lt_trans isLt step1
       apply Fin.mk val step2
 
+end BoundedFormula
 
 variable {α : Type*} {n : ℕ}
 universe u
@@ -119,217 +120,215 @@ def relToStr {n} : Language.peanoarithmetic.Relations n → String
   | .bdform => "𝑏𝑑𝑓𝑜𝑟𝑚"
 instance {n} : ToString (Language.peanoarithmetic.Relations n) := ⟨relToStr⟩
 
-namespace Language
-  namespace peanoarithmetic
-    -- Syntax
-    instance : Zero (peanoarithmetic.Term α) where
-      zero := Constants.term .zero
+namespace Language.peanoarithmetic
+  -- Syntax
+  instance : Zero (peanoarithmetic.Term α) where
+    zero := Constants.term .zero
 
-    -- some nice definitions
-    def null : Term peanoarithmetic α :=
-      Constants.term .zero
+  -- some nice definitions
+  def null : Term peanoarithmetic α :=
+    Constants.term .zero
 
-    def numeral : ℕ → peanoarithmetic.Term α
-      | .zero => null
-      | .succ n => Term.func peanoarithmeticFunc.succ (λ _ => numeral n)
+  def numeral : ℕ → peanoarithmetic.Term α
+    | .zero => null
+    | .succ n => Term.func peanoarithmeticFunc.succ (λ _ => numeral n)
 
-    -- Syntax
-    class Succ (α : Type u) where
-      succ : α → α
+  -- Syntax
+  class Succ (α : Type u) where
+    succ : α → α
 
-    instance : Succ (peanoarithmetic.Term α) where
-      succ := Functions.apply₁ .succ
+  instance : Succ (peanoarithmetic.Term α) where
+    succ := Functions.apply₁ .succ
 
-    instance : Add (peanoarithmetic.Term α) where
-      add := Functions.apply₂ .add
+  instance : Add (peanoarithmetic.Term α) where
+    add := Functions.apply₂ .add
 
-    instance : Mul (peanoarithmetic.Term α) where
-      mul := Functions.apply₂ .mult
+  instance : Mul (peanoarithmetic.Term α) where
+    mul := Functions.apply₂ .mult
 
-    instance : Neg (peanoarithmetic.Term α) where
-      neg := Functions.apply₁ .neg
+  instance : Neg (peanoarithmetic.Term α) where
+    neg := Functions.apply₁ .neg
 
-    instance : Min (peanoarithmetic.Term α) where
-      min := Functions.apply₂ .and
+  instance : Min (peanoarithmetic.Term α) where
+    min := Functions.apply₂ .and
 
-    instance : Max (peanoarithmetic.Term α) where
-      max := Functions.apply₂ .or
+  instance : Max (peanoarithmetic.Term α) where
+    max := Functions.apply₂ .or
 
-    class Imp (α : Type u) where
-      imp : α → α → α
+  class Imp (α : Type u) where
+    imp : α → α → α
 
-    class Univ (α : Type u) where
-      all : α → α
+  class Univ (α : Type u) where
+    all : α → α
 
-    class Ex (α : Type u) where
-      ex : α → α
+  class Ex (α : Type u) where
+    ex : α → α
 
-    instance : Imp (peanoarithmetic.Term α) where
-      imp := Functions.apply₂ .imp
+  instance : Imp (peanoarithmetic.Term α) where
+    imp := Functions.apply₂ .imp
 
-    instance : Univ (peanoarithmetic.Term α) where
-      all := Functions.apply₁ .all
+  instance : Univ (peanoarithmetic.Term α) where
+    all := Functions.apply₁ .all
 
-    instance : Ex (peanoarithmetic.Term α) where
-      ex := Functions.apply₁ .ex
+  instance : Ex (peanoarithmetic.Term α) where
+    ex := Functions.apply₁ .ex
 
-    class IsVar (α : Type u) where
-      var : α
+  class IsVar (α : Type u) where
+    var : α
 
-    class IsConst (α : Type u) where
-      const : α
+  class IsConst (α : Type u) where
+    const : α
 
-    class IsTerm (α : Type u) where
-      term : α
+  class IsTerm (α : Type u) where
+    term : α
 
-    class IsBdform (α : Type u) where
-      bdform : α
+  class IsBdform (α : Type u) where
+    bdform : α
 
-    instance : IsVar (peanoarithmeticRel 1) where
-      var := peanoarithmeticRel.var
+  instance : IsVar (peanoarithmeticRel 1) where
+    var := peanoarithmeticRel.var
 
-    instance : IsConst (peanoarithmeticRel 1) where
-      const := peanoarithmeticRel.const
+  instance : IsConst (peanoarithmeticRel 1) where
+    const := peanoarithmeticRel.const
 
-    instance : IsTerm (peanoarithmeticRel 1) where
-      term := peanoarithmeticRel.term
+  instance : IsTerm (peanoarithmeticRel 1) where
+    term := peanoarithmeticRel.term
 
-    instance : IsBdform (peanoarithmeticRel 1) where
-      bdform := peanoarithmeticRel.bdform
+  instance : IsBdform (peanoarithmeticRel 1) where
+    bdform := peanoarithmeticRel.bdform
 
-    notation "S(" n ")" => Succ.succ n
-    notation n "add" m => Add.add n m
-    notation n "times" m => Mul.mul n m
-    notation n "⬝∧" m => And.and n m
-    notation n "⬝∨" m => Or.or n m
-    notation "⬝∼" n => Neg.neg n
-    notation n "⬝⟹" m => Imp.imp n m
-    notation "⬝∀" n => Univ.all n
-    notation "⬝∃" n => Ex.ex n
+  notation "S(" n ")" => Succ.succ n
+  notation n "add" m => Add.add n m
+  notation n "times" m => Mul.mul n m
+  notation n "⬝∧" m => And.and n m
+  notation n "⬝∨" m => Or.or n m
+  notation "⬝∼" n => Neg.neg n
+  notation n "⬝⟹" m => Imp.imp n m
+  notation "⬝∀" n => Univ.all n
+  notation "⬝∃" n => Ex.ex n
 
-    notation "Var(" x ")" => IsVar.var x
-    notation "Const(" c ")" => IsConst.const c
-    notation "Term(" t ")" => IsTerm.term t
-    notation "BdForm(" t ")" => IsBdform.bdform t
+  notation "Var(" x ")" => IsVar.var x
+  notation "Const(" c ")" => IsConst.const c
+  notation "Term(" t ")" => IsTerm.term t
+  notation "BdForm(" t ")" => IsBdform.bdform t
 
-    abbrev ℒ := Language.peanoarithmetic
+  abbrev ℒ := Language.peanoarithmetic
 
-    -- Semantics
+  -- Semantics
 
-    -- variable {M : Type*} {v : α → M}
+  -- variable {M : Type*} {v : α → M}
 
-    -- section
+  -- section
 
-    -- variable [Zero M] [Succ M] [Add M] [Mul M]
-    -- [Neg M] [Min M] [Max M] [Imp M] [Univ M] [Ex M]
-    -- [IsVar M] [IsConst M] [IsTerm M] [IsBdform M]
+  -- variable [Zero M] [Succ M] [Add M] [Mul M]
+  -- [Neg M] [Min M] [Max M] [Imp M] [Univ M] [Ex M]
+  -- [IsVar M] [IsConst M] [IsTerm M] [IsBdform M]
 
-    -- instance : peanoarithmetic.Structure M where
-    --   funMap
-    --   | .zero, _  => 0
-    --   | .succ, v => Succ.succ (v 0)
-    --   | .add, v => (v 0) + (v 1)
-    --   | .mult, v => (v 0 ) * (v 1)
-    --   | .neg, v => -(v 0)
-    --   | .and, v => (v 0)
-    --   | .or, v => (v 0)
-    --   | .imp, v => (v 0)
-    --   | .all, v => (v 0)
-    --   | .ex, v => (v 0)
-    --   RelMap
-    --   | .var, _ => True
-    --   | .const, _ => True
-    --   | .term, _ => True
-    --   | .bdform, _ => True
+  -- instance : peanoarithmetic.Structure M where
+  --   funMap
+  --   | .zero, _  => 0
+  --   | .succ, v => Succ.succ (v 0)
+  --   | .add, v => (v 0) + (v 1)
+  --   | .mult, v => (v 0 ) * (v 1)
+  --   | .neg, v => -(v 0)
+  --   | .and, v => (v 0)
+  --   | .or, v => (v 0)
+  --   | .imp, v => (v 0)
+  --   | .all, v => (v 0)
+  --   | .ex, v => (v 0)
+  --   RelMap
+  --   | .var, _ => True
+  --   | .const, _ => True
+  --   | .term, _ => True
+  --   | .bdform, _ => True
 
-    #check (∀' ∼(null =' S(&0)))
-    #check S(S(null))
-    #check (peanoarithmetic.null + peanoarithmetic.null)
+  #check (∀' ∼(null =' S(&0)))
+  #check S(S(null))
+  #check (null + peanoarithmetic.null)
 
-    #eval ((S(null) + S(S(null)) : Term peanoarithmetic ℕ))
-    #eval (peanoarithmetic.null + peanoarithmetic.null : Term peanoarithmetic ℕ)
+  #eval ((S(null) + S(S(null)) : Term peanoarithmetic ℕ))
+  #eval (peanoarithmetic.null + peanoarithmetic.null : Term peanoarithmetic ℕ)
 
-    -- end
+  -- end
 
-    section Coding
-          variable {k : ℕ}
-          def Func_enc : peanoarithmetic.Functions k → ℕ
-            | .zero => Nat.pair 0 0 + 1
-            | .succ => Nat.pair 1 0 + 1
-            | .neg => Nat.pair 1 1 + 1
-            | .all => Nat.pair 1 2 + 1
-            | .ex => Nat.pair 1 3 + 1
-            | .add => Nat.pair 2 0 + 1
-            | .mult => Nat.pair 2 1 + 1
-            | .and => Nat.pair 2 2 + 1
-            | .or => Nat.pair 2 3 + 1
-            | .imp => Nat.pair 2 4 + 1
+  section Coding
+    variable {k : ℕ}
+    def Func_enc : peanoarithmetic.Functions k → ℕ
+      | .zero => Nat.pair 0 0 + 1
+      | .succ => Nat.pair 1 0 + 1
+      | .neg => Nat.pair 1 1 + 1
+      | .all => Nat.pair 1 2 + 1
+      | .ex => Nat.pair 1 3 + 1
+      | .add => Nat.pair 2 0 + 1
+      | .mult => Nat.pair 2 1 + 1
+      | .and => Nat.pair 2 2 + 1
+      | .or => Nat.pair 2 3 + 1
+      | .imp => Nat.pair 2 4 + 1
 
-          def Func_dec : (n : ℕ) → Option (peanoarithmetic.Functions k)
-            | 0 => none
-            | e + 1 =>
-              match k with
-                | 0 =>
-                  match e.unpair.2 with
-                    | 0 => some (.zero)
-                    | _ => none
-                | 1 =>
-                  match e.unpair.2 with
-                    | 0 => some (.succ)
-                    | 1 => some (.neg)
-                    | 2 => some (.all)
-                    | 3 => some (.ex)
-                    | _ => none
-                | 2 =>
-                  match e.unpair.2 with
-                    | 0 => some (.add)
-                    | 1 => some (.mult)
-                    | 2 => some (.and)
-                    | 3 => some (.or)
-                    | 4 => some (.imp)
-                    | _ => none
-                | _ => none
+    def Func_dec : (n : ℕ) → Option (peanoarithmetic.Functions k)
+      | 0 => none
+      | e + 1 =>
+        match k with
+          | 0 =>
+            match e.unpair.2 with
+              | 0 => some (.zero)
+              | _ => none
+          | 1 =>
+            match e.unpair.2 with
+              | 0 => some (.succ)
+              | 1 => some (.neg)
+              | 2 => some (.all)
+              | 3 => some (.ex)
+              | _ => none
+          | 2 =>
+            match e.unpair.2 with
+              | 0 => some (.add)
+              | 1 => some (.mult)
+              | 2 => some (.and)
+              | 3 => some (.or)
+              | 4 => some (.imp)
+              | _ => none
+          | _ => none
 
-          lemma Func_enc_dec : ∀ f : peanoarithmetic.Functions k, Func_dec (Func_enc f) = some f := by
-            intro f
-            cases f <;> simp [Func_enc, Func_dec]
+    lemma Func_enc_dec : ∀ f : peanoarithmetic.Functions k, Func_dec (Func_enc f) = some f := by
+      intro f
+      cases f <;> simp [Func_enc, Func_dec]
 
-          instance enc_f : Encodable (peanoarithmetic.Functions k) where
-            encode := Func_enc
-            decode := Func_dec
-            encodek := Func_enc_dec
+    instance enc_f : Encodable (peanoarithmetic.Functions k) where
+      encode := Func_enc
+      decode := Func_dec
+      encodek := Func_enc_dec
 
-          def Rel_enc : peanoarithmetic.Relations k → ℕ
-            | .var => Nat.pair 1 0 + 1
-            | .term => Nat.pair 1 1 + 1
-            | .const => Nat.pair 1 2 + 1
-            | .bdform => Nat.pair 1 3 + 1
+    def Rel_enc : peanoarithmetic.Relations k → ℕ
+      | .var => Nat.pair 1 0 + 1
+      | .term => Nat.pair 1 1 + 1
+      | .const => Nat.pair 1 2 + 1
+      | .bdform => Nat.pair 1 3 + 1
 
 
-          def Rel_dec : (n : ℕ) → Option (peanoarithmetic.Relations k)
-            | 0 => none
-            | e + 1 =>
-              match k with
-                | 1 =>
-                  match e.unpair.2 with
-                    | 0 => some .var
-                    | 1 => some .term
-                    | 2 => some .const
-                    | 3 => some .bdform
-                    | _ => none
-                | _ => none
+    def Rel_dec : (n : ℕ) → Option (peanoarithmetic.Relations k)
+      | 0 => none
+      | e + 1 =>
+        match k with
+          | 1 =>
+            match e.unpair.2 with
+              | 0 => some .var
+              | 1 => some .term
+              | 2 => some .const
+              | 3 => some .bdform
+              | _ => none
+          | _ => none
 
-          lemma Rel_enc_dec : ∀ f : peanoarithmetic.Relations k, Rel_dec (Rel_enc f) = some f := by
-            intro f
-            cases f <;> simp [Rel_enc, Rel_dec]
+    lemma Rel_enc_dec : ∀ f : peanoarithmetic.Relations k, Rel_dec (Rel_enc f) = some f := by
+      intro f
+      cases f <;> simp [Rel_enc, Rel_dec]
 
-          instance enc_r : Encodable (peanoarithmetic.Relations k) where
-            encode := Rel_enc
-            decode := Rel_dec
-            encodek := Rel_enc_dec
+    instance enc_r : Encodable (peanoarithmetic.Relations k) where
+      encode := Rel_enc
+      decode := Rel_dec
+      encodek := Rel_enc_dec
 
-    end Coding
-end Language.peanoarithmetic
+  end Coding
 
 namespace TermEncoding
   variable {L : Language}[∀i, Encodable (L.Functions i)][∀i, Encodable (L.Relations i)]
@@ -346,3 +345,7 @@ namespace TermEncoding
     fun f => Encodable.encodeList (BoundedFormula.listEncode f)
 
 end TermEncoding
+
+end Language.peanoarithmetic
+
+end FirstOrder
