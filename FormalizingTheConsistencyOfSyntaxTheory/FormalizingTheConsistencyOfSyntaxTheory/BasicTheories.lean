@@ -2,7 +2,7 @@ import FormalizingTheConsistencyOfSyntaxTheory.Syntax
 
 open FirstOrder
 open Language
-open BoundedFormula.FirstOrder.Language.peanoarithmetic
+open peanoarithmetic
 
 /-- Peano arithemtic -/
 
