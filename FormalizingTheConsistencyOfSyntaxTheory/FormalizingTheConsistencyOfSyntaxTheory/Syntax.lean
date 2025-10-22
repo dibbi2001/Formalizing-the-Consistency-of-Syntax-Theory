@@ -328,7 +328,6 @@ def FormulaFunc_dec : ℕ → Option (Formula k)
           | _ => none
       | _ => none
 
-
 lemma FormulaFunc_enc_dec :
     ∀ f : Formula k, FormulaFunc_dec (FormulaFunc_enc f) = some f := by
   intro f; cases f <;> simp [FormulaFunc_enc, FormulaFunc_dec]
@@ -338,8 +337,12 @@ instance enc_formula_f : Encodable (Formula k) where
   decode := FormulaFunc_dec
   encodek := FormulaFunc_enc_dec
 
--- instance : Encodable (metaPA.Functions k) :=
---   Sum.encodable
+instance : Encodable (metaPA.Functions k) :=
+  inferInstanceAs (Encodable (Sum (peanoarithmetic.Functions k) (Formula k)))
+
+open TermEncoding
+
+
 
 end TermRepresentation
 
