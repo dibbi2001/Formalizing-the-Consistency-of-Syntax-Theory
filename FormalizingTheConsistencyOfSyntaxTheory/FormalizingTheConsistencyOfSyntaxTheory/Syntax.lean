@@ -221,8 +221,11 @@ namespace Language.peanoarithmetic
   section Structure
 
   variable [Zero M] [Succ M] [Add M] [Mul M]
-  [Neg M] [Min M] [Max M] [Imp M] [Univ M] [Ex M]
-  [IsVar M] [IsConst M] [IsTerm M] [IsBdform M]
+
+
+  variable (neg_repres : (Fin 1 → M) → M) (and_repres : (Fin 2 → M) → M) (or_repres : (Fin 2 → M) → M) (imp_repres : (Fin 2 → M) → M)
+  (ex_repres : (Fin 1 → M) → M) (all_repres : (Fin 1 → M) → M)
+  (var_prop : (Fin 1 → M) → Prop) (const_prop : (Fin 1 → M) → Prop) (term_prop : (Fin 1 → M) → Prop) (bdform_prop : (Fin 1 → M) → Prop)
 
   instance : peanoarithmetic.Structure M where
     funMap
@@ -230,103 +233,102 @@ namespace Language.peanoarithmetic
     | .succ, v => Succ.succ (v 0)
     | .add, v => (v 0) + (v 1)
     | .mult, v => (v 0 ) * (v 1)
-    | .neg, v => -(v 0)
-    | .and, v => Min.min (v 0) (v 1)
-    | .or, v => Max.max (v 0) (v 1)
-    | .imp, v => Imp.imp (v 0) (v 1)
-    | .all, v => Univ.all (v 0)
-    | .ex, v => Ex.ex (v 0)
+    | .neg, v => neg_repres v
+    | .and, v => and_repres v
+    | .or, v => or_repres v
+    | .imp, v => imp_repres v
+    | .all, v => all_repres v
+    | .ex, v => ex_repres v
     RelMap
-    | .var, _ => True
-    | .const, _ => True
-    | .term, _ => True
-    | .bdform, _ => True
+    | .var, v => var_prop v
+    | .const, v => const_prop v
+    | .term, v => term_prop v
+    | .bdform, v => bdform_prop v
 
   end Structure
 
-  section
+  -- section
 
-  variable [Zero M] [Succ M] [Add M] [Mul M]
-  [Neg M] [Min M] [Max M] [Imp M] [Univ M] [Ex M]
-
-
-  @[simp] theorem funMap_zero {v} :
-    Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.zero v = 0 := rfl
-
-  @[simp] theorem funMap_succ {v} :
-    Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.succ v = Succ.succ (v 0) := rfl
-  @[simp] theorem funMap_add {v} :
-  Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.add v = v 0 + v 1 := rfl
-
-  @[simp] theorem funMap_mult {v} :
-    Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.mult v = v 0 * v 1 := rfl
-
-  @[simp] theorem funMap_neg {v} :
-    Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.neg v = Neg.neg (v 0) := rfl
-
-  @[simp] theorem funMap_and {v} :
-    Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.and v = Min.min (v 0) (v 1) := rfl
-
-  @[simp] theorem funMap_or {v} :
-    Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.or v = Max.max (v 0) (v 1) := rfl
-
-  @[simp] theorem funMap_imp {v} :
-    Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.imp v = Imp.imp (v 0) (v 1) := rfl
-
-  @[simp] theorem funMap_all {v} :
-    Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.all v = Univ.all (v 0) := rfl
-
-  @[simp] theorem funMap_ex {v} :
-    Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.ex v = Ex.ex (v 0) := rfl
+  -- variable [Zero M] [Succ M] [Add M] [Mul M]
 
 
-  @[simp] theorem realize_null : Term.realize v (Language.peanoarithmetic.null : peanoarithmetic.Term α) = 0 := rfl
+  -- @[simp] theorem funMap_zero {v} :
+  --   Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.zero v = 0 := rfl
 
-  @[simp] theorem realize_succ (t : peanoarithmetic.Term α) :
-    Term.realize v (Succ.succ t) = Succ.succ (Term.realize v t) := rfl
+  -- @[simp] theorem funMap_succ {v} :
+  --   Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.succ v = Succ.succ (v 0) := rfl
+  -- @[simp] theorem funMap_add {v} :
+  -- Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.add v = v 0 + v 1 := rfl
 
-  @[simp] theorem realize_add (t₁ t₂ : peanoarithmetic.Term α) :
-    Term.realize v (t₁ + t₂) = Term.realize v t₁ + Term.realize v t₂ := rfl
+  -- @[simp] theorem funMap_mult {v} :
+  --   Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.mult v = v 0 * v 1 := rfl
 
-  @[simp] theorem realize_mult (t₁ t₂ : peanoarithmetic.Term α) :
-    Term.realize v (t₁ * t₂) = Term.realize v t₁ * Term.realize v t₂ := rfl
+  -- @[simp] theorem funMap_neg {v} :
+  --   Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.neg v = Neg.neg (v 0) := rfl
 
-  @[simp] theorem realize_neg (t : peanoarithmetic.Term α) :
-    Term.realize v (Neg.neg t) = Neg.neg (Term.realize v t) := rfl
+  -- @[simp] theorem funMap_and {v} :
+  --   Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.and v = Min.min (v 0) (v 1) := rfl
 
-  @[simp] theorem realize_and (t₁ t₂ : peanoarithmetic.Term α) :
-    Term.realize v (Min.min t₁ t₂) = Min.min (Term.realize v t₁) (Term.realize v t₂) := rfl
+  -- @[simp] theorem funMap_or {v} :
+  --   Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.or v = Max.max (v 0) (v 1) := rfl
 
-  @[simp] theorem realize_or (t₁ t₂ : peanoarithmetic.Term α) :
-    Term.realize v (Max.max t₁ t₂) = Max.max (Term.realize v t₁) (Term.realize v t₂) := rfl
+  -- @[simp] theorem funMap_imp {v} :
+  --   Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.imp v = Imp.imp (v 0) (v 1) := rfl
 
-  @[simp] theorem realize_imp (t₁ t₂ : peanoarithmetic.Term α) :
-    Term.realize v (Imp.imp t₁ t₂) = Imp.imp (Term.realize v t₁) (Term.realize v t₂) := rfl
+  -- @[simp] theorem funMap_all {v} :
+  --   Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.all v = Univ.all (v 0) := rfl
 
-  @[simp] theorem realize_all (t : peanoarithmetic.Term α) :
-    Term.realize v (Univ.all t) = Univ.all (Term.realize v t) := rfl
+  -- @[simp] theorem funMap_ex {v} :
+  --   Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.ex v = Ex.ex (v 0) := rfl
 
-  @[simp] theorem realize_ex (t : peanoarithmetic.Term α) :
-    Term.realize v (Ex.ex t) = Ex.ex (Term.realize v t) := rfl
 
-  instance : Succ ℕ := ⟨Nat.succ⟩
-  instance : Add ℕ := ⟨Nat.add⟩
-  instance : Mul ℕ := ⟨Nat.mul⟩
-  instance : Neg ℕ := ⟨fun _ => 0⟩
-  instance : Min ℕ := ⟨Nat.min⟩
-  instance : Max ℕ := ⟨Nat.max⟩
+  -- @[simp] theorem realize_null : Term.realize v (Language.peanoarithmetic.null : peanoarithmetic.Term α) = 0 := rfl
 
-  instance : Imp ℕ := ⟨fun x y => if x ≤ y then y else x⟩
-  instance : Univ ℕ := ⟨id⟩
-  instance : Ex ℕ := ⟨id⟩
+  -- @[simp] theorem realize_succ (t : peanoarithmetic.Term α) :
+  --   Term.realize v (Succ.succ t) = Succ.succ (Term.realize v t) := rfl
 
-  def r : ℕ → ℕ := fun x => x
+  -- @[simp] theorem realize_add (t₁ t₂ : peanoarithmetic.Term α) :
+  --   Term.realize v (t₁ + t₂) = Term.realize v t₁ + Term.realize v t₂ := rfl
 
-  #eval Term.realize r (S(S(0) + S(0)) : peanoarithmetic.Term ℕ)
-  #eval Term.realize r (S(S(S(0))) * S(S(S(0))) : peanoarithmetic.Term ℕ)
-  #eval Term.realize r (null + null)
+  -- @[simp] theorem realize_mult (t₁ t₂ : peanoarithmetic.Term α) :
+  --   Term.realize v (t₁ * t₂) = Term.realize v t₁ * Term.realize v t₂ := rfl
 
-  end
+  -- @[simp] theorem realize_neg (t : peanoarithmetic.Term α) :
+  --   Term.realize v (Neg.neg t) = Neg.neg (Term.realize v t) := rfl
+
+  -- @[simp] theorem realize_and (t₁ t₂ : peanoarithmetic.Term α) :
+  --   Term.realize v (Min.min t₁ t₂) = Min.min (Term.realize v t₁) (Term.realize v t₂) := rfl
+
+  -- @[simp] theorem realize_or (t₁ t₂ : peanoarithmetic.Term α) :
+  --   Term.realize v (Max.max t₁ t₂) = Max.max (Term.realize v t₁) (Term.realize v t₂) := rfl
+
+  -- @[simp] theorem realize_imp (t₁ t₂ : peanoarithmetic.Term α) :
+  --   Term.realize v (Imp.imp t₁ t₂) = Imp.imp (Term.realize v t₁) (Term.realize v t₂) := rfl
+
+  -- @[simp] theorem realize_all (t : peanoarithmetic.Term α) :
+  --   Term.realize v (Univ.all t) = Univ.all (Term.realize v t) := rfl
+
+  -- @[simp] theorem realize_ex (t : peanoarithmetic.Term α) :
+  --   Term.realize v (Ex.ex t) = Ex.ex (Term.realize v t) := rfl
+
+  -- instance : Succ ℕ := ⟨Nat.succ⟩
+  -- instance : Add ℕ := ⟨Nat.add⟩
+  -- instance : Mul ℕ := ⟨Nat.mul⟩
+  -- instance : Neg ℕ := ⟨fun _ => 0⟩
+  -- instance : Min ℕ := ⟨Nat.min⟩
+  -- instance : Max ℕ := ⟨Nat.max⟩
+
+  -- instance : Imp ℕ := ⟨fun x y => if x ≤ y then y else x⟩
+  -- instance : Univ ℕ := ⟨id⟩
+  -- instance : Ex ℕ := ⟨id⟩
+
+  -- def r : ℕ → ℕ := fun x => x
+
+  -- #eval Term.realize r (S(S(0) + S(0)) : peanoarithmetic.Term ℕ)
+  -- #eval Term.realize r (S(S(S(0))) * S(S(S(0))) : peanoarithmetic.Term ℕ)
+  -- #eval Term.realize r (null + null)
+
+  -- end
 
   section Coding
     variable {k : ℕ}
@@ -408,6 +410,7 @@ namespace Language.peanoarithmetic
   end Coding
 
 namespace TermEncoding
+
   variable {L : Language}[∀i, Encodable (L.Functions i)][∀i, Encodable (L.Relations i)]
   /-- Encodes terms as natural numbers -/
   def term_tonat : Term L (ℕ ⊕ Fin 0) → ℕ :=
@@ -420,6 +423,10 @@ namespace TermEncoding
     fun f => Encodable.encodeList (BoundedFormula.listEncode f)
   def formula_tonat {n : ℕ} : BoundedFormula L ℕ n → ℕ :=
     fun f => Encodable.encodeList (BoundedFormula.listEncode f)
+
+notation "⌜" t "⌝" => peanoarithmetic.numeral (term_tonat t)
+notation "⌜" t "⌝" => peanoarithmetic.numeral (sentence_term_tonat t)
+notation "⌜" φ "⌝" => peanoarithmetic.numeral (formula_tonat φ)
 
 end TermEncoding
 
