@@ -241,22 +241,34 @@ namespace Language.peanoarithmetic
   instance: MaxDot M where
     maxdot α β := or_repres ![α, β]
 
-  instance : IsVar ((Fin 1 → M) → Prop) where
-    var := var_prop
+  class IsVarDot (α : Type u) where
+    vardot : (Fin 1 → α) → Prop
 
-  instance : IsConst ((Fin 1 → M) → Prop) where
-    const := const_prop
+  class IsConstDot (α : Type u) where
+    constdot : (Fin 1 → α) → Prop
 
-  instance : IsTerm ((Fin 1 → M) → Prop) where
-    term := term_prop
+  class IsTermDot (α : Type u) where
+    termdot : (Fin 1 → α) → Prop
 
-  instance : IsBdform ((Fin 1 → M) → Prop) where
-    bdform := bdform_prop
+  class IsBdformDot (α : Type u) where
+    bdformdot : (Fin 1 → α) → Prop
+
+  instance : IsVarDot M where
+    vardot := var_prop
+
+  instance : IsConstDot M where
+    constdot := const_prop
+
+  instance : IsTermDot M where
+    termdot := term_prop
+
+  instance : IsBdformDot M where
+    bdformdot := bdform_prop
 
   variable [Zero M] [Succ M] [Add M] [Mul M]
   [NegDot M] [MinDot M] [MaxDot M]
   [Imp M] [Univ M] [Ex M]
-  [IsVar ((Fin 1 → M) → Prop)] [IsConst ((Fin 1 → M) → Prop)] [IsTerm ((Fin 1 → M) → Prop)] [IsBdform ((Fin 1 → M) → Prop)]
+  [IsVarDot M] [IsConstDot M] [IsTermDot M] [IsBdformDot M]
 
   instance : peanoarithmetic.Structure M where
     funMap
@@ -271,10 +283,10 @@ namespace Language.peanoarithmetic
     | .all, v => Univ.all (v 0)
     | .ex, v => Ex.ex (v 0)
     RelMap
-    | .var, v => (IsVar.var : (Fin 1 → M) → Prop) v
-    | .const, v => (IsConst.const : (Fin 1 → M) → Prop) v
-    | .term, v => (IsTerm.term : (Fin 1 → M) → Prop) v
-    | .bdform, v => (IsBdform.bdform : (Fin 1 → M) → Prop) v
+    | .var, v => IsVarDot.vardot v
+    | .const, v => IsConstDot.constdot v
+    | .term, v => IsTermDot.termdot v
+    | .bdform, v => IsTermDot.termdot v
 
   end Structure
 
@@ -283,7 +295,7 @@ namespace Language.peanoarithmetic
   variable [Zero M] [Succ M] [Add M] [Mul M]
   [NegDot M] [MinDot M] [MaxDot M]
   [Imp M] [Univ M] [Ex M]
-  [IsVar ((Fin 1 → M) → Prop)] [IsConst ((Fin 1 → M) → Prop)] [IsTerm ((Fin 1 → M) → Prop)] [IsBdform ((Fin 1 → M) → Prop)]
+  [IsVarDot M] [IsConstDot M] [IsTermDot M] [IsBdformDot M]
 
 
   @[simp] theorem funMap_zero {v} :
@@ -345,17 +357,28 @@ namespace Language.peanoarithmetic
   @[simp] theorem realize_ex (t : peanoarithmetic.Term α) :
     Term.realize v (Ex.ex t) = Ex.ex (Term.realize v t) := rfl
 
-  -- instance : Succ ℕ := ⟨Nat.succ⟩
-  -- instance : Add ℕ := ⟨Nat.add⟩
-  -- instance : Mul ℕ := ⟨Nat.mul⟩
-  -- instance : NegDot ℕ :=
+  -- def unary_placeholder
 
+  instance : Succ ℕ := ⟨Nat.succ⟩
+  instance : Add ℕ := ⟨Nat.add⟩
+  instance : Mul ℕ := ⟨Nat.mul⟩
+  instance : NegDot ℕ := ⟨id⟩
+  instance : MinDot ℕ := ⟨fun _ _ => 0⟩
+  instance : MaxDot ℕ := ⟨fun _ _ => 0⟩
+  instance : Imp ℕ := ⟨fun _ _ => 0⟩
+  instance : Univ ℕ := ⟨fun _ => 0⟩
+  instance : Ex ℕ := ⟨fun _ => 0⟩
 
-  -- def r : ℕ → ℕ := fun x => x
+  instance : IsVarDot ℕ := ⟨fun _ => False⟩
+  instance : IsConstDot ℕ := ⟨fun _ => False⟩
+  instance : IsTermDot ℕ := ⟨fun _ => False⟩
+  instance : IsBdformDot ℕ := ⟨fun _ => False⟩
 
-  -- #eval Term.realize r (S(S(0) + S(0)) : peanoarithmetic.Term ℕ)
-  -- #eval Term.realize r (S(S(S(0))) * S(S(S(0))) : peanoarithmetic.Term ℕ)
-  -- #eval Term.realize r (null + null)
+  def r : ℕ → ℕ := fun x => x
+
+  #eval Term.realize r (S(S(0) + S(0)) : peanoarithmetic.Term ℕ)
+  #eval Term.realize r (S(S(S(0))) * S(S(S(0))) : peanoarithmetic.Term ℕ)
+  #eval Term.realize r (null + null)
 
   end
 
