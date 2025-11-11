@@ -25,19 +25,20 @@ theorem peano_axioms_hold (r : Empty → ℕ) :
   intro φ h
   cases h
   case first =>
-    intro n
-    simp [BoundedFormula.Realize]
+    intro x
+    exact Nat.zero_ne_add_one x
   case second =>
-    intro n
-    simp [BoundedFormula.Realize]
-    sorry
+    intro x y hxy
+    exact Nat.succ_injective hxy
   case third =>
     intro x
-    simp [Term.realize]
-    sorry
+    exact Nat.add_zero x
   case fourth =>
-    sorry
+    intro x y
+    exact Nat.add_succ y x
   case fifth =>
-    sorry
+    intro x
+    exact Nat.mul_zero x
   case sixth =>
-    sorry
+    intro x y
+    exact Nat.mul_succ y x

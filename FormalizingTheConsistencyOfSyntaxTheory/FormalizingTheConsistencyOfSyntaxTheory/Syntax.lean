@@ -541,8 +541,6 @@ open TermEncoding
 
   theorem first_axiomholds : BoundedFormula.Realize first_axiom r 0 := by
     intro n
-    simp [BoundedFormula.Realize]
-    push_neg
     exact Nat.zero_ne_add_one n
 
   end
