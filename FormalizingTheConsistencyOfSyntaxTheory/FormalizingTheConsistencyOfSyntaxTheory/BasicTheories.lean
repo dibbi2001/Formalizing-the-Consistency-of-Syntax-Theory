@@ -17,8 +17,6 @@ inductive peano_axioms : ℒ.Theory where
   | fifth : peano_axioms (∀' ((&0 times null) =' null))
   | sixth : peano_axioms (∀' ∀' ((&1 times S(&0)) =' ((&1 times &0)) add &1))
 
-def r : ℕ → ℕ := fun x => x
-
 /-- all Peano axioms hold in `nat_structure` (ℕ). -/
 theorem peano_axioms_hold (r : Empty → ℕ) :
   ∀ {φ}, peano_axioms φ → BoundedFormula.Realize (L := peanoarithmetic) φ r ![] := by
