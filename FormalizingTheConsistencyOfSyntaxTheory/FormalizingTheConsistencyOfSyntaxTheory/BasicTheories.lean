@@ -1,9 +1,9 @@
-import FormalizingTheConsistencyOfSyntaxTheory.Syntax
+import FormalizingTheConsistencyOfSyntaxTheory.BasicSyntax
+import FormalizingTheConsistencyOfSyntaxTheory.BasicSemantics
 
 open FirstOrder
 open Language
 open peanoarithmetic
-open Structure
 
 variable {α : Type*}
 
