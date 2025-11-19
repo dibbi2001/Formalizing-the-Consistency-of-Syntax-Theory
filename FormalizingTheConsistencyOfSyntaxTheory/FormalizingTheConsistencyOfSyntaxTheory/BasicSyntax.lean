@@ -1,6 +1,11 @@
 import Mathlib.ModelTheory.Semantics
 import Mathlib.ModelTheory.Encoding
 
+/-This file contains a tostring function, encoding function and some notation for boundedformulas,
+that was already defined in a previous project by B.J.G. Swaanen.
+[Formalizing Axiomatic Theories of Truth] (https://github.com/ppls-nd-prs/formalizing-axiomatic-theories-of-truth)
+-/
+
 open FirstOrder
 open Language
 
@@ -324,6 +329,17 @@ open TermEncoding
 
 #eval ((S(null) + S(S(null)) : Term peanoarithmetic ℕ))
 #eval (peanoarithmetic.null + peanoarithmetic.null : Term peanoarithmetic ℕ)
+
+namespace BoundedFormula
+  variable {L : Language}{α : Type}{n : ℕ}
+
+  def land (f₁ f₂: BoundedFormula L α n) :=
+    ∼(f₁ ⟹ ∼f₂)
+  scoped notation f₁ "∧'" f₂ => land f₁ f₂
+  def lor (f₁ f₂ : BoundedFormula L α n) :=
+    ((∼f₁) ⟹ f₂)
+  scoped notation f₁ "∨'" f₂ => lor f₁ f₂
+end BoundedFormula
 
 
 end Language.peanoarithmetic

@@ -190,3 +190,123 @@ theorem first_axiomholds : BoundedFormula.Realize first_axiom r 0 := by
   exact Nat.zero_ne_add_one n
 
 end
+
+open TermEncoding
+
+variable {L : Language}
+variable [∀ i, Encodable (L.Functions i)]
+variable [∀ i, Encodable (L.Relations i)]
+variable {α : Type} [DecidableEq α] [Encodable α]
+
+namespace TermDecoding
+
+  variable {L : Language}[∀i, Encodable (L.Functions i)][∀i, Encodable (L.Relations i)]
+
+  def term_ofnat : ℕ → Option (Term L (ℕ ⊕ Fin 0))
+    | k =>
+      match Encodable.decodeList k with
+      | none      => none
+      | some lst  =>
+        match Term.listDecode lst with
+        | []      => none
+        | t :: _  => some t    -- first decoded term
+
+  def sentence_term_ofnat : ℕ → Option (Term L (Empty ⊕ Fin 0))
+    | k =>
+      match Encodable.decodeList k with
+      | none      => none
+      | some lst  =>
+        match Term.listDecode lst with
+        | []      => none
+        | t :: _  => some t
+
+  def formula_ofnat_general (k : ℕ) : Option (Σ n, BoundedFormula L ℕ n) :=
+    match Encodable.decodeList k with
+    | none      => none
+    | some lst  =>
+      match BoundedFormula.listDecode lst with
+      | []      => none
+      | x :: _  => some x      -- x : Σ n, BoundedFormula L ℕ n
+
+  def formula_ofnat {n : ℕ} (k : ℕ) : Option (BoundedFormula L ℕ n) :=
+    match formula_ofnat_general k with
+    | some ⟨m, φ⟩ =>
+        if h : m = n then some (h ▸ φ) else none
+    | none => none
+
+  def sent_ofnat (k : ℕ) : Option (BoundedFormula L Empty 0) :=
+    match Encodable.decodeList k with
+    | none      => none
+    | some lst  =>
+      match BoundedFormula.listDecode (α := Empty) lst with
+      | []              => none
+      | ⟨n, φ⟩ :: _     =>
+          if h : n = 0 then some (h ▸ φ) else none
+
+
+  section natCoding
+  open BoundedFormula
+
+    -- /-- Negation on encoded formulas. Returns #¬φ if n encodes a formula, n otherwise. -/
+    -- def neg_repres_0 (k : ℕ) {n : ℕ} : ℕ :=
+    --   match formula_ofnat_general k with
+    --   | some φ => formula_tonat (BoundedFormula.not φ)
+    --   | none   => k
+
+    -- def neg_repres_1 (n : ℕ) (k : List ((k : ℕ) × L.Term (ℕ ⊕ Fin 0) × L.Relations n ⊕ ℕ)) (φ : BoundedFormula L ℕ n): ℕ :=
+    --   match Encodable.decodeList (BoundedFormula.listDecode k) with
+    --   | some φ => formula_tonat (BoundedFormula.not φ)
+    --   | none   => n
+
+    def neg_repres_2 {n : ℕ} (k : ℕ) (i : Option (BoundedFormula L ℕ n)) : ℕ :=
+      match i with
+      | some φ => formula_tonat (BoundedFormula.not φ)
+      | none   => k
+
+    def neg_repres {n : ℕ} (k : ℕ) : ℕ :=
+      match formula_ofnat (n := n) k with
+      | some (φ : BoundedFormula L ℕ n) =>
+          formula_tonat (BoundedFormula.not φ)
+      | none =>
+          k
+
+    def and_repres {n : ℕ} (k₁ k₂ : ℕ) : ℕ :=
+      match formula_ofnat (n := n) k₁, formula_ofnat (n := n) k₂ with
+      | some (φ : BoundedFormula L ℕ n), some (ψ : BoundedFormula L ℕ n) =>
+          formula_tonat (φ ∧' ψ)
+      | some (φ : BoundedFormula L ℕ n), none =>
+          formula_tonat φ
+      | none, some (ψ : BoundedFormula L ℕ n) =>
+          formula_tonat ψ
+      | none, none =>
+          Nat.min k₁ k₂
+
+    def or_repres {n : ℕ} (k₁ k₂ : ℕ) : ℕ :=
+      match formula_ofnat (n := n) k₁, formula_ofnat (n := n) k₂ with
+      | some (φ : BoundedFormula L ℕ n), some (ψ : BoundedFormula L ℕ n) =>
+          formula_tonat (φ ∨' ψ)
+      | some (φ : BoundedFormula L ℕ n), none =>
+          formula_tonat φ
+      | none, some (ψ : BoundedFormula L ℕ n) =>
+          formula_tonat ψ
+      | none, none =>
+          Nat.min k₁ k₂
+
+    def imp_repres {n : ℕ} (k₁ k₂ : ℕ) : ℕ :=
+      match formula_ofnat (n := n) k₁, formula_ofnat (n := n) k₂ with
+      | some (φ : BoundedFormula L ℕ n), some (ψ : BoundedFormula L ℕ n) =>
+          formula_tonat (BoundedFormula.imp φ ψ)
+      | some (φ : BoundedFormula L ℕ n), none =>
+          formula_tonat φ
+      | none, some (ψ : BoundedFormula L ℕ n) =>
+          formula_tonat ψ
+      | none, none =>
+          Nat.min k₁ k₂
+
+
+
+
+
+
+  end natCoding
+end TermDecoding
