@@ -302,11 +302,25 @@ namespace TermDecoding
           Nat.min k₁ k₂
 
 def φ : BoundedFormula ℒ ℕ 1 := BoundedFormula.equal (null) (null)
+def ψ : BoundedFormula ℒ Empty 0 := (∀' ∀' ((&1 times S(&0)) =' ((&1 times &0)) add &1))
+def t : Term ℒ (ℕ ⊕ Fin 0) := S(S(null))
+def s : Term ℒ (Empty ⊕ Fin 0) := null
 
 #eval formula_tonat φ
+#eval term_tonat (L := ℒ) t
+#eval sentence_term_tonat s
+#eval sent_tonat ψ
+
 -- #eval (⌜ φ ⌝)
 
 #eval formula_ofnat (L := ℒ) (n := 1) (formula_tonat (L := ℒ) φ)
+#eval formula_ofnat (L := ℒ) (n := 1) (13442315822)
+
+#eval term_ofnat (L := ℒ) (term_tonat t)
+#eval sentence_term_ofnat (L := ℒ) (sentence_term_tonat (L := ℒ) s) --add tostr fun for closed terms?
+
+#eval sent_ofnat (L := ℒ) (sent_tonat (L := ℒ) ψ) --add tostr fun for sentences??
+
 
 
   end NatCoding
