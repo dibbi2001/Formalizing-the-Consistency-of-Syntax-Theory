@@ -194,9 +194,7 @@ end
 open TermEncoding
 
 variable {L : Language}
-variable [∀ i, Encodable (L.Functions i)]
-variable [∀ i, Encodable (L.Relations i)]
-variable {α : Type} [DecidableEq α] [Encodable α]
+variable [∀ i, Encodable (L.Functions i)] [∀ i, Encodable (L.Relations i)]
 
 namespace TermDecoding
 
@@ -222,11 +220,11 @@ namespace TermDecoding
 
   def formula_ofnat_general (k : ℕ) : Option (Σ n, BoundedFormula L ℕ n) :=
     match Encodable.decodeList k with
-    | none      => none
-    | some lst  =>
-      match BoundedFormula.listDecode lst with
-      | []      => none
-      | x :: _  => some x      -- x : Σ n, BoundedFormula L ℕ n
+    | none     => none
+    | some lst =>
+      match BoundedFormula.listDecode (α := ℕ) lst with
+      | []     => none
+      | x :: _ => some x
 
   def formula_ofnat {n : ℕ} (k : ℕ) : Option (BoundedFormula L ℕ n) :=
     match formula_ofnat_general k with
@@ -244,7 +242,7 @@ namespace TermDecoding
           if h : n = 0 then some (h ▸ φ) else none
 
 
-  section natCoding
+  section NatCoding
   open BoundedFormula
 
     -- /-- Negation on encoded formulas. Returns #¬φ if n encodes a formula, n otherwise. -/
@@ -303,10 +301,13 @@ namespace TermDecoding
       | none, none =>
           Nat.min k₁ k₂
 
+def φ : BoundedFormula ℒ ℕ 1 := BoundedFormula.equal (null) (null)
+
+#eval formula_tonat φ
+-- #eval (⌜ φ ⌝)
+
+#eval formula_ofnat (L := ℒ) (n := 1) (formula_tonat (L := ℒ) φ)
 
 
-
-
-
-  end natCoding
+  end NatCoding
 end TermDecoding
