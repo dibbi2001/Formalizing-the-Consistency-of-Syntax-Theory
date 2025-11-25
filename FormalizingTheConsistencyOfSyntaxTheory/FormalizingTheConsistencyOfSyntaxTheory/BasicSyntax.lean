@@ -298,9 +298,10 @@ namespace Language.peanoarithmetic
 
   end Coding
 
+variable {L : Language}[∀i, Encodable (L.Functions i)][∀i, Encodable (L.Relations i)]
+
 namespace TermEncoding
 
-  variable {L : Language}[∀i, Encodable (L.Functions i)][∀i, Encodable (L.Relations i)]
   /-- Encodes terms as natural numbers -/
   def term_tonat : Term L (ℕ ⊕ Fin 0) → ℕ :=
     fun t => Encodable.encodeList (Term.listEncode t)
@@ -318,6 +319,50 @@ notation "⌜" t "⌝" => peanoarithmetic.numeral (sentence_term_tonat t)
 notation "⌜" φ "⌝" => peanoarithmetic.numeral (formula_tonat φ)
 
 end TermEncoding
+
+namespace TermDecoding
+ def term_ofnat : ℕ → Option (Term L (ℕ ⊕ Fin 0))
+    | k =>
+      match Encodable.decodeList k with
+      | none      => none
+      | some lst  =>
+        match Term.listDecode lst with
+        | []      => none
+        | t :: _  => some t    -- first decoded term
+
+  def sentence_term_ofnat : ℕ → Option (Term L (Empty ⊕ Fin 0))
+    | k =>
+      match Encodable.decodeList k with
+      | none      => none
+      | some lst  =>
+        match Term.listDecode lst with
+        | []      => none
+        | t :: _  => some t
+
+  def formula_ofnat_general (k : ℕ) : Option (Σ n, BoundedFormula L ℕ n) :=
+    match Encodable.decodeList k with
+    | none     => none
+    | some lst =>
+      match BoundedFormula.listDecode (α := ℕ) lst with
+      | []     => none
+      | x :: _ => some x
+
+  def formula_ofnat (k : ℕ) : Option (BoundedFormula L ℕ n) :=
+    match formula_ofnat_general k with
+    | some ⟨m, φ⟩ =>
+        if h : m = n then some (h ▸ φ) else none
+    | none => none
+
+  def sent_ofnat (k : ℕ) : Option (BoundedFormula L Empty 0) :=
+    match Encodable.decodeList k with
+    | none      => none
+    | some lst  =>
+      match BoundedFormula.listDecode (α := Empty) lst with
+      | []              => none
+      | ⟨n, φ⟩ :: _     =>
+          if h : n = 0 then some (h ▸ φ) else none
+
+end TermDecoding
 
 open TermEncoding
 
@@ -341,7 +386,5 @@ namespace BoundedFormula
   scoped notation f₁ "∨'" f₂ => lor f₁ f₂
 end BoundedFormula
 
-
 end Language.peanoarithmetic
-
 end FirstOrder

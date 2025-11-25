@@ -8,7 +8,6 @@ open peanoarithmetic
 variable {α : Type*}
 
 /-- Peano arithemtic -/
-
 inductive peano_axioms : ℒ.Theory where
   | first : peano_axioms (∀' ∼(null =' S(&0)))
   | second :peano_axioms (∀' ∀' ((S(&1) =' S(&0)) ⟹ (&1 =' &0)))

@@ -8,7 +8,7 @@ open peanoarithmetic
 variable {α : Type*} {n : ℕ} {M : Type*} {v : α → M}
 universe u
 
-section Structure
+namespace Structure
 
 variable (neg_repres : (Fin 1 → M) → M) (and_repres : (Fin 2 → M) → M) (or_repres : (Fin 2 → M) → M)
 (var_prop : (Fin 1 → M) → Prop) (const_prop : (Fin 1 → M) → Prop) (term_prop : (Fin 1 → M) → Prop) (bdform_prop : (Fin 1 → M) → Prop)
@@ -78,16 +78,8 @@ instance : peanoarithmetic.Structure M where
   | .term, v => IsTermDot.termdot v
   | .bdform, v => IsBdformDot.bdformdot v
 
-end Structure
 
 section
-
-variable [Zero M] [Succ M] [Add M] [Mul M]
-[NegDot M] [MinDot M] [MaxDot M]
-[Imp M] [Univ M] [Ex M]
-[IsVarDot M] [IsConstDot M] [IsTermDot M] [IsBdformDot M]
-
-
 @[simp] theorem funMap_zero {v} :
   Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.zero v = 0 := rfl
 
@@ -147,181 +139,144 @@ Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.add v = v 0
 @[simp] theorem realize_ex (t : peanoarithmetic.Term α) :
   Term.realize v (Ex.ex t) = Ex.ex (Term.realize v t) := rfl
 
-
-def nat_structure : peanoarithmetic.Structure ℕ where
-  funMap
-  | .zero, _  => 0
-  | .succ, v  => Nat.succ (v 0)
-  | .add, v   => v 0 + v 1
-  | .mult, v  => v 0 * v 1
-  | .neg, v   => v 0
-  | .and, v   => 0
-  | .or, v    => 0
-  | .imp, v   => 0
-  | .all, v   => 0
-  | .ex, v    => 0
-
-  RelMap
-  | .var, _    => False
-  | .const, _  => False
-  | .term, _   => False
-  | .bdform, _ => False
-
-instance : peanoarithmetic.Structure ℕ := nat_structure
-
-def r : ℕ → ℕ := fun x => x
-
-def first_axiom : ℒ.BoundedFormula ℕ 0 :=
-  (∀' ∼(null =' S(&0)))
-
-def s : ℕ → ℕ := id
-
-#eval Term.realize r (S(S(0) + S(0)) : peanoarithmetic.Term ℕ)
-#eval Term.realize r (S(S(S(0))) * S(S(S(0))) : peanoarithmetic.Term ℕ)
-#eval Term.realize r (null + null)
-#eval Term.realize r (S(null) ⬝⟹ S(null))
-#eval Term.realize r (.var 2 : peanoarithmetic.Term ℕ)
-#reduce BoundedFormula.Realize first_axiom s ![]
-
-#check BoundedFormula.Realize first_axiom r 0
-
-theorem first_axiomholds : BoundedFormula.Realize first_axiom r 0 := by
-  intro n
-  exact Nat.zero_ne_add_one n
-
 end
 
+namespace ModelN
+  def nat_structure : peanoarithmetic.Structure ℕ where
+    funMap
+    | .zero, _  => 0
+    | .succ, v  => Nat.succ (v 0)
+    | .add, v   => v 0 + v 1
+    | .mult, v  => v 0 * v 1
+    | .neg, v   => v 0
+    | .and, v   => 0
+    | .or, v    => 0
+    | .imp, v   => 0
+    | .all, v   => 0
+    | .ex, v    => 0
+
+    RelMap
+    | .var, _    => False
+    | .const, _  => False
+    | .term, _   => False
+    | .bdform, _ => False
+
+  instance : peanoarithmetic.Structure ℕ := nat_structure
+
+  def r : ℕ → ℕ := fun x => x
+
+  def first_axiom : ℒ.BoundedFormula ℕ 0 :=
+    (∀' ∼(null =' S(&0)))
+
+  def p : ℕ → ℕ := id
+
+  #eval Term.realize r (S(S(0) + S(0)) : peanoarithmetic.Term ℕ)
+  #eval Term.realize r (S(S(S(0))) * S(S(S(0))) : peanoarithmetic.Term ℕ)
+  #eval Term.realize r (null + null)
+  #eval Term.realize r (S(null) ⬝⟹ S(null))
+  #eval Term.realize r (.var 2 : peanoarithmetic.Term ℕ)
+  #reduce BoundedFormula.Realize first_axiom p ![]
+
+  #check BoundedFormula.Realize first_axiom r 0
+
+  theorem first_axiomholds : BoundedFormula.Realize first_axiom r 0 := by
+    intro n
+    exact Nat.zero_ne_add_one n
+
+end ModelN
+end Structure
+
 open TermEncoding
+open TermDecoding
+open BoundedFormula
 
-variable {L : Language}
-variable [∀ i, Encodable (L.Functions i)] [∀ i, Encodable (L.Relations i)]
+variable {L : Language}[∀i, Encodable (L.Functions i)][∀i, Encodable (L.Relations i)]
 
-namespace TermDecoding
+namespace NatCoding
+  -- /-- Negation on encoded formulas. Returns #¬φ if n encodes a formula, n otherwise. -/
+  -- def neg_repres_0 (k : ℕ) {n : ℕ} : ℕ :=
+  --   match formula_ofnat_general k with
+  --   | some φ => formula_tonat (BoundedFormula.not φ)
+  --   | none   => k
 
-  variable {L : Language}[∀i, Encodable (L.Functions i)][∀i, Encodable (L.Relations i)]
+  -- def neg_repres_1 (n : ℕ) (k : List ((k : ℕ) × L.Term (ℕ ⊕ Fin 0) × L.Relations n ⊕ ℕ)) (φ : BoundedFormula L ℕ n): ℕ :=
+  --   match Encodable.decodeList (BoundedFormula.listDecode k) with
+  --   | some φ => formula_tonat (BoundedFormula.not φ)
+  --   | none   => n
 
-  def term_ofnat : ℕ → Option (Term L (ℕ ⊕ Fin 0))
-    | k =>
-      match Encodable.decodeList k with
-      | none      => none
-      | some lst  =>
-        match Term.listDecode lst with
-        | []      => none
-        | t :: _  => some t    -- first decoded term
+  -- def neg_repres_2 {n : ℕ} (k : ℕ) (i : Option (BoundedFormula L ℕ n)) : ℕ :=
+  --   match i with
+  --   | some φ => formula_tonat (BoundedFormula.not φ)
+  --   | none   => k
 
-  def sentence_term_ofnat : ℕ → Option (Term L (Empty ⊕ Fin 0))
-    | k =>
-      match Encodable.decodeList k with
-      | none      => none
-      | some lst  =>
-        match Term.listDecode lst with
-        | []      => none
-        | t :: _  => some t
+  def neg_repres (k : ℕ) : ℕ :=
+    match formula_ofnat (n := n) k with
+    | some (φ : BoundedFormula L ℕ n) =>
+        formula_tonat (BoundedFormula.not φ)
+    | none =>
+        k
 
-  def formula_ofnat_general (k : ℕ) : Option (Σ n, BoundedFormula L ℕ n) :=
-    match Encodable.decodeList k with
-    | none     => none
-    | some lst =>
-      match BoundedFormula.listDecode (α := ℕ) lst with
-      | []     => none
-      | x :: _ => some x
+  def and_repres (k₁ k₂ : ℕ) : ℕ :=
+    match formula_ofnat (n := n) k₁, formula_ofnat (n := n) k₂ with
+    | some (φ : BoundedFormula L ℕ n), some (ψ : BoundedFormula L ℕ n) =>
+        formula_tonat (φ ∧' ψ)
+    | some (φ : BoundedFormula L ℕ n), none =>
+        formula_tonat φ
+    | none, some (ψ : BoundedFormula L ℕ n) =>
+        formula_tonat ψ
+    | none, none =>
+        Nat.min k₁ k₂
 
-  def formula_ofnat {n : ℕ} (k : ℕ) : Option (BoundedFormula L ℕ n) :=
-    match formula_ofnat_general k with
-    | some ⟨m, φ⟩ =>
-        if h : m = n then some (h ▸ φ) else none
-    | none => none
+  def or_repres (k₁ k₂ : ℕ) : ℕ :=
+    match formula_ofnat (n := n) k₁, formula_ofnat (n := n) k₂ with
+    | some (φ : BoundedFormula L ℕ n), some (ψ : BoundedFormula L ℕ n) =>
+        formula_tonat (φ ∨' ψ)
+    | some (φ : BoundedFormula L ℕ n), none =>
+        formula_tonat φ
+    | none, some (ψ : BoundedFormula L ℕ n) =>
+        formula_tonat ψ
+    | none, none =>
+        Nat.min k₁ k₂
 
-  def sent_ofnat (k : ℕ) : Option (BoundedFormula L Empty 0) :=
-    match Encodable.decodeList k with
-    | none      => none
-    | some lst  =>
-      match BoundedFormula.listDecode (α := Empty) lst with
-      | []              => none
-      | ⟨n, φ⟩ :: _     =>
-          if h : n = 0 then some (h ▸ φ) else none
+  def imp_repres (k₁ k₂ : ℕ) : ℕ :=
+    match formula_ofnat (n := n) k₁, formula_ofnat (n := n) k₂ with
+    | some (φ : BoundedFormula L ℕ n), some (ψ : BoundedFormula L ℕ n) =>
+        formula_tonat (BoundedFormula.imp φ ψ)
+    | some (φ : BoundedFormula L ℕ n), none =>
+        formula_tonat φ
+    | none, some (ψ : BoundedFormula L ℕ n) =>
+        formula_tonat ψ
+    | none, none =>
+        Nat.min k₁ k₂
 
+  def all_repres (k : ℕ) : ℕ :=
+    match (formula_ofnat (n := n + 1) k : Option (BoundedFormula L ℕ (n + 1))) with
+    | some (φ : BoundedFormula L ℕ (n + 1)) => formula_tonat (BoundedFormula.all φ)
+    | none => k
 
-  section NatCoding
-  open BoundedFormula
+  def ex_repres (k : ℕ) : ℕ :=
+    match (formula_ofnat (n := n + 1) k : Option (BoundedFormula L ℕ (n + 1))) with
+    | some (φ : BoundedFormula L ℕ (n + 1)) => formula_tonat (BoundedFormula.ex φ)
+    | none => k
 
-    -- /-- Negation on encoded formulas. Returns #¬φ if n encodes a formula, n otherwise. -/
-    -- def neg_repres_0 (k : ℕ) {n : ℕ} : ℕ :=
-    --   match formula_ofnat_general k with
-    --   | some φ => formula_tonat (BoundedFormula.not φ)
-    --   | none   => k
+  def φ : BoundedFormula ℒ ℕ 1 := BoundedFormula.equal (null) (null)
+  def ψ : BoundedFormula ℒ Empty 0 := (∀' ∀' ((&1 times S(&0)) =' ((&1 times &0)) add &1))
+  def t : Term ℒ (ℕ ⊕ Fin 0) := S(S(null))
+  def s : Term ℒ (Empty ⊕ Fin 0) := null
 
-    -- def neg_repres_1 (n : ℕ) (k : List ((k : ℕ) × L.Term (ℕ ⊕ Fin 0) × L.Relations n ⊕ ℕ)) (φ : BoundedFormula L ℕ n): ℕ :=
-    --   match Encodable.decodeList (BoundedFormula.listDecode k) with
-    --   | some φ => formula_tonat (BoundedFormula.not φ)
-    --   | none   => n
+  #eval formula_tonat φ
+  #eval term_tonat (L := ℒ) t
+  #eval sentence_term_tonat s
+  #eval sent_tonat ψ
 
-    def neg_repres_2 {n : ℕ} (k : ℕ) (i : Option (BoundedFormula L ℕ n)) : ℕ :=
-      match i with
-      | some φ => formula_tonat (BoundedFormula.not φ)
-      | none   => k
+  -- #eval (⌜ φ ⌝)
 
-    def neg_repres {n : ℕ} (k : ℕ) : ℕ :=
-      match formula_ofnat (n := n) k with
-      | some (φ : BoundedFormula L ℕ n) =>
-          formula_tonat (BoundedFormula.not φ)
-      | none =>
-          k
+  #eval formula_ofnat (L := ℒ) (n := 1) (formula_tonat (L := ℒ) φ)
+  #eval formula_ofnat (L := ℒ) (n := 1) (13442315822)
 
-    def and_repres {n : ℕ} (k₁ k₂ : ℕ) : ℕ :=
-      match formula_ofnat (n := n) k₁, formula_ofnat (n := n) k₂ with
-      | some (φ : BoundedFormula L ℕ n), some (ψ : BoundedFormula L ℕ n) =>
-          formula_tonat (φ ∧' ψ)
-      | some (φ : BoundedFormula L ℕ n), none =>
-          formula_tonat φ
-      | none, some (ψ : BoundedFormula L ℕ n) =>
-          formula_tonat ψ
-      | none, none =>
-          Nat.min k₁ k₂
+  #eval term_ofnat (L := ℒ) (term_tonat t)
+  -- #eval sentence_term_ofnat (L := ℒ) (sentence_term_tonat (L := ℒ) s) --add tostr fun for closed terms?
 
-    def or_repres {n : ℕ} (k₁ k₂ : ℕ) : ℕ :=
-      match formula_ofnat (n := n) k₁, formula_ofnat (n := n) k₂ with
-      | some (φ : BoundedFormula L ℕ n), some (ψ : BoundedFormula L ℕ n) =>
-          formula_tonat (φ ∨' ψ)
-      | some (φ : BoundedFormula L ℕ n), none =>
-          formula_tonat φ
-      | none, some (ψ : BoundedFormula L ℕ n) =>
-          formula_tonat ψ
-      | none, none =>
-          Nat.min k₁ k₂
+  -- #eval sent_ofnat (L := ℒ) (sent_tonat (L := ℒ) ψ) --add tostr fun for sentences??
 
-    def imp_repres {n : ℕ} (k₁ k₂ : ℕ) : ℕ :=
-      match formula_ofnat (n := n) k₁, formula_ofnat (n := n) k₂ with
-      | some (φ : BoundedFormula L ℕ n), some (ψ : BoundedFormula L ℕ n) =>
-          formula_tonat (BoundedFormula.imp φ ψ)
-      | some (φ : BoundedFormula L ℕ n), none =>
-          formula_tonat φ
-      | none, some (ψ : BoundedFormula L ℕ n) =>
-          formula_tonat ψ
-      | none, none =>
-          Nat.min k₁ k₂
-
-def φ : BoundedFormula ℒ ℕ 1 := BoundedFormula.equal (null) (null)
-def ψ : BoundedFormula ℒ Empty 0 := (∀' ∀' ((&1 times S(&0)) =' ((&1 times &0)) add &1))
-def t : Term ℒ (ℕ ⊕ Fin 0) := S(S(null))
-def s : Term ℒ (Empty ⊕ Fin 0) := null
-
-#eval formula_tonat φ
-#eval term_tonat (L := ℒ) t
-#eval sentence_term_tonat s
-#eval sent_tonat ψ
-
--- #eval (⌜ φ ⌝)
-
-#eval formula_ofnat (L := ℒ) (n := 1) (formula_tonat (L := ℒ) φ)
-#eval formula_ofnat (L := ℒ) (n := 1) (13442315822)
-
-#eval term_ofnat (L := ℒ) (term_tonat t)
-#eval sentence_term_ofnat (L := ℒ) (sentence_term_tonat (L := ℒ) s) --add tostr fun for closed terms?
-
-#eval sent_ofnat (L := ℒ) (sent_tonat (L := ℒ) ψ) --add tostr fun for sentences??
-
-
-
-  end NatCoding
-end TermDecoding
+end NatCoding
