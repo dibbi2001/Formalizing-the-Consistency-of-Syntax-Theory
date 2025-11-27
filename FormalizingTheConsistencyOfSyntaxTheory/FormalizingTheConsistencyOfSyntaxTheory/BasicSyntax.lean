@@ -45,6 +45,7 @@ namespace Term
 
     instance : Repr (Term L (α ⊕ β)) := ⟨fun t _ => toStr_oplus t⟩
     instance : ToString (Term L (α ⊕ β)) := ⟨toStr_oplus⟩
+
   end ToString
 end Term
 
@@ -75,6 +76,16 @@ namespace BoundedFormula
       apply Fin.mk val step2
 
 end BoundedFormula
+
+
+-- instance toStringEmpty : ToString Empty :=
+--   {toString := fun e => Empty.elim e}
+-- instance reprEmpty : Repr Empty :=
+--   {reprPrec := fun e _ => Empty.elim e}
+
+-- instance toStringFin {n : Nat} : ToString (Fin n) := { toString := fun f => toString (Fin.toNat f) }
+-- instance reprFin {n : Nat} : Repr (Fin n) := { reprPrec := fun f _ => toString (Fin.toNat f) }
+
 
 variable {α : Type*} {n : ℕ}
 universe u

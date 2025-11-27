@@ -259,7 +259,7 @@ namespace NatCoding
     | some (φ : BoundedFormula L ℕ (n + 1)) => formula_tonat (BoundedFormula.ex φ)
     | none => k
 
-  def φ : BoundedFormula ℒ ℕ 1 := BoundedFormula.equal (null) (null)
+  def φ : BoundedFormula ℒ ℕ 0 := BoundedFormula.equal (null) (null)
   def ψ : BoundedFormula ℒ Empty 0 := (∀' ∀' ((&1 times S(&0)) =' ((&1 times &0)) add &1))
   def t : Term ℒ (ℕ ⊕ Fin 0) := S(S(null))
   def s : Term ℒ (Empty ⊕ Fin 0) := null
