@@ -1,9 +1,11 @@
 import FormalizingTheConsistencyOfSyntaxTheory.BasicSyntax
 import FormalizingTheConsistencyOfSyntaxTheory.BasicSemantics
 
+
 open FirstOrder
 open Language
 open peanoarithmetic
+open BoundedFormula
 open TermEncoding
 open TermDecoding
 open NatCoding
@@ -43,15 +45,25 @@ theorem peano_axioms_hold (r : Empty → ℕ) :
     intro x y
     exact Nat.mul_succ y x
 
-def realize_zero_eq_zero (r : Fin 0 → ℕ) :
+lemma realize_zero_eq_zero (r : Fin 0 → ℕ) :
   BoundedFormula.Realize (BoundedFormula.equal null null) (fun x => x) r := by
   rfl
 
-def realize_eq_self (t : Term ℒ (ℕ ⊕ Fin 0)) (r : Fin 0 → ℕ) :
+lemma realize_eq_self (t : Term ℒ (ℕ ⊕ Fin 0)) (r : Fin 0 → ℕ) :
   BoundedFormula.Realize (BoundedFormula.equal t t) (fun x => x) r := by
   rfl
 
-def realize_numeral_eq_self (n : ℕ) (r : ℕ → ℕ) :
+lemma realize_boundedFormula_and (φ ψ : BoundedFormula ℒ ℕ 0) (r : Fin 0 → ℕ) :
+  BoundedFormula.Realize (φ ∧' ψ) (fun x => x) r := by
+  simp [BoundedFormula.land, BoundedFormula.Realize]
+  apply And.intro
+  sorry
+  sorry
+
+
+
+
+lemma realize_numeral_eq_self (n : ℕ) (r : ℕ → ℕ) :
   Term.realize r (numeral n) = n := by
   induction n with
   | zero =>
