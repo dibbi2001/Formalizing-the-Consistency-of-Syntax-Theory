@@ -91,6 +91,7 @@ variable {α : Type*} {n : ℕ}
 universe u
 
 namespace FirstOrder
+namespace Language
 namespace Lo
 inductive LoFunc : ℕ → Type _ where
   | zero : LoFunc 0
@@ -111,70 +112,69 @@ def funToStr {n}: LoFunc n → String
   | .mult => "×"
 instance {n : ℕ}: ToString (Language.Lo.Functions n) := ⟨funToStr⟩
 
-namespace Language.Lo
-  -- Syntax
-  instance : Zero (Lo.Term α) where
-    zero := Constants.term .zero
+-- Syntax
+instance : Zero (Term Language.Lo α) where
+  zero := Constants.term .zero
 
-  -- some nice definitions
-  def null : Term Lo α :=
-    Constants.term .zero
+-- some nice definitions
+def null : Term Language.Lo α :=
+  Constants.term .zero
 
-  def numeral : ℕ → Lo.Term ℕ
-    | .zero => null
-    | .succ n => Term.func LoFunc.succ (λ _ => numeral n)
+def numeral : ℕ → Term Language.Lo ℕ
+  | .zero => null
+  | .succ n => Term.func LoFunc.succ (λ _ => numeral n)
 
-  -- Syntax
-  class Succ (α : Type u) where
-    succ : α → α
+-- Syntax
+class Succ (α : Type u) where
+  succ : α → α
 
-  instance : Succ (Lo.Term α) where
-    succ := Functions.apply₁ .succ
+instance : Succ (Term Language.Lo α) where
+  succ := Functions.apply₁ .succ
 
-  instance : Add (Lo.Term α) where
-    add := Functions.apply₂ .add
+instance : Add (Term Language.Lo α) where
+  add := Functions.apply₂ .add
 
-  instance : Mul (Lo.Term α) where
-    mul := Functions.apply₂ .mult
+instance : Mul (Term Language.Lo α) where
+  mul := Functions.apply₂ .mult
 
-  section Coding
-    variable {k : ℕ}
-    def Func_enc : Lo.Functions k → ℕ
-      | .zero => Nat.pair 0 0 + 1
-      | .succ => Nat.pair 1 0 + 1
-      | .add => Nat.pair 2 0 + 1
-      | .mult => Nat.pair 2 1 + 1
+section Coding
+  variable {k : ℕ}
+  def Func_enc : Language.Lo.Functions k → ℕ
+    | .zero => Nat.pair 0 0 + 1
+    | .succ => Nat.pair 1 0 + 1
+    | .add => Nat.pair 2 0 + 1
+    | .mult => Nat.pair 2 1 + 1
 
-    def Func_dec : (n : ℕ) → Option (Lo.Functions k)
-      | 0 => none
-      | e + 1 =>
-        match k with
-          | 0 =>
-            match e.unpair.2 with
-              | 0 => some (.zero)
-              | _ => none
-          | 1 =>
-            match e.unpair.2 with
-              | 0 => some (.succ)
-              | _ => none
-          | 2 =>
-            match e.unpair.2 with
-              | 0 => some (.add)
-              | 1 => some (.mult)
-              | _ => none
-          | _ => none
+  def Func_dec : (n : ℕ) → Option (Language.Lo.Functions k)
+    | 0 => none
+    | e + 1 =>
+      match k with
+        | 0 =>
+          match e.unpair.2 with
+            | 0 => some (.zero)
+            | _ => none
+        | 1 =>
+          match e.unpair.2 with
+            | 0 => some (.succ)
+            | _ => none
+        | 2 =>
+          match e.unpair.2 with
+            | 0 => some (.add)
+            | 1 => some (.mult)
+            | _ => none
+        | _ => none
 
-    lemma Func_enc_dec : ∀ f : Lo.Functions k, Func_dec (Func_enc f) = some f := by
-      intro f
-      cases f <;> simp [Func_enc, Func_dec]
+  lemma Func_enc_dec : ∀ f : Language.Lo.Functions k, Func_dec (Func_enc f) = some f := by
+    intro f
+    cases f <;> simp [Func_enc, Func_dec]
 
-    instance enc_f : Encodable (Lo.Functions k) where
-      encode := Func_enc
-      decode := Func_dec
-      encodek := Func_enc_dec
+  instance enc_f : Encodable (Language.Lo.Functions k) where
+    encode := Func_enc
+    decode := Func_dec
+    encodek := Func_enc_dec
 
-  end Coding
-end Language.Lo
+end Coding
+end Lo
 
 namespace Ls
 inductive LsFunc : ℕ → Type _ where
@@ -221,192 +221,201 @@ def relToStr {n} : Language.Ls.Relations n → String
   | .bdformₛ => "𝑏𝑑𝑓𝑜𝑟𝑚ₛ"
 instance {n} : ToString (Language.Ls.Relations n) := ⟨relToStr⟩
 
-namespace Language.Ls
-  -- Syntax
-  instance : Zero (Ls.Term α) where
-    zero := Constants.term .zeroₛ
+-- Syntax
+instance : Zero (Term Language.Ls α) where
+  zero := Constants.term .zeroₛ
 
-  -- some nice definitions
-  def nullₛ : Term Ls α :=
-    Constants.term .zeroₛ
+-- some nice definitions
+def nullₛ : Term Language.Ls α :=
+  Constants.term .zeroₛ
 
-  def numeralₛ : ℕ → Ls.Term ℕ
-    | .zero => nullₛ
-    | .succ n => Term.func LsFunc.succₛ (λ _ => numeralₛ n)
+def numeralₛ : ℕ → Term Language.Ls ℕ
+  | .zero => nullₛ
+  | .succ n => Term.func LsFunc.succₛ (λ _ => numeralₛ n)
 
-  -- Syntax
-  class Succ (α : Type u) where
-    succ : α → α
+-- Syntax
+class Succ (α : Type u) where
+  succ : α → α
 
-  instance : Succ (Ls.Term α) where
-    succ := Functions.apply₁ .succₛ
+instance : Succ (Term Language.Ls α) where
+  succ := Functions.apply₁ .succₛ
 
-  instance : Add (Ls.Term α) where
-    add := Functions.apply₂ .addₛ
+instance : Add (Term Language.Ls α) where
+  add := Functions.apply₂ .addₛ
 
-  instance : Mul (Ls.Term α) where
-    mul := Functions.apply₂ .multₛ
+instance : Mul (Term Language.Ls α) where
+  mul := Functions.apply₂ .multₛ
 
-  instance : Neg (Ls.Term α) where
-    neg := Functions.apply₁ .negₛ
+instance : Neg (Term Language.Ls α) where
+  neg := Functions.apply₁ .negₛ
 
-  instance : Min (Ls.Term α) where
-    min := Functions.apply₂ .andₛ
+instance : Min (Term Language.Ls α) where
+  min := Functions.apply₂ .andₛ
 
-  instance : Max (Ls.Term α) where
-    max := Functions.apply₂ .orₛ
+instance : Max (Term Language.Ls α) where
+  max := Functions.apply₂ .orₛ
 
-  class Imp (α : Type u) where
-    imp : α → α → α
+class Imp (α : Type u) where
+  imp : α → α → α
 
-  class Univ (α : Type u) where
-    all : α → α
+class Univ (α : Type u) where
+  all : α → α
 
-  class Ex (α : Type u) where
-    ex : α → α
+class Ex (α : Type u) where
+  ex : α → α
 
-  instance : Imp (Ls.Term α) where
-    imp := Functions.apply₂ .impₛ
+instance : Imp (Term Language.Ls α) where
+  imp := Functions.apply₂ .impₛ
 
-  instance : Univ (Ls.Term α) where
-    all := Functions.apply₁ .allₛ
+instance : Univ (Term Language.Ls α) where
+  all := Functions.apply₁ .allₛ
 
-  instance : Ex (Ls.Term α) where
-    ex := Functions.apply₁ .exₛ
+instance : Ex (Term Language.Ls α) where
+  ex := Functions.apply₁ .exₛ
 
-  class IsVar (α : Type u) where
-    var : α
+class IsVar (α : Type u) where
+  var : α
 
-  class IsConst (α : Type u) where
-    const : α
+class IsConst (α : Type u) where
+  const : α
 
-  class IsTerm (α : Type u) where
-    term : α
+class IsTerm (α : Type u) where
+  term : α
 
-  class IsBdform (α : Type u) where
-    bdform : α
+class IsBdform (α : Type u) where
+  bdform : α
 
-  instance : IsVar (LsRel 1) where
-    var := LsRel.varₛ
+instance : IsVar (LsRel 1) where
+  var := LsRel.varₛ
 
-  instance : IsConst (LsRel 1) where
-    const := LsRel.constₛ
+instance : IsConst (LsRel 1) where
+  const := LsRel.constₛ
 
-  instance : IsTerm (LsRel 1) where
-    term := LsRel.termₛ
+instance : IsTerm (LsRel 1) where
+  term := LsRel.termₛ
 
-  instance : IsBdform (LsRel 1) where
-    bdform := LsRel.bdformₛ
+instance : IsBdform (LsRel 1) where
+  bdform := LsRel.bdformₛ
 
-  notation "Sₛ(" n ")" => Succ.succ n
-  notation n "+ₛ" m => Add.add n m
-  notation n "×ₛ" m => Mul.mul n m
-  notation n "⬝∧" m => And.and n m
-  notation n "⬝∨" m => Or.or n m
-  notation "⬝∼" n => Neg.neg n
-  notation n "⬝⟹" m => Imp.imp n m
-  notation "⬝∀" n => Univ.all n
-  notation "⬝∃" n => Ex.ex n
+notation "Sₛ(" n ")" => Succ.succ n
+notation n "+ₛ" m => Add.add n m
+notation n "×ₛ" m => Mul.mul n m
+notation n "⬝∧" m => And.and n m
+notation n "⬝∨" m => Or.or n m
+notation "⬝∼" n => Neg.neg n
+notation n "⬝⟹" m => Imp.imp n m
+notation "⬝∀" n => Univ.all n
+notation "⬝∃" n => Ex.ex n
 
-  notation "Var(" x ")" => IsVar.var x
-  notation "Const(" c ")" => IsConst.const c
-  notation "Term(" t ")" => IsTerm.term t
-  notation "BdForm(" t ")" => IsBdform.bdform t
+notation "Var(" x ")" => IsVar.var x
+notation "Const(" c ")" => IsConst.const c
+notation "Term(" t ")" => IsTerm.term t
+notation "BdForm(" t ")" => IsBdform.bdform t
 
-  abbrev ℒₛ := Language.Ls
+abbrev ℒₛ := Language.Ls
 
-  section Coding
-    variable {k : ℕ}
-    def Func_enc : Ls.Functions k → ℕ
-      | .zeroₛ => Nat.pair 0 0 + 1
-      | .succₛ => Nat.pair 1 0 + 1
-      | .negₛ => Nat.pair 1 1 + 1
-      | .allₛ => Nat.pair 1 2 + 1
-      | .exₛ => Nat.pair 1 3 + 1
-      | .addₛ => Nat.pair 2 0 + 1
-      | .multₛ => Nat.pair 2 1 + 1
-      | .andₛ => Nat.pair 2 2 + 1
-      | .orₛ => Nat.pair 2 3 + 1
-      | .impₛ => Nat.pair 2 4 + 1
+section Coding
+  variable {k : ℕ}
+  def Func_enc : Language.Ls.Functions k → ℕ
+    | .zeroₛ => Nat.pair 0 0 + 1
+    | .succₛ => Nat.pair 1 0 + 1
+    | .negₛ => Nat.pair 1 1 + 1
+    | .allₛ => Nat.pair 1 2 + 1
+    | .exₛ => Nat.pair 1 3 + 1
+    | .addₛ => Nat.pair 2 0 + 1
+    | .multₛ => Nat.pair 2 1 + 1
+    | .andₛ => Nat.pair 2 2 + 1
+    | .orₛ => Nat.pair 2 3 + 1
+    | .impₛ => Nat.pair 2 4 + 1
 
-    def Func_dec : (n : ℕ) → Option (Ls.Functions k)
-      | 0 => none
-      | e + 1 =>
-        match k with
-          | 0 =>
-            match e.unpair.2 with
-              | 0 => some (.zeroₛ)
-              | _ => none
-          | 1 =>
-            match e.unpair.2 with
-              | 0 => some (.succₛ)
-              | 1 => some (.negₛ)
-              | 2 => some (.allₛ)
-              | 3 => some (.exₛ)
-              | _ => none
-          | 2 =>
-            match e.unpair.2 with
-              | 0 => some (.addₛ)
-              | 1 => some (.multₛ)
-              | 2 => some (.andₛ)
-              | 3 => some (.orₛ)
-              | 4 => some (.impₛ)
-              | _ => none
-          | _ => none
+  def Func_dec : (n : ℕ) → Option (Language.Ls.Functions k)
+    | 0 => none
+    | e + 1 =>
+      match k with
+        | 0 =>
+          match e.unpair.2 with
+            | 0 => some (.zeroₛ)
+            | _ => none
+        | 1 =>
+          match e.unpair.2 with
+            | 0 => some (.succₛ)
+            | 1 => some (.negₛ)
+            | 2 => some (.allₛ)
+            | 3 => some (.exₛ)
+            | _ => none
+        | 2 =>
+          match e.unpair.2 with
+            | 0 => some (.addₛ)
+            | 1 => some (.multₛ)
+            | 2 => some (.andₛ)
+            | 3 => some (.orₛ)
+            | 4 => some (.impₛ)
+            | _ => none
+        | _ => none
 
-    lemma Func_enc_dec : ∀ f : Ls.Functions k, Func_dec (Func_enc f) = some f := by
-      intro f
-      cases f <;> simp [Func_enc, Func_dec]
+  lemma Func_enc_dec : ∀ f : Language.Ls.Functions k, Func_dec (Func_enc f) = some f := by
+    intro f
+    cases f <;> simp [Func_enc, Func_dec]
 
-    instance enc_f : Encodable (Ls.Functions k) where
-      encode := Func_enc
-      decode := Func_dec
-      encodek := Func_enc_dec
+  instance enc_f : Encodable (Language.Ls.Functions k) where
+    encode := Func_enc
+    decode := Func_dec
+    encodek := Func_enc_dec
 
-    def Rel_enc : Ls.Relations k → ℕ
-      | .varₛ => Nat.pair 1 0 + 1
-      | .termₛ => Nat.pair 1 1 + 1
-      | .constₛ => Nat.pair 1 2 + 1
-      | .bdformₛ => Nat.pair 1 3 + 1
+  def Rel_enc : Language.Ls.Relations k → ℕ
+    | .varₛ => Nat.pair 1 0 + 1
+    | .termₛ => Nat.pair 1 1 + 1
+    | .constₛ => Nat.pair 1 2 + 1
+    | .bdformₛ => Nat.pair 1 3 + 1
 
 
-    def Rel_dec : (n : ℕ) → Option (Ls.Relations k)
-      | 0 => none
-      | e + 1 =>
-        match k with
-          | 1 =>
-            match e.unpair.2 with
-              | 0 => some .varₛ
-              | 1 => some .termₛ
-              | 2 => some .constₛ
-              | 3 => some .bdformₛ
-              | _ => none
-          | _ => none
+  def Rel_dec : (n : ℕ) → Option (Language.Ls.Relations k)
+    | 0 => none
+    | e + 1 =>
+      match k with
+        | 1 =>
+          match e.unpair.2 with
+            | 0 => some .varₛ
+            | 1 => some .termₛ
+            | 2 => some .constₛ
+            | 3 => some .bdformₛ
+            | _ => none
+        | _ => none
 
-    lemma Rel_enc_dec : ∀ f : Ls.Relations k, Rel_dec (Rel_enc f) = some f := by
-      intro f
-      cases f <;> simp [Rel_enc, Rel_dec]
+  lemma Rel_enc_dec : ∀ f : Language.Ls.Relations k, Rel_dec (Rel_enc f) = some f := by
+    intro f
+    cases f <;> simp [Rel_enc, Rel_dec]
 
-    instance enc_r : Encodable (Ls.Relations k) where
-      encode := Rel_enc
-      decode := Rel_dec
-      encodek := Rel_enc_dec
+  instance enc_r : Encodable (Language.Ls.Relations k) where
+    encode := Rel_enc
+    decode := Rel_dec
+    encodek := Rel_enc_dec
 
-  end Coding
+end Coding
 
 -- open TermEncoding
 
 -- #check ⌜(∀' ∼(nullₛ =' Sₛ(&0)))⌝
 
--- #check (∀' ∼(nullₛ =' Sₛ(&0)))
--- #check Sₛ(Sₛ(nullₛ))
--- #check (nullₛ + Ls.nullₛ)
+#check (∀' ∼(nullₛ =' Sₛ(&0)))
+#check Sₛ(Sₛ(nullₛ))
+#check (nullₛ + Language.Ls.nullₛ)
 
 
--- #eval ((S(null) + S(S(null)) : Term Ls ℕ))
--- #eval (Ls.null + Ls.null : Term Ls ℕ)
+#eval ((Sₛ(nullₛ) + Sₛ(Sₛ(nullₛ)) : Term Language.Ls ℕ))
+#eval (Language.Ls.nullₛ + Language.Ls.nullₛ : Term Language.Ls ℕ)
 
-end Language.Ls
+end Ls
+
+namespace L
+open Lo
+open Ls
+
+def Language.L : Language :=
+{ Functions := fun k => Sum (Language.Lo.Functions k) (Language.Ls.Functions k),
+  Relations := fun k => Sum (Language.Lo.Relations k) (Language.Ls.Relations k) }
+
+end L
 
 variable {L : Language}[∀i, Encodable (L.Functions i)][∀i, Encodable (L.Relations i)]
 
@@ -423,6 +432,11 @@ namespace TermEncoding
     fun f => Encodable.encodeList (BoundedFormula.listEncode f)
   def formula_tonat {n : ℕ} : BoundedFormula L ℕ n → ℕ :=
     fun f => Encodable.encodeList (BoundedFormula.listEncode f)
+
+  notation "⌜" t "⌝" => Language.Ls.numeralₛ (term_tonat t)
+  notation "⌜" t "⌝" => Language.Ls.numeralₛ (sentence_term_tonat t)
+  notation "⌜" φ "⌝" => Language.Ls.numeralₛ (formula_tonat φ)
+
 end TermEncoding
 
 namespace TermDecoding
@@ -468,14 +482,6 @@ namespace TermDecoding
           if h : n = 0 then some (h ▸ φ) else none
 
 end TermDecoding
-
-open TermEncoding
-open Language
-open Ls
-  notation "⌜" t "⌝" => Ls.numeralₛ (term_tonat t)
-  notation "⌜" t "⌝" => Ls.numeralₛ (sentence_term_tonat t)
-  notation "⌜" φ "⌝" => Ls.numeralₛ (formula_tonat φ)
-
 
 namespace BoundedFormula
   variable {L : Language}{α : Type}{n : ℕ}
