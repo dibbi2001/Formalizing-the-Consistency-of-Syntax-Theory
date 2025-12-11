@@ -1,0 +1,4 @@
+import FormalizingTheConsistencyOfSyntaxTheory.BasicSyntax
+import FormalizingTheConsistencyOfSyntaxTheory.BasicSemantics
+import FormalizingTheConsistencyOfSyntaxTheory.BasicTheories
+import FormalizingTheConsistencyOfSyntaxTheory.Consistency
