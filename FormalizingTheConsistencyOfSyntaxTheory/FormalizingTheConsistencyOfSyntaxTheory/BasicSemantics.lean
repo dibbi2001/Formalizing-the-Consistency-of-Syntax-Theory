@@ -3,6 +3,7 @@ import FormalizingTheConsistencyOfSyntaxTheory.BasicSyntax
 open FirstOrder
 open Language
 open peanoarithmetic
+open TermEncoding
 
 
 variable {α : Type*} {n : ℕ} {M : Type*} {v : α → M}
@@ -12,6 +13,7 @@ namespace Structure
 
 variable (neg_repres : (Fin 1 → M) → M) (and_repres : (Fin 2 → M) → M) (or_repres : (Fin 2 → M) → M)
 (var_prop : (Fin 1 → M) → Prop) (const_prop : (Fin 1 → M) → Prop) (term_prop : (Fin 1 → M) → Prop) (bdform_prop : (Fin 1 → M) → Prop)
+(var_code : (Fin 1 → M) → Prop) (const_code : (Fin 1 → M) → Prop) (term_code : (Fin 1 → M) → Prop) (bdform_code : (Fin 1 → M) → Prop)
 
 class NegDot (α : Type u) where
   negdot : α → α
@@ -55,10 +57,38 @@ instance : IsTermDot M where
 instance : IsBdformDot M where
   bdformdot := bdform_prop
 
+class IsVarCode (α : Type u) where
+  varcode : (Fin 1 → α) → Prop
+
+class IsConstCode (α : Type u) where
+  constcode : (Fin 1 → α) → Prop
+
+class IsTermCode (α : Type u) where
+  termcode : (Fin 1 → α) → Prop
+
+class IsBdformCode (α : Type u) where
+  bdformcode : (Fin 1 → α) → Prop
+
+instance : IsVarCode M where
+  varcode := var_code
+
+instance : IsConstCode M where
+  constcode := const_code
+
+instance : IsTermCode M where
+  termcode := term_code
+
+instance : IsBdformCode M where
+  bdformcode := bdform_code
+
 variable [Zero M] [Succ M] [Add M] [Mul M]
 [NegDot M] [MinDot M] [MaxDot M]
 [Imp M] [Univ M] [Ex M]
 [IsVarDot M] [IsConstDot M] [IsTermDot M] [IsBdformDot M]
+[Zeroₛ M] [Succₛ M] [Addₛ M] [Mulₛ M]
+[Negₛ M] [Minₛ M] [Maxₛ M]
+[Impₛ M] [Univₛ M] [Exₛ M]
+[IsVarCode M] [IsConstCode M] [IsTermCode M] [IsBdformCode M]
 
 instance : peanoarithmetic.Structure M where
   funMap
@@ -72,12 +102,25 @@ instance : peanoarithmetic.Structure M where
   | .imp, v => Imp.imp (v 0) (v 1)
   | .all, v => Univ.all (v 0)
   | .ex, v => Ex.ex (v 0)
+  | .zeroₛ, _ => Zeroₛ.zeroₛ
+  | .succₛ, v => Succₛ.succₛ (v 0)
+  | .addₛ, v => Addₛ.addₛ (v 0) (v 1)
+  | .multₛ, v => Mulₛ.mulₛ (v 0) (v 1)
+  | .negₛ, v => Negₛ.negₛ (v 0)
+  | .andₛ, v => Minₛ.minₛ (v 0) (v 1)
+  | .orₛ, v => Maxₛ.maxₛ (v 0) (v 1)
+  | .impₛ, v => Impₛ.impₛ (v 0) (v 1)
+  | .allₛ, v => Univₛ.allₛ (v 0)
+  | .exₛ, v => Exₛ.exₛ (v 0)
   RelMap
   | .var, v => IsVarDot.vardot v
   | .const, v => IsConstDot.constdot v
   | .term, v => IsTermDot.termdot v
   | .bdform, v => IsBdformDot.bdformdot v
-
+  | .varₛ, v => IsVarCode.varcode v
+  | .constₛ, v => IsConstCode.constcode v
+  | .termₛ, v => IsTermCode.termcode v
+  | .bdformₛ, v => IsBdformCode.bdformcode v
 
 section
 @[simp] theorem funMap_zero {v} :
@@ -154,12 +197,26 @@ namespace ModelN
     | .imp, v   => 0
     | .all, v   => 0
     | .ex, v    => 0
+    | .zeroₛ, _  => 0   -- add meaningful interpretations for syntactic objects
+    | .succₛ, v  => Nat.succ (v 0)
+    | .addₛ, v   => v 0 + v 1
+    | .multₛ, v  => v 0 * v 1
+    | .negₛ, v   => v 0
+    | .andₛ, v   => 0
+    | .orₛ, v    => 0
+    | .impₛ, v   => 0
+    | .allₛ, v   => 0
+    | .exₛ, v    => 0
 
     RelMap
     | .var, _    => False
     | .const, _  => False
     | .term, _   => False
     | .bdform, _ => False
+    | .varₛ, _    => False -- same here
+    | .constₛ, _  => False
+    | .termₛ, _   => False
+    | .bdformₛ, _ => False
 
   instance : peanoarithmetic.Structure ℕ := nat_structure
 

@@ -103,6 +103,16 @@ inductive peanoarithmeticFunc : ℕ → Type _ where
   | imp : peanoarithmeticFunc 2
   | all : peanoarithmeticFunc 1
   | ex : peanoarithmeticFunc 1
+  | zeroₛ : peanoarithmeticFunc 0
+  | succₛ : peanoarithmeticFunc 1
+  | addₛ : peanoarithmeticFunc 2
+  | multₛ : peanoarithmeticFunc 2
+  | negₛ : peanoarithmeticFunc 1
+  | andₛ : peanoarithmeticFunc 2
+  | orₛ : peanoarithmeticFunc 2
+  | impₛ : peanoarithmeticFunc 2
+  | allₛ : peanoarithmeticFunc 1
+  | exₛ : peanoarithmeticFunc 1
   deriving DecidableEq
 
 inductive peanoarithmeticRel : ℕ → Type _ where
@@ -110,6 +120,10 @@ inductive peanoarithmeticRel : ℕ → Type _ where
   | term : peanoarithmeticRel 1
   | const : peanoarithmeticRel 1
   | bdform : peanoarithmeticRel 1
+  | varₛ : peanoarithmeticRel 1
+  | termₛ : peanoarithmeticRel 1
+  | constₛ : peanoarithmeticRel 1
+  | bdformₛ : peanoarithmeticRel 1
   deriving DecidableEq
 
 def Language.peanoarithmetic : Language :=
@@ -127,6 +141,16 @@ def funToStr {n}: peanoarithmeticFunc n → String
   | .imp => "𝑐𝑜𝑛𝑑"
   | .all => "𝑎𝑙𝑙"
   | .ex => "𝑒𝑥"
+  | .zeroₛ => "0ₛ"
+  | .succₛ => "Sₛ"
+  | .addₛ => "+ₛ"
+  | .multₛ => "×ₛ"
+  | .negₛ => "𝑛𝑒𝑔ₛ"
+  | .andₛ => "𝑐𝑜𝑛𝑗ₛ"
+  | .orₛ => "𝑑𝑖𝑠𝑗ₛ"
+  | .impₛ => "𝑐𝑜𝑛𝑑ₛ"
+  | .allₛ => "𝑎𝑙𝑙ₛ"
+  | .exₛ => "𝑒𝑥ₛ"
 instance {n : ℕ}: ToString (Language.peanoarithmetic.Functions n) := ⟨funToStr⟩
 
 def relToStr {n} : Language.peanoarithmetic.Relations n → String
@@ -134,6 +158,10 @@ def relToStr {n} : Language.peanoarithmetic.Relations n → String
   | .term => "𝑡𝑒𝑟𝑚"
   | .const => "𝑐𝑜𝑛𝑠𝑡"
   | .bdform => "𝑏𝑑𝑓𝑜𝑟𝑚"
+  | .varₛ => "𝑣𝑎𝑟ₛ"
+  | .termₛ => "𝑡𝑒𝑟𝑚ₛ"
+  | .constₛ => "𝑐𝑜𝑛𝑠𝑡ₛ"
+  | .bdformₛ => "𝑏𝑑𝑓𝑜𝑟𝑚ₛ"
 instance {n} : ToString (Language.peanoarithmetic.Relations n) := ⟨relToStr⟩
 
 namespace Language.peanoarithmetic
@@ -213,6 +241,87 @@ namespace Language.peanoarithmetic
   instance : IsBdform (peanoarithmeticRel 1) where
     bdform := peanoarithmeticRel.bdform
 
+  class Zeroₛ (α : Type u) where
+    zeroₛ : α
+
+  class Succₛ (α : Type u) where
+    succₛ : α → α
+
+  class Addₛ (α : Type u) where
+    addₛ : α → α → α
+
+  class Mulₛ (α : Type u) where
+    mulₛ : α → α → α
+
+  class Negₛ (α : Type u) where
+    negₛ : α → α
+
+  class Minₛ (α : Type u) where
+    minₛ : α → α → α
+
+  class Maxₛ (α : Type u) where
+    maxₛ : α → α → α
+
+  class Impₛ (α : Type u) where
+    impₛ : α → α → α
+
+  class Univₛ (α : Type u) where
+    allₛ : α → α
+
+  class Exₛ (α : Type u) where
+    exₛ : α → α
+
+  class IsVarₛ (α : Type u) where
+    varₛ : α
+
+  class IsConstₛ (α : Type u) where
+    constₛ : α
+
+  class IsTermₛ (α : Type u) where
+    termₛ : α
+
+  class IsBdformₛ (α : Type u) where
+    bdformₛ : α
+
+  instance : Succₛ (peanoarithmetic.Term α) where
+    succₛ := Functions.apply₁ .succₛ
+
+  instance : Addₛ (peanoarithmetic.Term α) where
+    addₛ := Functions.apply₂ .addₛ
+
+  instance : Mulₛ (peanoarithmetic.Term α) where
+    mulₛ := Functions.apply₂ .multₛ
+
+  instance : Negₛ (peanoarithmetic.Term α) where
+    negₛ := Functions.apply₁ .negₛ
+
+  instance : Minₛ (peanoarithmetic.Term α) where
+    minₛ := Functions.apply₂ .andₛ
+
+  instance : Maxₛ (peanoarithmetic.Term α) where
+    maxₛ := Functions.apply₂ .orₛ
+
+  instance : Impₛ (peanoarithmetic.Term α) where
+    impₛ := Functions.apply₂ .impₛ
+
+  instance : Univₛ (peanoarithmetic.Term α) where
+    allₛ := Functions.apply₁ .allₛ
+
+  instance : Exₛ (peanoarithmetic.Term α) where
+    exₛ := Functions.apply₁ .exₛ
+
+  instance : IsVarₛ (peanoarithmeticRel 1) where
+    varₛ := peanoarithmeticRel.varₛ
+
+  instance : IsConstₛ (peanoarithmeticRel 1) where
+    constₛ := peanoarithmeticRel.constₛ
+
+  instance : IsTermₛ (peanoarithmeticRel 1) where
+    termₛ := peanoarithmeticRel.termₛ
+
+  instance : IsBdformₛ (peanoarithmeticRel 1) where
+    bdformₛ := peanoarithmeticRel.bdformₛ
+
   notation "S(" n ")" => Succ.succ n
   notation n "add" m => Add.add n m
   notation n "times" m => Mul.mul n m
@@ -223,26 +332,53 @@ namespace Language.peanoarithmetic
   notation "⬝∀" n => Univ.all n
   notation "⬝∃" n => Ex.ex n
 
+  notation "Sₛ(" n ")" => Succ.succ n
+  notation n "addₛ" m => Add.add n m
+  notation n "timesₛ" m => Mul.mul n m
+  notation n "⬝∧ₛ" m => And.and n m
+  notation n "⬝∨ₛ" m => Or.or n m
+  notation "⬝∼ₛ" n => Neg.neg n
+  notation n "⬝⟹ₛ" m => Imp.imp n m
+  notation "⬝∀ₛ" n => Univ.all n
+  notation "⬝∃ₛ" n => Ex.ex n
+
   notation "Var(" x ")" => IsVar.var x
   notation "Const(" c ")" => IsConst.const c
   notation "Term(" t ")" => IsTerm.term t
   notation "BdForm(" t ")" => IsBdform.bdform t
+
+  notation "Varₛ(" x ")" => IsVar.var x
+  notation "Constₛ(" c ")" => IsConst.const c
+  notation "Termₛ(" t ")" => IsTerm.term t
+  notation "BdFormₛ(" t ")" => IsBdform.bdform t
 
   abbrev ℒ := Language.peanoarithmetic
 
   section Coding
     variable {k : ℕ}
     def Func_enc : peanoarithmetic.Functions k → ℕ
-      | .zero => Nat.pair 0 0 + 1
-      | .succ => Nat.pair 1 0 + 1
-      | .neg => Nat.pair 1 1 + 1
-      | .all => Nat.pair 1 2 + 1
-      | .ex => Nat.pair 1 3 + 1
-      | .add => Nat.pair 2 0 + 1
-      | .mult => Nat.pair 2 1 + 1
-      | .and => Nat.pair 2 2 + 1
-      | .or => Nat.pair 2 3 + 1
-      | .imp => Nat.pair 2 4 + 1
+    | .zero      => Nat.pair 0 0 + 1
+    | .zeroₛ     => Nat.pair 0 1 + 1
+
+    | .succ      => Nat.pair 1 0 + 1
+    | .neg       => Nat.pair 1 1 + 1
+    | .all       => Nat.pair 1 2 + 1
+    | .ex        => Nat.pair 1 3 + 1
+    | .succₛ     => Nat.pair 1 4 + 1
+    | .negₛ      => Nat.pair 1 5 + 1
+    | .allₛ      => Nat.pair 1 6 + 1
+    | .exₛ       => Nat.pair 1 7 + 1
+
+    | .add       => Nat.pair 2 0 + 1
+    | .mult      => Nat.pair 2 1 + 1
+    | .and       => Nat.pair 2 2 + 1
+    | .or        => Nat.pair 2 3 + 1
+    | .imp       => Nat.pair 2 4 + 1
+    | .addₛ      => Nat.pair 2 5 + 1
+    | .multₛ     => Nat.pair 2 6 + 1
+    | .andₛ      => Nat.pair 2 7 + 1
+    | .orₛ       => Nat.pair 2 8 + 1
+    | .impₛ      => Nat.pair 2 9 + 1
 
     def Func_dec : (n : ℕ) → Option (peanoarithmetic.Functions k)
       | 0 => none
@@ -251,6 +387,7 @@ namespace Language.peanoarithmetic
           | 0 =>
             match e.unpair.2 with
               | 0 => some (.zero)
+              | 1 => some (.zeroₛ)
               | _ => none
           | 1 =>
             match e.unpair.2 with
@@ -258,6 +395,10 @@ namespace Language.peanoarithmetic
               | 1 => some (.neg)
               | 2 => some (.all)
               | 3 => some (.ex)
+              | 4 => some (.succₛ)
+              | 5 => some (.negₛ)
+              | 6 => some (.allₛ)
+              | 7 => some (.exₛ)
               | _ => none
           | 2 =>
             match e.unpair.2 with
@@ -266,6 +407,11 @@ namespace Language.peanoarithmetic
               | 2 => some (.and)
               | 3 => some (.or)
               | 4 => some (.imp)
+              | 5 => some (.addₛ)
+              | 6 => some (.multₛ)
+              | 7 => some (.andₛ)
+              | 8 => some (.orₛ)
+              | 9 => some (.impₛ)
               | _ => none
           | _ => none
 
@@ -283,7 +429,10 @@ namespace Language.peanoarithmetic
       | .term => Nat.pair 1 1 + 1
       | .const => Nat.pair 1 2 + 1
       | .bdform => Nat.pair 1 3 + 1
-
+      | .varₛ => Nat.pair 1 4 + 1
+      | .termₛ => Nat.pair 1 5 + 1
+      | .constₛ => Nat.pair 1 6 + 1
+      | .bdformₛ => Nat.pair 1 7 + 1
 
     def Rel_dec : (n : ℕ) → Option (peanoarithmetic.Relations k)
       | 0 => none
@@ -295,6 +444,10 @@ namespace Language.peanoarithmetic
               | 1 => some .term
               | 2 => some .const
               | 3 => some .bdform
+              | 4 => some .varₛ
+              | 5 => some .termₛ
+              | 6 => some .constₛ
+              | 7 => some .bdformₛ
               | _ => none
           | _ => none
 
