@@ -13,7 +13,6 @@ namespace Structure
 
 variable (neg_repres : (Fin 1 → M) → M) (and_repres : (Fin 2 → M) → M) (or_repres : (Fin 2 → M) → M)
 (var_prop : (Fin 1 → M) → Prop) (const_prop : (Fin 1 → M) → Prop) (term_prop : (Fin 1 → M) → Prop) (bdform_prop : (Fin 1 → M) → Prop)
-(var_code : (Fin 1 → M) → Prop) (const_code : (Fin 1 → M) → Prop) (term_code : (Fin 1 → M) → Prop) (bdform_code : (Fin 1 → M) → Prop)
 
 class NegDot (α : Type u) where
   negdot : α → α
@@ -57,38 +56,11 @@ instance : IsTermDot M where
 instance : IsBdformDot M where
   bdformdot := bdform_prop
 
-class IsVarCode (α : Type u) where
-  varcode : (Fin 1 → α) → Prop
-
-class IsConstCode (α : Type u) where
-  constcode : (Fin 1 → α) → Prop
-
-class IsTermCode (α : Type u) where
-  termcode : (Fin 1 → α) → Prop
-
-class IsBdformCode (α : Type u) where
-  bdformcode : (Fin 1 → α) → Prop
-
-instance : IsVarCode M where
-  varcode := var_code
-
-instance : IsConstCode M where
-  constcode := const_code
-
-instance : IsTermCode M where
-  termcode := term_code
-
-instance : IsBdformCode M where
-  bdformcode := bdform_code
-
 variable [Zero M] [Succ M] [Add M] [Mul M]
 [NegDot M] [MinDot M] [MaxDot M]
 [Imp M] [Univ M] [Ex M]
 [IsVarDot M] [IsConstDot M] [IsTermDot M] [IsBdformDot M]
 [Zeroₛ M] [Succₛ M] [Addₛ M] [Mulₛ M]
-[Negₛ M] [Minₛ M] [Maxₛ M]
-[Impₛ M] [Univₛ M] [Exₛ M]
-[IsVarCode M] [IsConstCode M] [IsTermCode M] [IsBdformCode M]
 
 instance : peanoarithmetic.Structure M where
   funMap
@@ -96,31 +68,21 @@ instance : peanoarithmetic.Structure M where
   | .succ, v => Succ.succ (v 0)
   | .add, v => (v 0) + (v 1)
   | .mult, v => (v 0 ) * (v 1)
-  | .neg, v => NegDot.negdot (v 0)
-  | .and, v => MinDot.mindot (v 0) (v 1)
-  | .or, v => MaxDot.maxdot (v 0) (v 1)
-  | .imp, v => Imp.imp (v 0) (v 1)
-  | .all, v => Univ.all (v 0)
-  | .ex, v => Ex.ex (v 0)
   | .zeroₛ, _ => Zeroₛ.zeroₛ
   | .succₛ, v => Succₛ.succₛ (v 0)
   | .addₛ, v => Addₛ.addₛ (v 0) (v 1)
   | .multₛ, v => Mulₛ.mulₛ (v 0) (v 1)
-  | .negₛ, v => Negₛ.negₛ (v 0)
-  | .andₛ, v => Minₛ.minₛ (v 0) (v 1)
-  | .orₛ, v => Maxₛ.maxₛ (v 0) (v 1)
-  | .impₛ, v => Impₛ.impₛ (v 0) (v 1)
-  | .allₛ, v => Univₛ.allₛ (v 0)
-  | .exₛ, v => Exₛ.exₛ (v 0)
+  | .negₛ, v => NegDot.negdot (v 0)
+  | .andₛ, v => MinDot.mindot (v 0) (v 1)
+  | .orₛ, v => MaxDot.maxdot (v 0) (v 1)
+  | .impₛ, v => Imp.imp (v 0) (v 1)
+  | .allₛ, v => Univ.all (v 0)
+  | .exₛ, v => Ex.ex (v 0)
   RelMap
   | .var, v => IsVarDot.vardot v
   | .const, v => IsConstDot.constdot v
   | .term, v => IsTermDot.termdot v
   | .bdform, v => IsBdformDot.bdformdot v
-  | .varₛ, v => IsVarCode.varcode v
-  | .constₛ, v => IsConstCode.constcode v
-  | .termₛ, v => IsTermCode.termcode v
-  | .bdformₛ, v => IsBdformCode.bdformcode v
 
 section
 @[simp] theorem funMap_zero {v} :
@@ -135,22 +97,22 @@ Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.add v = v 0
   Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.mult v = v 0 * v 1 := rfl
 
 @[simp] theorem funMap_neg {v} :
-  Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.neg v = NegDot.negdot (v 0) := rfl
+  Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.negₛ v = NegDot.negdot (v 0) := rfl
 
 @[simp] theorem funMap_and {v} :
-  Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.and v = MinDot.mindot (v 0) (v 1) := rfl
+  Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.andₛ v = MinDot.mindot (v 0) (v 1) := rfl
 
 @[simp] theorem funMap_or {v} :
-  Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.or v = MaxDot.maxdot (v 0) (v 1) := rfl
+  Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.orₛ v = MaxDot.maxdot (v 0) (v 1) := rfl
 
 @[simp] theorem funMap_imp {v} :
-  Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.imp v = Imp.imp (v 0) (v 1) := rfl
+  Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.impₛ v = Imp.imp (v 0) (v 1) := rfl
 
 @[simp] theorem funMap_all {v} :
-  Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.all v = Univ.all (v 0) := rfl
+  Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.allₛ v = Univ.all (v 0) := rfl
 
 @[simp] theorem funMap_ex {v} :
-  Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.ex v = Ex.ex (v 0) := rfl
+  Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.exₛ v = Ex.ex (v 0) := rfl
 
 
 @[simp] theorem realize_null : Term.realize v (Language.peanoarithmetic.null : peanoarithmetic.Term α) = 0 := rfl
@@ -191,12 +153,6 @@ namespace ModelN
     | .succ, v  => Nat.succ (v 0)
     | .add, v   => v 0 + v 1
     | .mult, v  => v 0 * v 1
-    | .neg, v   => v 0
-    | .and, v   => 0
-    | .or, v    => 0
-    | .imp, v   => 0
-    | .all, v   => 0
-    | .ex, v    => 0
     | .zeroₛ, _  => 0   -- add meaningful interpretations for syntactic objects
     | .succₛ, v  => Nat.succ (v 0)
     | .addₛ, v   => v 0 + v 1
@@ -213,10 +169,6 @@ namespace ModelN
     | .const, _  => False
     | .term, _   => False
     | .bdform, _ => False
-    | .varₛ, _    => False -- same here
-    | .constₛ, _  => False
-    | .termₛ, _   => False
-    | .bdformₛ, _ => False
 
   instance : peanoarithmetic.Structure ℕ := nat_structure
 

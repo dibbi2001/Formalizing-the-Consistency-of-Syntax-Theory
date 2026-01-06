@@ -60,9 +60,6 @@ lemma realize_boundedFormula_and (φ ψ : BoundedFormula ℒ ℕ 0) (r : Fin 0 �
   sorry
   sorry
 
-
-
-
 lemma realize_numeral_eq_self (n : ℕ) (r : ℕ → ℕ) :
   Term.realize r (numeral n) = n := by
   induction n with
@@ -72,3 +69,119 @@ lemma realize_numeral_eq_self (n : ℕ) (r : ℕ → ℕ) :
     simp [numeral]
     rw [ih]
     rfl
+
+namespace SyntaxTheory
+-- Formation Rules
+def ax_var_term : Sentence ℒ :=
+  ∀' (Var(&0) ⟹ Term(&0))
+
+def ax_const_term : Sentence ℒ :=
+  ∀' (Const(&0) ⟹ Term(&0))
+
+-- def ax_eq_form : Sentence ℒ :=
+--   ∀' ∀' ((Term(&0) ∧' Term(&1)) ⟹ BdForm(&0 =' &1))
+
+-- Arithmetic Operations
+def ax_succ_term : Sentence ℒ :=
+  ∀' (Term(&0) ⟹ Term(S(&0)))
+
+def ax_add_term : Sentence ℒ :=
+  ∀' ∀' (Term(&0) ∧' Term(&1) ⟹ Term(&0 addₛ &1))
+
+def ax_mult_term : Sentence ℒ :=
+  ∀' ∀' (Term(&0) ∧' Term(&1) ⟹ Term(&0 timesₛ &1))
+
+-- Logical Connectives
+def ax_neg_form : Sentence ℒ :=
+  ∀' (BdForm(&0) ⟹ BdForm(⬝∼ &0))
+
+def ax_and_form : Sentence ℒ :=
+  ∀' ∀' (BdForm(&0) ∧' BdForm(&1) ⟹ BdForm(&0 ⬝∧ &1))
+
+def ax_or_form : Sentence ℒ :=
+  ∀' ∀' (BdForm(&0) ∨' BdForm(&1) ⟹ BdForm(&0 ⬝∨ &1))
+
+def ax_imp_form : Sentence ℒ :=
+  ∀' ∀' (BdForm(&0) ⟹ BdForm(&1) ⟹ BdForm(&0 ⬝⟹ &1))
+
+def ax_all_form : Sentence ℒ :=
+  ∀' (BdForm(&0) ⟹ BdForm(⬝∀ &0))
+
+def ax_ex_form : Sentence ℒ :=
+  ∀' (BdForm(&0) ⟹ BdForm(⬝∃ &0))
+
+-- Injectivity
+def ax_succ_inj : Sentence ℒ :=
+  ∀' ∀' (S(&0) =' S(&1) ⟹ (&0 =' &1))
+
+def ax_add_inj : Sentence ℒ :=
+  ∀' ∀' ∀' ∀'((&0 addₛ &1) =' (&2 addₛ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3)))
+
+def ax_mult_inj : Sentence ℒ :=
+  ∀' ∀' ∀' ∀'((&0 timesₛ &1) =' (&2 timesₛ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3)))
+
+def ax_neg_inj : Sentence ℒ :=
+  ∀' ∀' ((⬝∼ &0) =' (⬝∼ &1) ⟹ &0 ='&1)
+
+def ax_and_inj : Sentence ℒ :=
+  ∀' ∀' ∀' ∀'((&0 ⬝∧ &1) =' (&2 ⬝∧ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3)))
+
+def ax_or_inj : Sentence ℒ :=
+  ∀' ∀' ∀' ∀'((&0 ⬝∨ &1) =' (&2 ⬝∨ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3)))
+
+def ax_imp_inj : Sentence ℒ :=
+  ∀' ∀' ∀' ∀'((&0 ⬝⟹ &1) =' (&2 ⬝⟹ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3)))
+
+def ax_all_inj : Sentence ℒ :=
+  ∀' ∀' ((⬝∀ &0) =' (⬝∀ &1) ⟹ &0 ='&1)
+
+def ax_ex_inj : Sentence ℒ :=
+  ∀' ∀' ((⬝∃ &0) =' (⬝∃ &1) ⟹ &0 ='&1)
+
+--Distinctness
+def ax_neg_ne_and : Sentence ℒ :=
+  ∀' ∀' ∀' ∼((⬝∼&0) =' (&1 ⬝∧ &2))
+
+def ax_neg_ne_or : Sentence ℒ :=
+  ∀' ∀' ∀' ∼((⬝∼&0) =' (&1 ⬝∨ &2))
+
+def ax_neg_ne_imp : Sentence ℒ :=
+  ∀' ∀' ∀' ∼((⬝∼&0) =' (&1 ⬝⟹ &2))
+
+def ax_neg_ne_all : Sentence ℒ :=
+  ∀' ∀' ∼((⬝∼&0) =' (⬝∀ &1))
+
+def ax_neg_ne_ex : Sentence ℒ :=
+  ∀' ∀' ∼((⬝∼&0) =' (⬝∃ &1))
+
+def ax_and_ne_or : Sentence ℒ :=
+  ∀' ∀' ∀' ∀' ∼((&0 ⬝∧ &1) =' (&2 ⬝∨ &3))
+
+def ax_and_ne_imp : Sentence ℒ :=
+  ∀' ∀' ∀' ∀' ∼((&0 ⬝∧ &1) =' (&2 ⬝⟹ &3))
+
+def ax_and_ne_all : Sentence ℒ :=
+  ∀' ∀' ∀' ∼((&0 ⬝∧ &1) =' (⬝∀ &2))
+
+def ax_and_ne_ex : Sentence ℒ :=
+  ∀' ∀' ∀' ∼((&0 ⬝∧ &1) =' (⬝∃ &2))
+
+def ax_or_ne_imp : Sentence ℒ :=
+  ∀' ∀' ∀' ∀' ∼((&0 ⬝∨ &1) =' (&2 ⬝⟹ &3))
+
+def ax_or_ne_all : Sentence ℒ :=
+  ∀' ∀' ∀' ∼((&0 ⬝∨ &1) =' (⬝∀ &2))
+
+def ax_or_ne_ex : Sentence ℒ :=
+  ∀' ∀' ∀' ∼((&0 ⬝∨ &1) =' (⬝∃ &2))
+
+def ax_imp_ne_all : Sentence ℒ :=
+  ∀' ∀' ∀' ∼((&0 ⬝⟹ &1) =' (⬝∀ &2))
+
+def ax_imp_ne_ex : Sentence ℒ :=
+  ∀' ∀' ∀' ∼((&0 ⬝⟹ &1) =' (⬝∃ &2))
+
+def ax_all_ne_ex : Sentence ℒ :=
+  ∀' ∀' ∼((⬝∀&0) =' (⬝∃ &1))
+
+end SyntaxTheory
