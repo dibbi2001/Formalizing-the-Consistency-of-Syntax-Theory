@@ -107,6 +107,7 @@ inductive peanoarithmeticFunc : ℕ → Type _ where
   | andₛ : peanoarithmeticFunc 2
   | orₛ : peanoarithmeticFunc 2
   | impₛ : peanoarithmeticFunc 2
+  | eqₛ : peanoarithmeticFunc 2
   | allₛ : peanoarithmeticFunc 1
   | exₛ : peanoarithmeticFunc 1
   deriving DecidableEq
@@ -135,6 +136,7 @@ def funToStr {n}: peanoarithmeticFunc n → String
   | .andₛ => "𝑐𝑜𝑛𝑗ₛ"
   | .orₛ => "𝑑𝑖𝑠𝑗ₛ"
   | .impₛ => "𝑐𝑜𝑛𝑑ₛ"
+  | .eqₛ => "𝑒𝑞ₛ"
   | .allₛ => "𝑎𝑙𝑙ₛ"
   | .exₛ => "𝑒𝑥ₛ"
 instance {n : ℕ}: ToString (Language.peanoarithmetic.Functions n) := ⟨funToStr⟩
@@ -208,6 +210,9 @@ namespace Language.peanoarithmetic
   class Imp (α : Type u) where
     imp : α → α → α
 
+  class Eq (α : Type u) where
+    eq : α → α → α
+
   class Univ (α : Type u) where
     all : α → α
 
@@ -216,6 +221,9 @@ namespace Language.peanoarithmetic
 
   instance : Imp (peanoarithmetic.Term α) where
     imp := Functions.apply₂ .impₛ
+
+  instance : Eq (peanoarithmetic.Term α) where
+    eq := Functions.apply₂ .eqₛ
 
   instance : Univ (peanoarithmetic.Term α) where
     all := Functions.apply₁ .allₛ
@@ -259,6 +267,7 @@ namespace Language.peanoarithmetic
   notation n "⬝∨" m => Term.func peanoarithmeticFunc.orₛ ![n, m]
   notation "⬝∼" n => Term.func peanoarithmeticFunc.negₛ ![n]
   notation n "⬝⟹" m => Term.func peanoarithmeticFunc.impₛ ![n, m]
+  notation n "⬝=" m => Term.func peanoarithmeticFunc.eqₛ ![n, m]
   notation "⬝∀" n => Term.func peanoarithmeticFunc.allₛ ![n]
   notation "⬝∃" n => Term.func peanoarithmeticFunc.exₛ ![n]
 
@@ -288,6 +297,7 @@ namespace Language.peanoarithmetic
     | .andₛ      => Nat.pair 2 4 + 1
     | .orₛ       => Nat.pair 2 5 + 1
     | .impₛ      => Nat.pair 2 6 + 1
+    | .eqₛ       => Nat.pair 2 7 + 1
 
     def Func_dec : (n : ℕ) → Option (peanoarithmetic.Functions k)
       | 0 => none
@@ -315,6 +325,7 @@ namespace Language.peanoarithmetic
               | 4 => some (.andₛ)
               | 5 => some (.orₛ)
               | 6 => some (.impₛ)
+              | 7 => some (.eqₛ)
               | _ => none
           | _ => none
 

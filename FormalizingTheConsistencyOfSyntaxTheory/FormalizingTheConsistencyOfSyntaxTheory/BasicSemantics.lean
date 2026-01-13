@@ -58,7 +58,7 @@ instance : IsBdformDot M where
 
 variable [Zero M] [Succ M] [Add M] [Mul M]
 [NegDot M] [MinDot M] [MaxDot M]
-[Imp M] [Univ M] [Ex M]
+[Imp M] [Eq M] [Univ M] [Ex M]
 [IsVarDot M] [IsConstDot M] [IsTermDot M] [IsBdformDot M]
 [Zeroₛ M] [Succₛ M] [Addₛ M] [Mulₛ M]
 
@@ -76,6 +76,7 @@ instance : peanoarithmetic.Structure M where
   | .andₛ, v => MinDot.mindot (v 0) (v 1)
   | .orₛ, v => MaxDot.maxdot (v 0) (v 1)
   | .impₛ, v => Imp.imp (v 0) (v 1)
+  | .eqₛ, v =>  Eq.eq (v 0) (v 1)
   | .allₛ, v => Univ.all (v 0)
   | .exₛ, v => Ex.ex (v 0)
   RelMap
@@ -108,6 +109,9 @@ Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.add v = v 0
 @[simp] theorem funMap_imp {v} :
   Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.impₛ v = Imp.imp (v 0) (v 1) := rfl
 
+@[simp] theorem funMap_eq {v} :
+  Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.eqₛ v = Eq.eq (v 0) (v 1) := rfl
+
 @[simp] theorem funMap_all {v} :
   Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.allₛ v = Univ.all (v 0) := rfl
 
@@ -138,6 +142,9 @@ Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.add v = v 0
 @[simp] theorem realize_imp (t₁ t₂ : peanoarithmetic.Term α) :
   Term.realize v (Imp.imp t₁ t₂) = Imp.imp (Term.realize v t₁) (Term.realize v t₂) := rfl
 
+@[simp] theorem realize_eq (t₁ t₂ : peanoarithmetic.Term α) :
+  Term.realize v (Eq.eq t₁ t₂) = Eq.eq (Term.realize v t₁) (Term.realize v t₂) := rfl
+
 @[simp] theorem realize_all (t : peanoarithmetic.Term α) :
   Term.realize v (Univ.all t) = Univ.all (Term.realize v t) := rfl
 
@@ -161,6 +168,7 @@ namespace ModelN
     | .andₛ, v   => 0
     | .orₛ, v    => 0
     | .impₛ, v   => 0
+    | .eqₛ, v    => 0
     | .allₛ, v   => 0
     | .exₛ, v    => 0
 

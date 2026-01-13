@@ -78,12 +78,12 @@ def ax_var_term : Sentence ℒ :=
 def ax_const_term : Sentence ℒ :=
   ∀' (Const(&0) ⟹ Term(&0))
 
--- def ax_eq_form : Sentence ℒ :=
---   ∀' ∀' ((Term(&0) ∧' Term(&1)) ⟹ BdForm(&0 =' &1))
+def ax_eq_form : Sentence ℒ :=
+  ∀' ∀' ((Term(&0) ∧' Term(&1)) ⟹ BdForm(&0 ⬝= &1))
 
 -- Arithmetic Operations
 def ax_succ_term : Sentence ℒ :=
-  ∀' (Term(&0) ⟹ Term(S(&0)))
+  ∀' (Term(&0) ⟹ Term(Sₛ(&0)))
 
 def ax_add_term : Sentence ℒ :=
   ∀' ∀' (Term(&0) ∧' Term(&1) ⟹ Term(&0 addₛ &1))
@@ -112,7 +112,7 @@ def ax_ex_form : Sentence ℒ :=
 
 -- Injectivity
 def ax_succ_inj : Sentence ℒ :=
-  ∀' ∀' (S(&0) =' S(&1) ⟹ (&0 =' &1))
+  ∀' ∀' (Sₛ(&0) =' Sₛ(&1) ⟹ (&0 =' &1))
 
 def ax_add_inj : Sentence ℒ :=
   ∀' ∀' ∀' ∀'((&0 addₛ &1) =' (&2 addₛ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3)))
@@ -185,3 +185,76 @@ def ax_all_ne_ex : Sentence ℒ :=
   ∀' ∀' ∼((⬝∀&0) =' (⬝∃ &1))
 
 end SyntaxTheory
+
+namespace Substitution
+
+variable {L : Language}
+
+@[simp]
+def liftTerm {α : Type} {n : ℕ} : Term L (α ⊕ Fin n) → Term L (α ⊕ Fin (n + 1))
+  | Term.var v =>
+    match v with
+    | Sum.inl a => Term.var (Sum.inl a)
+    | Sum.inr i => Term.var (Sum.inr (Fin.succ i))
+  | Term.func f ts => Term.func f (fun i => liftTerm (ts i))
+
+@[simp]
+def liftFormula {α : Type} {n : ℕ} : BoundedFormula L α n → BoundedFormula L α (n + 1)
+  | .falsum => .falsum
+  | .equal t1 t2 => .equal (liftTerm t1) (liftTerm t2)
+  | .rel R ts => .rel R (fun i => liftTerm (ts i))
+  | .imp φ ψ => .imp (liftFormula φ) (liftFormula ψ)
+  | .all φ => .all (liftFormula φ)
+
+
+@[simp]
+def term_substitution {α : Type} {n : ℕ} (t : Term L (α ⊕ Fin n)) : Term L (Fin 1 ⊕ Fin n) → Term L (α ⊕ Fin n)
+  | Term.var (Sum.inl ⟨0,_⟩) => t
+  | Term.var (Sum.inr i) => Term.var (Sum.inr i)
+  | Term.func f ts => Term.func f (fun i => term_substitution t (ts i))
+
+@[simp]
+def formula_substitution {α : Type} {n : ℕ} (t : Term L (α ⊕ Fin n)) : BoundedFormula L (Fin 1) n → BoundedFormula L α n
+  | .falsum => .falsum
+  | .equal t1 t2 => .equal (term_substitution t t1) (term_substitution t t2)
+  | .rel R ts => .rel R (fun i => term_substitution t (ts i))
+  | .imp φ ψ => .imp (formula_substitution t φ) (formula_substitution t ψ)
+  | .all φ => .all (formula_substitution (liftTerm t) φ)
+
+@[simp]
+def bv_term_substitution {α : Type} {n : ℕ} (t : Term L (α ⊕ Fin (n + 1))) : Term L (Fin 1 ⊕ Fin n) → Term L (α ⊕ Fin (n + 1))
+  | Term.var v =>
+    match v with
+    | Sum.inl ⟨0,_⟩ => t
+    | Sum.inr i => liftTerm (Term.var (Sum.inr i))
+  | Term.func f ts => Term.func f (fun i => term_substitution t (liftTerm (ts i)))
+
+@[simp]
+def bv_formula_substitution {α : Type} {n : ℕ} (t : Term L (α ⊕ Fin (n + 1))) : BoundedFormula L (Fin 1) n → BoundedFormula L α (n + 1)
+  | .falsum => .falsum
+  | .equal t1 t2 => .equal (bv_term_substitution t t1) (bv_term_substitution t t2)
+  | .rel R ts => .rel R (fun i => bv_term_substitution t (ts i))
+  | .imp φ ψ => .imp (bv_formula_substitution t φ) (bv_formula_substitution t ψ)
+  | .all φ => .all (bv_formula_substitution (liftTerm t) φ)
+
+end Substitution
+
+namespace Induction
+
+open Substitution
+open Term
+open BoundedFormula
+
+def induction_axiom_PA (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
+  (formula_substitution null φ ∧'
+    ∀' (bv_formula_substitution (Term.var (Sum.inr 0)) φ ⟹
+        bv_formula_substitution (S(Term.var (Sum.inr 0))) φ)) ⟹
+  ∀' (bv_formula_substitution (Term.var (Sum.inr 0)) φ)
+
+def induction_axiom_syntax (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
+  (formula_substitution nullₛ φ ∧'
+    ∀' (bv_formula_substitution (Term.var (Sum.inr 0)) φ ⟹
+        bv_formula_substitution (Sₛ(Term.var (Sum.inr 0))) φ)) ⟹
+  ∀' (bv_formula_substitution (Term.var (Sum.inr 0)) φ)
+
+end Induction
