@@ -10,6 +10,8 @@ open TermEncoding
 open TermDecoding
 open NatCoding
 
+
+namespace PeanoArithmetic
 variable {α : Type*}
 
 /-- Peano arithemtic -/
@@ -69,6 +71,8 @@ lemma realize_numeral_eq_self (n : ℕ) (r : ℕ → ℕ) :
     simp [numeral]
     rw [ih]
     rfl
+
+end PeanoArithmetic
 
 namespace SyntaxTheory
 -- Formation Rules
@@ -259,77 +263,49 @@ def induction_axiom_syntax (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
 def induction_axiom_syntax_term (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
   (formula_substitution nullₛ φ ∧'
     ∀'(bv_formula_substitution (&0) φ ⟹
-      bv_formula_substitution (Sₛ(&0)) φ) ⟹
-      ∀'(bv_formula_substitution (&0) φ ∧' bv_formula_substitution (&1) φ ⟹
-        bv_formula_substitution ((&0) addₛ (&1)) φ) ∧'
-          (bv_formula_substitution (&0) φ ∧' bv_formula_substitution (&1) φ ⟹
-          bv_formula_substitution ((&0) timesₛ (&1)) φ)) ⟹
+      bv_formula_substitution (Sₛ(&0)) φ) ∧'
+        ((bv_formula_substitution (&0) φ) ∧' (bv_formula_substitution (&0) φ) ⟹
+        bv_formula_substitution ((&0) addₛ (&0)) φ) ∧'
+          ((bv_formula_substitution (&0) φ) ∧' (bv_formula_substitution (&0) φ)) ⟹
+          bv_formula_substitution ((&0) timesₛ (&0)) φ) ⟹
   ∀' (bv_formula_substitution (&0) φ)
 
 def induction_axiom_syntax_formula (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
   (formula_substitution nullₛ φ ∧'
-      ∀'(bv_formula_substitution (&0) φ ⟹
-        bv_formula_substitution (⬝∼ &0) φ) ∧'
-          (bv_formula_substitution (&0) φ ∧' bv_formula_substitution (&1) φ ⟹
-          bv_formula_substitution ((&0) ⬝∧ (&1)) φ) ∧'
-            (bv_formula_substitution (&0) φ ∧' bv_formula_substitution (&1) φ ⟹
-            bv_formula_substitution ((&0) ⬝∨ (&1)) φ) ∧'
-              (bv_formula_substitution (&0) φ ∧' bv_formula_substitution (&1) φ ⟹
-              bv_formula_substitution ((&0) ⬝⟹ (&1)) φ) ∧'
+      ∀'(bv_formula_substitution (&0) φ ⟹ bv_formula_substitution (⬝∼ &0) φ) ∧'
+          (bv_formula_substitution (&0) φ ∧' bv_formula_substitution (&0) φ ⟹
+          bv_formula_substitution ((&0) ⬝∧ (&0)) φ) ∧'
+            (bv_formula_substitution (&0) φ ∧' bv_formula_substitution (&0) φ ⟹
+            bv_formula_substitution ((&0) ⬝∨ (&0)) φ) ∧'
+              (bv_formula_substitution (&0) φ ∧' bv_formula_substitution (&0) φ ⟹
+              bv_formula_substitution ((&0) ⬝⟹ (&0)) φ) ∧'
                 (bv_formula_substitution (&0) φ ⟹
                 bv_formula_substitution (⬝∀ &0) φ) ∧'
                   (bv_formula_substitution (&0) φ ⟹
                   bv_formula_substitution (⬝∃ &0) φ)) ⟹
   ∀' (bv_formula_substitution (&0) φ)
 
-def base_case (φ : BoundedFormula ℒ (Fin 1) 1) : Sentence ℒ :=
- ∀' (formula_substitution nullₛ φ ∧'
-    ∀' (bv_formula_substitution (&0) φ ⟹
-        bv_formula_substitution (Sₛ(&0)) φ))
+-- variable (test: BoundedFormula ℒ (Fin 1) 0)
 
-def add_step (φ : BoundedFormula ℒ (Fin 1) 1): Sentence ℒ :=
-  ∀' ∀' (bv_formula_substitution (&1) φ ⟹
-    bv_formula_substitution (&0) φ ⟹
-    bv_formula_substitution ((&1) addₛ (&0)) φ)
+-- #check bv_formula_substitution (&0) test
 
-def mul_step (φ : BoundedFormula ℒ (Fin 1) 1): Sentence ℒ :=
-  ∀' ∀' (bv_formula_substitution (&1) φ ⟹
-    bv_formula_substitution (&0) φ ⟹
-    bv_formula_substitution ((&1) timesₛ (&0)) φ)
+def induction (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
+  (∀' (bv_formula_substitution (&0) φ))
+    ∧'
+    (∀' (bv_formula_substitution (&0) φ))
 
-def conclusion (φ : BoundedFormula ℒ (Fin 1) 1): Sentence ℒ :=
-  ∀' ∀' (bv_formula_substitution (&0) φ)
+def induction_2 (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
+(∀'(bv_formula_substitution (&1) φ) ∧' (bv_formula_substitution (&0) φ) ⟹ bv_formula_substitution ((&1) addₛ(&0)) φ)
 
-def induction_axiom_syntax_term_2 (φ : BoundedFormula ℒ (Fin 1) 1) : Sentence ℒ :=
-  (base_case φ ∧' add_step φ ∧' mul_step φ) ⟹ conclusion φ
+def ind_3 (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
+((∀'(bv_formula_substitution (&0) φ)) ∧' (∀'(bv_formula_substitution (&0) φ)) ⟹ (∀'(bv_formula_substitution ((&1) addₛ(&0)) φ)))
 
-
-def formula_base_case (φ : BoundedFormula ℒ (Fin 1) 1) : Sentence ℒ :=
-  ∀' (formula_substitution nullₛ φ)
-
-def and_step (φ : BoundedFormula ℒ (Fin 1) 1) : Sentence ℒ :=
-  ∀' ∀' (bv_formula_substitution (&0) φ ⟹ bv_formula_substitution (&1) φ ⟹
-         bv_formula_substitution ((&0) ⬝∧ (&1)) φ)
-
-def or_step (φ : BoundedFormula ℒ (Fin 1) 1) : Sentence ℒ :=
-  ∀' ∀' (bv_formula_substitution (&0) φ ⟹ bv_formula_substitution (&1) φ ⟹
-         bv_formula_substitution ((&0) ⬝∨ (&1)) φ)
-
-def imp_step (φ : BoundedFormula ℒ (Fin 1) 1) : Sentence ℒ :=
-  ∀' ∀' (bv_formula_substitution (&0) φ ⟹ bv_formula_substitution (&1) φ ⟹
-         bv_formula_substitution ((&0) ⬝⟹ (&1)) φ)
-
-def neg_step (φ : BoundedFormula ℒ (Fin 1) 1) : Sentence ℒ :=
-  ∀' ∀'(bv_formula_substitution (&0) φ ⟹ bv_formula_substitution (⬝∼ &0) φ)
-
-def all_step (φ : BoundedFormula ℒ (Fin 1) 1) : Sentence ℒ :=
-  ∀' ∀'(bv_formula_substitution (&0) φ ⟹ bv_formula_substitution (⬝∀ &0) φ)
-
-def ex_step (φ : BoundedFormula ℒ (Fin 1) 1) : Sentence ℒ :=
-  ∀' ∀'(bv_formula_substitution (&0) φ ⟹ bv_formula_substitution (⬝∃ &0) φ)
-
-def induction_axiom_syntax_formula_2 (φ : BoundedFormula ℒ (Fin 1) 1) : Sentence ℒ :=
-  (formula_base_case φ ∧' neg_step φ ∧' and_step φ ∧' or_step φ ∧'
-   imp_step φ ∧' all_step φ ∧' ex_step φ) ⟹ ∀' ∀'(bv_formula_substitution (&0) φ)
+def ind_4 (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
+∀'((bv_formula_substitution (&0) φ ∧' bv_formula_substitution (&0) φ)) ⟹ ∀'(bv_formula_substitution ((&0) addₛ (&0)) φ)
 
 end Induction
+
+open Induction
+open Substitution
+open SyntaxTheory
+open PeanoArithmetic
