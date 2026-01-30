@@ -294,14 +294,18 @@ def induction (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
     ∧'
     (∀' (bv_formula_substitution (&0) φ))
 
-def induction_2 (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
-(∀'(bv_formula_substitution (&1) φ) ∧' (bv_formula_substitution (&0) φ) ⟹ bv_formula_substitution ((&1) addₛ(&0)) φ)
+def induction_2 (φ : BoundedFormula ℒ (Fin 1) 0) (ψ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
+(∀'(bv_formula_substitution (&0) φ) ∧' (bv_formula_substitution (&0) ψ) ⟹ bv_formula_substitution ((&0) addₛ(&0)) φ)
 
 def ind_3 (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
 ((∀'(bv_formula_substitution (&0) φ)) ∧' (∀'(bv_formula_substitution (&0) φ)) ⟹ (∀'(bv_formula_substitution ((&1) addₛ(&0)) φ)))
 
 def ind_4 (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
 ∀'((bv_formula_substitution (&0) φ ∧' bv_formula_substitution (&0) φ)) ⟹ ∀'(bv_formula_substitution ((&0) addₛ (&0)) φ)
+
+def ind_nested (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
+((∀'(bv_formula_substitution (&0) φ) ∧' (∀'(bv_formula_substitution (&0) (liftFormula φ)) ⟹ (bv_formula_substitution ((&1) addₛ(&0)) φ))))
+
 
 end Induction
 
