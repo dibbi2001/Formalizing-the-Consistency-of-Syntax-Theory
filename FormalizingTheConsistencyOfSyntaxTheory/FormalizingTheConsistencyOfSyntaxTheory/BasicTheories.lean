@@ -254,7 +254,7 @@ def induction_axiom_PA (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
        bv_formula_substitution (S(&0)) φ)) ⟹
   ∀' (bv_formula_substitution (&0) φ)
 
-def induction_axiom_syntax (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
+def induction_axiom_syntax_carlo (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
   (formula_substitution nullₛ φ ∧'
     ∀' (bv_formula_substitution (&0) φ ⟹
         bv_formula_substitution (Sₛ(&0)) φ)) ⟹
@@ -262,28 +262,22 @@ def induction_axiom_syntax (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
 
 def induction_axiom_syntax_term (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
   (formula_substitution nullₛ φ ∧'
-    ∀'(bv_formula_substitution (&0) φ ⟹
-      bv_formula_substitution (Sₛ(&0)) φ) ∧'
-        ((bv_formula_substitution (&0) φ) ∧' (bv_formula_substitution (&0) φ) ⟹
-        bv_formula_substitution ((&0) addₛ (&0)) φ) ∧'
-          ((bv_formula_substitution (&0) φ) ∧' (bv_formula_substitution (&0) φ)) ⟹
-          bv_formula_substitution ((&0) timesₛ (&0)) φ) ⟹
-  ∀' (bv_formula_substitution (&0) φ)
+    (∀'(bv_formula_substitution (&0) φ ⟹ bv_formula_substitution (Sₛ(&0)) φ)) ∧'
+      (∀'(bv_formula_substitution (&0) φ) ∧' (∀'(bv_formula_substitution (&0) (liftFormula φ)) ⟹ (bv_formula_substitution ((&1) addₛ(&0)) φ))) ∧'
+        (∀'(bv_formula_substitution (&0) φ) ∧' (∀'(bv_formula_substitution (&0) (liftFormula φ)) ⟹ (bv_formula_substitution ((&1) timesₛ(&0)) φ))) ⟹
+           (∀'(bv_formula_substitution (&0) φ))
+  )
 
 def induction_axiom_syntax_formula (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
   (formula_substitution nullₛ φ ∧'
-      ∀'(bv_formula_substitution (&0) φ ⟹ bv_formula_substitution (⬝∼ &0) φ) ∧'
-          (bv_formula_substitution (&0) φ ∧' bv_formula_substitution (&0) φ ⟹
-          bv_formula_substitution ((&0) ⬝∧ (&0)) φ) ∧'
-            (bv_formula_substitution (&0) φ ∧' bv_formula_substitution (&0) φ ⟹
-            bv_formula_substitution ((&0) ⬝∨ (&0)) φ) ∧'
-              (bv_formula_substitution (&0) φ ∧' bv_formula_substitution (&0) φ ⟹
-              bv_formula_substitution ((&0) ⬝⟹ (&0)) φ) ∧'
-                (bv_formula_substitution (&0) φ ⟹
-                bv_formula_substitution (⬝∀ &0) φ) ∧'
-                  (bv_formula_substitution (&0) φ ⟹
-                  bv_formula_substitution (⬝∃ &0) φ)) ⟹
-  ∀' (bv_formula_substitution (&0) φ)
+    (∀'(bv_formula_substitution (&0) φ ⟹ bv_formula_substitution (⬝∼ &0) φ)) ∧'
+      (∀'(bv_formula_substitution (&0) φ) ∧' (∀'(bv_formula_substitution (&0) (liftFormula φ)) ⟹ (bv_formula_substitution ((&1) ⬝∧ (&0)) φ))) ∧'
+        (∀'(bv_formula_substitution (&0) φ) ∧' (∀'(bv_formula_substitution (&0) (liftFormula φ)) ⟹ (bv_formula_substitution ((&1) ⬝∨ (&0)) φ))) ∧'
+          (∀'(bv_formula_substitution (&0) φ) ∧' (∀'(bv_formula_substitution (&0) (liftFormula φ)) ⟹ (bv_formula_substitution ((&1) ⬝⟹ (&0)) φ))) ∧'
+            (∀'(bv_formula_substitution (&0) φ ⟹ bv_formula_substitution (⬝∀ &0) φ)) ∧'
+              (∀'(bv_formula_substitution (&0) φ ⟹ bv_formula_substitution (⬝∃ &0) φ)) ⟹
+                (∀'(bv_formula_substitution (&0) φ))
+  )
 
 -- variable (test: BoundedFormula ℒ (Fin 1) 0)
 
@@ -294,20 +288,13 @@ def induction (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
     ∧'
     (∀' (bv_formula_substitution (&0) φ))
 
-def induction_2 (φ : BoundedFormula ℒ (Fin 1) 0) (ψ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
-(∀'(bv_formula_substitution (&0) φ) ∧' (bv_formula_substitution (&0) ψ) ⟹ bv_formula_substitution ((&0) addₛ(&0)) φ)
-
-def ind_3 (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
-((∀'(bv_formula_substitution (&0) φ)) ∧' (∀'(bv_formula_substitution (&0) φ)) ⟹ (∀'(bv_formula_substitution ((&1) addₛ(&0)) φ)))
-
-def ind_4 (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
-∀'((bv_formula_substitution (&0) φ ∧' bv_formula_substitution (&0) φ)) ⟹ ∀'(bv_formula_substitution ((&0) addₛ (&0)) φ)
-
 def ind_nested (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
-((∀'(bv_formula_substitution (&0) φ) ∧' (∀'(bv_formula_substitution (&0) (liftFormula φ)) ⟹ (bv_formula_substitution ((&1) addₛ(&0)) φ))))
+(∀'(bv_formula_substitution (&0) φ ⟹ bv_formula_substitution (⬝∀ &0) φ))
 
-
+def ind_nested_2 (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
+(∀'(bv_formula_substitution (&0) φ) ∧' (∀'(bv_formula_substitution (&0) (liftFormula φ)) ⟹ (bv_formula_substitution ((&1) timesₛ(&0)) φ)))
 end Induction
+
 
 open Induction
 open Substitution
