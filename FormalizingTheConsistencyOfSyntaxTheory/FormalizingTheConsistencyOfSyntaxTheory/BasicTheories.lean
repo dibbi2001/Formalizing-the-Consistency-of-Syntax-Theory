@@ -188,6 +188,48 @@ def ax_imp_ne_ex : Sentence ℒ :=
 def ax_all_ne_ex : Sentence ℒ :=
   ∀' ∀' ∼((⬝∀&0) =' (⬝∃ &1))
 
+inductive syntax_axioms : ℒ.Theory
+  | var_term      : syntax_axioms ax_var_term
+  | const_term    : syntax_axioms ax_const_term
+  | eq_form       : syntax_axioms ax_eq_form
+
+  | succ_term     : syntax_axioms ax_succ_term
+  | add_term      : syntax_axioms ax_add_term
+  | mult_term     : syntax_axioms ax_mult_term
+
+  | neg_form      : syntax_axioms ax_neg_form
+  | and_form      : syntax_axioms ax_and_form
+  | or_form       : syntax_axioms ax_or_form
+  | imp_form      : syntax_axioms ax_imp_form
+  | all_form      : syntax_axioms ax_all_form
+  | ex_form       : syntax_axioms ax_ex_form
+
+  | succ_inj      : syntax_axioms ax_succ_inj
+  | add_inj       : syntax_axioms ax_add_inj
+  | mult_inj      : syntax_axioms ax_mult_inj
+  | neg_inj       : syntax_axioms ax_neg_inj
+  | and_inj       : syntax_axioms ax_and_inj
+  | or_inj        : syntax_axioms ax_or_inj
+  | imp_inj       : syntax_axioms ax_imp_inj
+  | all_inj       : syntax_axioms ax_all_inj
+  | ex_inj        : syntax_axioms ax_ex_inj
+
+  | neg_ne_and    : syntax_axioms ax_neg_ne_and
+  | neg_ne_or     : syntax_axioms ax_neg_ne_or
+  | neg_ne_imp    : syntax_axioms ax_neg_ne_imp
+  | neg_ne_all    : syntax_axioms ax_neg_ne_all
+  | neg_ne_ex     : syntax_axioms ax_neg_ne_ex
+  | and_ne_or     : syntax_axioms ax_and_ne_or
+  | and_ne_imp    : syntax_axioms ax_and_ne_imp
+  | and_ne_all    : syntax_axioms ax_and_ne_all
+  | and_ne_ex     : syntax_axioms ax_and_ne_ex
+  | or_ne_imp     : syntax_axioms ax_or_ne_imp
+  | or_ne_all     : syntax_axioms ax_or_ne_all
+  | or_ne_ex      : syntax_axioms ax_or_ne_ex
+  | imp_ne_all    : syntax_axioms ax_imp_ne_all
+  | imp_ne_ex     : syntax_axioms ax_imp_ne_ex
+  | all_ne_ex     : syntax_axioms ax_all_ne_ex
+
 end SyntaxTheory
 
 namespace Substitution
@@ -300,3 +342,18 @@ open Induction
 open Substitution
 open SyntaxTheory
 open PeanoArithmetic
+
+def induction_schema : ℒ.Theory :=
+  { ψ | ∃ φ : BoundedFormula ℒ (Fin 1) 0, ψ = induction_axiom_PA φ }
+
+def peano_arithmetic : ℒ.Theory :=
+  peano_axioms ∪ induction_schema
+
+def induction_schema_syntax_term : ℒ.Theory :=
+  { ψ | ∃ φ : BoundedFormula ℒ (Fin 1) 0, ψ = induction_axiom_syntax_term φ}
+
+def induction_schema_syntax_formula : ℒ.Theory :=
+  { ψ | ∃ φ : BoundedFormula ℒ (Fin 1) 0, ψ = induction_axiom_syntax_formula φ}
+
+def syntax_theory : ℒ.Theory :=
+  syntax_axioms ∪ induction_schema_syntax_term ∪ induction_schema_syntax_formula
