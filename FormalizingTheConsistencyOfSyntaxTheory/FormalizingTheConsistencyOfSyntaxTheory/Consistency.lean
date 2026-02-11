@@ -6,6 +6,7 @@ open Language
 open peanoarithmetic
 open BoundedFormula
 open Classical
+open PeanoArithmetic
 
 namespace Consistency
 
