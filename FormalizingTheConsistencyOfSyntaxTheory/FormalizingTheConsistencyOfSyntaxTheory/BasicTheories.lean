@@ -315,26 +315,12 @@ def induction_axiom_syntax_formula (φ : BoundedFormula ℒ (Fin 1) 0) : Sentenc
     (∀'(bv_formula_substitution (&0) φ ⟹ bv_formula_substitution (⬝∼ &0) φ)) ∧'
       (∀'(bv_formula_substitution (&0) φ) ∧' (∀'(bv_formula_substitution (&0) (liftFormula φ)) ⟹ (bv_formula_substitution ((&1) ⬝∧ (&0)) φ))) ∧'
         (∀'(bv_formula_substitution (&0) φ) ∧' (∀'(bv_formula_substitution (&0) (liftFormula φ)) ⟹ (bv_formula_substitution ((&1) ⬝∨ (&0)) φ))) ∧'
-          (∀'(bv_formula_substitution (&0) φ) ∧' (∀'(bv_formula_substitution (&0) (liftFormula φ)) ⟹ (bv_formula_substitution ((&1) ⬝⟹ (&0)) φ))) ∧'
+          (∀'(bv_formula_substitution (&0) φ) ∧' (∀'(bv_formula_substitution (&0) (liftFormula φ)) ⟹ (bv_formula_substitution ((&5) ⬝⟹ (&0)) φ))) ∧'
             (∀'(bv_formula_substitution (&0) φ ⟹ bv_formula_substitution (⬝∀ &0) φ)) ∧'
               (∀'(bv_formula_substitution (&0) φ ⟹ bv_formula_substitution (⬝∃ &0) φ)) ⟹
                 (∀'(bv_formula_substitution (&0) φ))
   )
 
--- variable (test: BoundedFormula ℒ (Fin 1) 0)
-
--- #check bv_formula_substitution (&0) test
-
-def induction (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
-  (∀' (bv_formula_substitution (&0) φ))
-    ∧'
-    (∀' (bv_formula_substitution (&0) φ))
-
-def ind_nested (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
-(∀'(bv_formula_substitution (&0) φ ⟹ bv_formula_substitution (⬝∀ &0) φ))
-
-def ind_nested_2 (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
-(∀'(bv_formula_substitution (&0) φ) ∧' (∀'(bv_formula_substitution (&0) (liftFormula φ)) ⟹ (bv_formula_substitution ((&1) timesₛ(&0)) φ)))
 end Induction
 
 

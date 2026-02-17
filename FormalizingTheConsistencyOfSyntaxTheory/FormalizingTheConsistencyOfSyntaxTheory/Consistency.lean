@@ -7,8 +7,12 @@ open peanoarithmetic
 open BoundedFormula
 open Classical
 open PeanoArithmetic
+open Structure
+open ModelN
 
 namespace Consistency
+
+variable {M : Type*}
 
 abbrev semantically_consistent (T : Theory ℒ) : Prop :=
   T.IsSatisfiable
@@ -20,11 +24,40 @@ lemma inconsistent (r : Fin 0 → ℕ):
 ¬ BoundedFormula.Realize ((BoundedFormula.equal null null) ∧' (BoundedFormula.not (BoundedFormula.equal null null))) (fun x => x) r := by
   simp [BoundedFormula.land, BoundedFormula.not]
 
-theorem nat_models_peano_axioms :
-  ℕ ⊨ (peano_axioms : ℒ.Theory) := by
-  sorry
+theorem nat_models_peano_axioms : ℕ ⊨ peano_axioms := by
+  simp
+  intro φ hφ
+  cases hφ
+  case first =>
+    simp
+    intro x
+    exact Nat.zero_ne_add_one x
+  case second =>
+    intro x y hxy
+    exact Nat.succ_injective hxy
+  case third =>
+    intro x
+    exact Nat.add_zero x
+  case fourth =>
+    intro x y
+    exact Nat.add_succ y x
+  case fifth =>
+    intro x
+    exact Nat.mul_zero x
+  case sixth =>
+    intro x y
+    exact Nat.mul_succ y x
+
+def standardModel : peano_axioms.ModelType :=
+{
+  Carrier := ℕ,
+  struc := nat_structure,
+  is_model := nat_models_peano_axioms,
+  nonempty' := ⟨0⟩
+}
 
 theorem peano_axioms_satisfiable : (peano_axioms : Theory peanoarithmetic).IsSatisfiable := by
-  sorry
+  refine ⟨standardModel⟩
+
 
 end Consistency
