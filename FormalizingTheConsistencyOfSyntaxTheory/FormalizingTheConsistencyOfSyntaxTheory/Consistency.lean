@@ -7,8 +7,10 @@ open peanoarithmetic
 open BoundedFormula
 open Classical
 open PeanoArithmetic
+open SyntaxTheory
 open Structure
-open ModelN
+open PAStructure
+open SyntaxStructure
 
 namespace Consistency
 
@@ -59,5 +61,18 @@ def standardModel : peano_axioms.ModelType :=
 theorem peano_axioms_satisfiable : (peano_axioms : Theory peanoarithmetic).IsSatisfiable := by
   refine ⟨standardModel⟩
 
+theorem nat_models_syntax_axioms : ℕ ⊨ syntax_axioms := by
+  sorry
+
+-- def syntaxModel : syntax_axioms.ModelType :=
+-- {
+--   Carrier := ℕ,
+--   struc := nat_syntax_structure
+--   is_model := nat_models_syntax_axioms
+--   nonempty' := ⟨0⟩
+-- }
+
+theorem syntax_axioms_satisfiable : (syntax_axioms : ℒ.Theory).IsSatisfiable := by
+  sorry
 
 end Consistency

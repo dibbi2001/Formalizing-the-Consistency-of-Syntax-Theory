@@ -8,7 +8,7 @@ open peanoarithmetic
 open BoundedFormula
 open TermEncoding
 open TermDecoding
-open NatCoding
+open SyntaxStructure
 
 
 namespace PeanoArithmetic
