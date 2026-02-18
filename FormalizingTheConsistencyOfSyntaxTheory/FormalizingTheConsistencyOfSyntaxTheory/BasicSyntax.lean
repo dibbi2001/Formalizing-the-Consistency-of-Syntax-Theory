@@ -259,8 +259,8 @@ namespace Language.peanoarithmetic
   notation n "add" m => Add.add n m
   notation n "times" m => Mul.mul n m
 
-  notation "Sₛ(" n ")" => Succₛ.succₛ n
-  notation n "addₛ" m => Addₛ.addₛ n m
+  notation "Sₛ(" n ")" => Term.func peanoarithmeticFunc.succₛ ![n]
+  notation n "addₛ" m => Term.func peanoarithmeticFunc.addₛ ![n, m]
   notation n "timesₛ" m => Mulₛ.mulₛ n m
 
   notation n "⬝∧" m => Term.func peanoarithmeticFunc.andₛ ![n, m]

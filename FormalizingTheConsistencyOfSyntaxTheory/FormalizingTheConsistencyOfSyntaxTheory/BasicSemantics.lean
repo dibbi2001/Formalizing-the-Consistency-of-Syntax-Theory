@@ -225,6 +225,37 @@ namespace NatCoding
   --   match i with
   --   | some φ => formula_tonat (BoundedFormula.not φ)
   --   | none   => k
+  def zeroₛ_repres : ℕ :=
+    TermEncoding.term_tonat (L := peanoarithmetic) (Term.func (L := peanoarithmetic) peanoarithmeticFunc.zeroₛ ![])
+
+  def succₛ_repres (k : ℕ) : ℕ :=
+    match term_ofnat k with
+    | some (t : Term ℒ (ℕ ⊕ Fin 0)) =>
+        term_tonat (Sₛ(t))
+    | none =>
+        k
+
+  def addₛ_repres (k₁ k₂ : ℕ) : ℕ :=
+    match term_ofnat k₁, term_ofnat k₂ with
+    | some (t : Term ℒ (ℕ ⊕ Fin 0)), some (s : Term ℒ (ℕ ⊕ Fin 0)) =>
+        term_tonat (t addₛ s)
+    | some (t : Term ℒ (ℕ ⊕ Fin 0)), none =>
+        term_tonat t
+    | none, some (s : Term ℒ (ℕ ⊕ Fin 0)) =>
+        term_tonat s
+    | none, none =>
+        Nat.min k₁ k₂
+
+  def multₛ_repres (k₁ k₂ : ℕ) : ℕ :=
+    match term_ofnat k₁, term_ofnat k₂ with
+    | some (t : Term ℒ (ℕ ⊕ Fin 0)), some (s : Term ℒ (ℕ ⊕ Fin 0)) =>
+        term_tonat (t timesₛ s)
+    | some (t : Term ℒ (ℕ ⊕ Fin 0)), none =>
+        term_tonat t
+    | none, some (s : Term ℒ (ℕ ⊕ Fin 0)) =>
+        term_tonat s
+    | none, none =>
+        Nat.min k₁ k₂
 
   def neg_repres (k : ℕ) : ℕ :=
     match formula_ofnat (n := n) k with
@@ -234,7 +265,7 @@ namespace NatCoding
         k
 
   def and_repres (k₁ k₂ : ℕ) : ℕ :=
-    match formula_ofnat (n := n) k₁, formula_ofnat (n := n) k₂ with
+    match formula_ofnat k₁, formula_ofnat k₂ with
     | some (φ : BoundedFormula L ℕ n), some (ψ : BoundedFormula L ℕ n) =>
         formula_tonat (φ ∧' ψ)
     | some (φ : BoundedFormula L ℕ n), none =>
@@ -245,7 +276,7 @@ namespace NatCoding
         Nat.min k₁ k₂
 
   def or_repres (k₁ k₂ : ℕ) : ℕ :=
-    match formula_ofnat (n := n) k₁, formula_ofnat (n := n) k₂ with
+    match formula_ofnat k₁, formula_ofnat k₂ with
     | some (φ : BoundedFormula L ℕ n), some (ψ : BoundedFormula L ℕ n) =>
         formula_tonat (φ ∨' ψ)
     | some (φ : BoundedFormula L ℕ n), none =>
@@ -256,7 +287,7 @@ namespace NatCoding
         Nat.min k₁ k₂
 
   def imp_repres (k₁ k₂ : ℕ) : ℕ :=
-    match formula_ofnat (n := n) k₁, formula_ofnat (n := n) k₂ with
+    match formula_ofnat k₁, formula_ofnat k₂ with
     | some (φ : BoundedFormula L ℕ n), some (ψ : BoundedFormula L ℕ n) =>
         formula_tonat (BoundedFormula.imp φ ψ)
     | some (φ : BoundedFormula L ℕ n), none =>
@@ -267,14 +298,34 @@ namespace NatCoding
         Nat.min k₁ k₂
 
   def all_repres (k : ℕ) : ℕ :=
-    match (formula_ofnat (n := n + 1) k : Option (BoundedFormula L ℕ (n + 1))) with
+    match (formula_ofnat k : Option (BoundedFormula L ℕ (n + 1))) with
     | some (φ : BoundedFormula L ℕ (n + 1)) => formula_tonat (BoundedFormula.all φ)
     | none => k
 
   def ex_repres (k : ℕ) : ℕ :=
-    match (formula_ofnat (n := n + 1) k : Option (BoundedFormula L ℕ (n + 1))) with
+    match (formula_ofnat k : Option (BoundedFormula L ℕ (n + 1))) with
     | some (φ : BoundedFormula L ℕ (n + 1)) => formula_tonat (BoundedFormula.ex φ)
     | none => k
+
+  def var_repres (k : ℕ) : ℕ :=
+    match TermDecoding.term_ofnat (L := peanoarithmetic) k with
+    | some (.var _) => 1
+    | _             => 0
+
+  def term_repres (k : ℕ) : ℕ :=
+    match TermDecoding.term_ofnat (L := peanoarithmetic) k with
+    | some _ => 1
+    | none   => 0
+
+  def const_repres (k : ℕ) : ℕ :=
+    match TermDecoding.term_ofnat (L := peanoarithmetic) k with
+    | some (.func peanoarithmeticFunc.zeroₛ ![]) => 1
+    | _ => 0
+
+  def bdform_repres (k : ℕ) : ℕ :=
+    match TermDecoding.formula_ofnat_general (L := peanoarithmetic) k with
+    | some _ => 1
+    | none   => 0
 
   def φ : BoundedFormula ℒ ℕ 0 := BoundedFormula.equal (null) (null)
   def ψ : BoundedFormula ℒ Empty 0 := (∀' ∀' ((&1 times S(&0)) =' ((&1 times &0)) add &1))
