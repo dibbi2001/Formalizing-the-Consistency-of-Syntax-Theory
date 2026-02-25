@@ -95,6 +95,11 @@ def ax_add_term : Sentence ℒ :=
 def ax_mult_term : Sentence ℒ :=
   ∀' ∀' (Term(&0) ∧' Term(&1) ⟹ Term(&0 timesₛ &1))
 
+theorem n_models_syntax_axioms : ℕ ⊨ ax_mult_term := by
+  intro x y
+  dsimp [instMulₛTerm]
+  sorry
+
 -- Logical Connectives
 def ax_neg_form : Sentence ℒ :=
   ∀' (BdForm(&0) ⟹ BdForm(⬝∼ &0))
