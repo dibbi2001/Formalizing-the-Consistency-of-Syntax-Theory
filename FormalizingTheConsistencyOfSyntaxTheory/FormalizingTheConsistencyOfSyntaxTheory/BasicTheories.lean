@@ -74,6 +74,12 @@ lemma realize_numeral_eq_self (n : ℕ) (r : ℕ → ℕ) :
 
 end PeanoArithmetic
 
+-- conditional intro
+-- look into lemma's that use Realize
+-- look into how the Realize function works
+-- think about what lemma's would be useful to have
+-- look at how the model structure works
+
 namespace SyntaxTheory
 -- Formation Rules
 def ax_var_term : Sentence ℒ :=
@@ -90,15 +96,30 @@ def ax_succ_term : Sentence ℒ :=
   ∀' (Term(&0) ⟹ Term(Sₛ(&0)))
 
 def ax_add_term : Sentence ℒ :=
-  ∀' ∀' (Term(&0) ∧' Term(&1) ⟹ Term(&0 addₛ &1))
+  ∀' (∀' (Term(&0) ∧' Term(&1) ⟹ Term(&0 addₛ &1)))
 
 def ax_mult_term : Sentence ℒ :=
   ∀' ∀' (Term(&0) ∧' Term(&1) ⟹ Term(&0 timesₛ &1))
 
-theorem n_models_syntax_axioms : ℕ ⊨ ax_mult_term := by
+theorem n_models_syntax_axioms (n : ℕ) :  ℕ ⊨ ax_add_term := by
   intro x y
-  dsimp [instMulₛTerm]
+  simp only [Matrix.cons_fin_one]
   sorry
+  -- simp [ax_add_term]
+  -- rw [Sentence.Realize]
+  -- intro x y hxy
+  -- rw [default]
+  -- simp [Realize]
+
+
+  -- dsimp [Formula.Realize]
+
+  -- apply addₛ_repres at x
+  -- apply addₛ_repres at y
+
+
+
+
 
 -- Logical Connectives
 def ax_neg_form : Sentence ℒ :=
