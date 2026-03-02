@@ -67,7 +67,9 @@ theorem nat_models_syntax_axioms : ℕ ⊨ syntax_axioms := by
   cases hφ
   case var_term =>
     intro x
-    aesop
+    exact fun a ↦ a
+    -- intro x
+    -- aesop
   case const_term =>
     intro x
     aesop

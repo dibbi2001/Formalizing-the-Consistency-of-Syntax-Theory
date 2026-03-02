@@ -371,7 +371,6 @@ namespace Language.peanoarithmetic
 variable {L : Language}[∀i, Encodable (L.Functions i)][∀i, Encodable (L.Relations i)]
 
 namespace TermEncoding
-
   /-- Encodes terms as natural numbers -/
   def term_tonat : Term L (ℕ ⊕ Fin 0) → ℕ :=
     fun t => Encodable.encodeList (Term.listEncode t)

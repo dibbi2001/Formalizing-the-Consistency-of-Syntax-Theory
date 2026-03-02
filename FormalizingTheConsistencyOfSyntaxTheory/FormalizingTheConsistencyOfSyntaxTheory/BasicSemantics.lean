@@ -229,7 +229,7 @@ namespace SyntaxStructure
     | none, some (s : Term ℒ (ℕ ⊕ Fin 0)) =>
         term_tonat s
     | none, none =>
-        Nat.min k₁ k₂
+        term_tonat (Term.var (Sum.inl 0) : Term ℒ (ℕ ⊕ Fin 0))
 
   def multₛ_repres (k₁ k₂ : ℕ) : ℕ :=
     match term_ofnat k₁, term_ofnat k₂ with

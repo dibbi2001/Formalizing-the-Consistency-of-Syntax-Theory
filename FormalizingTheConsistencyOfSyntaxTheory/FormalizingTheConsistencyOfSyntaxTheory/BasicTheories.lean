@@ -101,10 +101,11 @@ def ax_add_term : Sentence ℒ :=
 def ax_mult_term : Sentence ℒ :=
   ∀' ∀' (Term(&0) ∧' Term(&1) ⟹ Term(&0 timesₛ &1))
 
+
 theorem n_models_syntax_axioms (n : ℕ) :  ℕ ⊨ ax_add_term := by
-  intro x y
-  simp only [Matrix.cons_fin_one]
   sorry
+  -- simp only [Matrix.cons_fin_one]
+  -- sorry
   -- simp [ax_add_term]
   -- rw [Sentence.Realize]
   -- intro x y hxy
@@ -118,8 +119,61 @@ theorem n_models_syntax_axioms (n : ℕ) :  ℕ ⊨ ax_add_term := by
   -- apply addₛ_repres at y
 
 
+-- lemma decode_flatMap (l : ℕ) (ts : Fin l → Term ℒ (ℕ ⊕ Fin 0)) :
+--   Term.listDecode (List.flatMap (fun i ↦ (ts i).listEncode) (List.finRange l)) =
+--   List.map ts (List.finRange l) := by
+--   induction l with
+--   | zero =>
+--       simp
+--       rfl
+--   | succ =>
+--       simp [List.map_eq_flatMap]
+--       apply Eq.symm
+--       simp [List.finRange_succ]
+--       unfold Term.listDecode
+
+      -- -- simp [List.flatMap, List.flatten_eq_flattenTR]
+      -- simp [List.map_eq_flatMap, List.map_eq_mapTR, List.flatMap_eq_flatMapTR]
+      -- apply Eq.symm
+
+-- lemma listDecode_listEncode :
+--   ∀ t : Term ℒ (ℕ ⊕ Fin 0),
+--   Term.listDecode t.listEncode = [t] := by
+--   intro t
+--   induction t
+--   case var =>
+--     simp [Term.listEncode, Term.listDecode]
+--   case func =>
+--     unfold Term.listDecode Term.listEncode
+--     simp [List.flatMap, List.finRange]
 
 
+-- lemma Term_addₛ {x y : ℕ} :
+--   term_repres x = 1 → term_repres y = 1 → term_repres (addₛ_repres x y) = 1 := by
+--   simp [term_repres]
+  -- intro hx hy
+  -- unfold addₛ_repres
+  -- cases (term_ofnat : ℕ → Option (Term ℒ (ℕ ⊕ Fin 0))) x
+  -- case some tx =>
+  --   cases (term_ofnat : ℕ → Option (Term ℒ (ℕ ⊕ Fin 0))) y
+  --   case some ty =>
+  --     simp [term_tonat, term_repres]
+  --     simp [Term.listEncode]
+  --     unfold term_ofnat
+  --     simp
+  --     rfl
+
+  --   case none =>
+  --     simp [term_tonat, term_repres]
+  --     sorry
+  -- case none =>
+  --   cases (term_ofnat : ℕ → Option (Term ℒ (ℕ ⊕ Fin 0))) y
+  --   case some ty =>
+  --     simp [term_tonat, term_repres]
+  --     sorry
+  --   case none =>
+  --     simp [term_repres]
+  --     sorry
 
 -- Logical Connectives
 def ax_neg_form : Sentence ℒ :=
