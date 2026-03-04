@@ -390,17 +390,17 @@ notation "⌜" φ "⌝" => peanoarithmetic.numeral (formula_tonat φ)
 end TermEncoding
 
 namespace TermDecoding
---  def term_ofnat : ℕ → Option (Term L (ℕ ⊕ Fin 0))
---     | k =>
---       match Encodable.decodeList k with
---       | none      => none
---       | some lst  =>
---         match Term.listDecode lst with
---         | []      => none
---         | t :: _  => some t    -- first decoded term
-  def term_ofnat (k : ℕ) : Option (Term L (ℕ ⊕ Fin 0)) :=
-    Encodable.decodeList k >>= fun lst =>
-      (Term.listDecode lst).head?
+ def term_ofnat : ℕ → Option (Term L (ℕ ⊕ Fin 0))
+    | k =>
+      match Encodable.decodeList k with
+      | none      => none
+      | some lst  =>
+        match Term.listDecode lst with
+        | []      => none
+        | t :: _  => some t    -- first decoded term
+  -- def term_ofnat (k : ℕ) : Option (Term L (ℕ ⊕ Fin 0)) :=
+  --   Encodable.decodeList k >>= fun lst =>
+  --     (Term.listDecode lst).head?
 
   def sentence_term_ofnat : ℕ → Option (Term L (Empty ⊕ Fin 0))
     | k =>
