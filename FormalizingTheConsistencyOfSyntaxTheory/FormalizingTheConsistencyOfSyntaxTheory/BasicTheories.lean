@@ -96,97 +96,27 @@ def ax_succ_term : Sentence ℒ :=
   ∀' (Term(&0) ⟹ Term(Sₛ(&0)))
 
 def ax_add_term : Sentence ℒ :=
-  ∀' (∀' (Term(&0) ∧' Term(&1) ⟹ Term(&0 addₛ &1)))
+  ∀' ∀' ((Term(&0) ∧' Term(&1)) ⟹ Term(&0 addₛ &1))
 
 def ax_mult_term : Sentence ℒ :=
-  ∀' ∀' (Term(&0) ∧' Term(&1) ⟹ Term(&0 timesₛ &1))
-
-
-theorem n_models_syntax_axioms (n : ℕ) :  ℕ ⊨ ax_add_term := by
-  sorry
-  -- simp only [Matrix.cons_fin_one]
-  -- sorry
-  -- simp [ax_add_term]
-  -- rw [Sentence.Realize]
-  -- intro x y hxy
-  -- rw [default]
-  -- simp [Realize]
-
-
-  -- dsimp [Formula.Realize]
-
-  -- apply addₛ_repres at x
-  -- apply addₛ_repres at y
-
-
--- lemma decode_flatMap (l : ℕ) (ts : Fin l → Term ℒ (ℕ ⊕ Fin 0)) :
---   Term.listDecode (List.flatMap (fun i ↦ (ts i).listEncode) (List.finRange l)) =
---   List.map ts (List.finRange l) := by
---   induction l with
---   | zero =>
---       simp
---       rfl
---   | succ =>
---       simp [List.map_eq_flatMap]
---       apply Eq.symm
---       simp [List.finRange_succ]
---       unfold Term.listDecode
-
-      -- -- simp [List.flatMap, List.flatten_eq_flattenTR]
-      -- simp [List.map_eq_flatMap, List.map_eq_mapTR, List.flatMap_eq_flatMapTR]
-      -- apply Eq.symm
-
--- lemma listDecode_listEncode :
---   ∀ t : Term ℒ (ℕ ⊕ Fin 0),
---   Term.listDecode t.listEncode = [t] := by
---   intro t
---   induction t
---   case var =>
---     simp [Term.listEncode, Term.listDecode]
---   case func =>
---     unfold Term.listDecode Term.listEncode
---     simp [List.flatMap, List.finRange]
-
-
--- lemma Term_addₛ {x y : ℕ} :
---   term_repres x = 1 → term_repres y = 1 → term_repres (addₛ_repres x y) = 1 := by
---   simp [term_repres]
-  -- intro hx hy
-  -- unfold addₛ_repres
-  -- cases (term_ofnat : ℕ → Option (Term ℒ (ℕ ⊕ Fin 0))) x
-  -- case some tx =>
-  --   cases (term_ofnat : ℕ → Option (Term ℒ (ℕ ⊕ Fin 0))) y
-  --   case some ty =>
-  --     simp [term_tonat, term_repres]
-  --     simp [Term.listEncode]
-  --     unfold term_ofnat
-  --     simp
-  --     rfl
-
-  --   case none =>
-  --     simp [term_tonat, term_repres]
-  --     sorry
-  -- case none =>
-  --   cases (term_ofnat : ℕ → Option (Term ℒ (ℕ ⊕ Fin 0))) y
-  --   case some ty =>
-  --     simp [term_tonat, term_repres]
-  --     sorry
-  --   case none =>
-  --     simp [term_repres]
-  --     sorry
+  ∀' ∀' ((Term(&0) ∧' Term(&1)) ⟹ Term(&0 timesₛ &1))
 
 -- Logical Connectives
 def ax_neg_form : Sentence ℒ :=
   ∀' (BdForm(&0) ⟹ BdForm(⬝∼ &0))
 
 def ax_and_form : Sentence ℒ :=
-  ∀' ∀' (BdForm(&0) ∧' BdForm(&1) ⟹ BdForm(&0 ⬝∧ &1))
+  ∀' ∀' ((BdForm(&0) ∧' BdForm(&1)) ⟹ BdForm(&0 ⬝∧ &1))
 
 def ax_or_form : Sentence ℒ :=
-  ∀' ∀' (BdForm(&0) ∨' BdForm(&1) ⟹ BdForm(&0 ⬝∨ &1))
+  ∀' ∀' ((BdForm(&0) ∧' BdForm(&1)) ⟹ BdForm(&0 ⬝∨ &1))
 
 def ax_imp_form : Sentence ℒ :=
-  ∀' ∀' (BdForm(&0) ⟹ BdForm(&1) ⟹ BdForm(&0 ⬝⟹ &1))
+  ∀' ∀' ((BdForm(&0) ∧'BdForm(&1)) ⟹ BdForm(&0 ⬝⟹ &1))
+
+theorem n_models_syntax_axioms :  ℕ ⊨ ax_imp_form := by
+  intro x
+  aesop
 
 def ax_all_form : Sentence ℒ :=
   ∀' (BdForm(&0) ⟹ BdForm(⬝∀ &0))
@@ -284,31 +214,31 @@ inductive syntax_axioms : ℒ.Theory
   | all_form      : syntax_axioms ax_all_form
   | ex_form       : syntax_axioms ax_ex_form
 
-  | succ_inj      : syntax_axioms ax_succ_inj
-  | add_inj       : syntax_axioms ax_add_inj
-  | mult_inj      : syntax_axioms ax_mult_inj
-  | neg_inj       : syntax_axioms ax_neg_inj
-  | and_inj       : syntax_axioms ax_and_inj
-  | or_inj        : syntax_axioms ax_or_inj
-  | imp_inj       : syntax_axioms ax_imp_inj
-  | all_inj       : syntax_axioms ax_all_inj
-  | ex_inj        : syntax_axioms ax_ex_inj
+  -- | succ_inj      : syntax_axioms ax_succ_inj
+  -- | add_inj       : syntax_axioms ax_add_inj
+  -- | mult_inj      : syntax_axioms ax_mult_inj
+  -- | neg_inj       : syntax_axioms ax_neg_inj
+  -- | and_inj       : syntax_axioms ax_and_inj
+  -- | or_inj        : syntax_axioms ax_or_inj
+  -- | imp_inj       : syntax_axioms ax_imp_inj
+  -- | all_inj       : syntax_axioms ax_all_inj
+  -- | ex_inj        : syntax_axioms ax_ex_inj
 
-  | neg_ne_and    : syntax_axioms ax_neg_ne_and
-  | neg_ne_or     : syntax_axioms ax_neg_ne_or
-  | neg_ne_imp    : syntax_axioms ax_neg_ne_imp
-  | neg_ne_all    : syntax_axioms ax_neg_ne_all
-  | neg_ne_ex     : syntax_axioms ax_neg_ne_ex
-  | and_ne_or     : syntax_axioms ax_and_ne_or
-  | and_ne_imp    : syntax_axioms ax_and_ne_imp
-  | and_ne_all    : syntax_axioms ax_and_ne_all
-  | and_ne_ex     : syntax_axioms ax_and_ne_ex
-  | or_ne_imp     : syntax_axioms ax_or_ne_imp
-  | or_ne_all     : syntax_axioms ax_or_ne_all
-  | or_ne_ex      : syntax_axioms ax_or_ne_ex
-  | imp_ne_all    : syntax_axioms ax_imp_ne_all
-  | imp_ne_ex     : syntax_axioms ax_imp_ne_ex
-  | all_ne_ex     : syntax_axioms ax_all_ne_ex
+  -- | neg_ne_and    : syntax_axioms ax_neg_ne_and
+  -- | neg_ne_or     : syntax_axioms ax_neg_ne_or
+  -- | neg_ne_imp    : syntax_axioms ax_neg_ne_imp
+  -- | neg_ne_all    : syntax_axioms ax_neg_ne_all
+  -- | neg_ne_ex     : syntax_axioms ax_neg_ne_ex
+  -- | and_ne_or     : syntax_axioms ax_and_ne_or
+  -- | and_ne_imp    : syntax_axioms ax_and_ne_imp
+  -- | and_ne_all    : syntax_axioms ax_and_ne_all
+  -- | and_ne_ex     : syntax_axioms ax_and_ne_ex
+  -- | or_ne_imp     : syntax_axioms ax_or_ne_imp
+  -- | or_ne_all     : syntax_axioms ax_or_ne_all
+  -- | or_ne_ex      : syntax_axioms ax_or_ne_ex
+  -- | imp_ne_all    : syntax_axioms ax_imp_ne_all
+  -- | imp_ne_ex     : syntax_axioms ax_imp_ne_ex
+  -- | all_ne_ex     : syntax_axioms ax_all_ne_ex
 
 end SyntaxTheory
 

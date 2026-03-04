@@ -67,9 +67,7 @@ theorem nat_models_syntax_axioms : ℕ ⊨ syntax_axioms := by
   cases hφ
   case var_term =>
     intro x
-    exact fun a ↦ a
-    -- intro x
-    -- aesop
+    aesop
   case const_term =>
     intro x
     aesop
@@ -80,83 +78,88 @@ theorem nat_models_syntax_axioms : ℕ ⊨ syntax_axioms := by
     intro x
     aesop
   case add_term =>
-    sorry
+    intro x
+    aesop
   case mult_term =>
-    sorry
+    intro x
+    aesop
   case neg_form =>
     intro x
     aesop
   case and_form =>
-    sorry
+    intro x
+    aesop
   case or_form =>
-    sorry
+    intro x
+    aesop
   case imp_form =>
-    sorry
+    intro x
+    aesop
   case all_form =>
     intro x
     aesop
   case ex_form =>
     intro x
     aesop
-  case succ_inj =>
-    sorry
-  case add_inj =>
-    sorry
-  case mult_inj =>
-    sorry
-  case neg_inj =>
-    sorry
-  case and_inj =>
-    sorry
-  case or_inj =>
-    sorry
-  case imp_inj =>
-    sorry
-  case all_inj =>
-    sorry
-  case ex_inj =>
-    sorry
-  case neg_ne_and =>
-    sorry
-  case neg_ne_or =>
-    sorry
-  case neg_ne_imp =>
-    sorry
-  case neg_ne_all =>
-    sorry
-  case neg_ne_ex =>
-    sorry
-  case and_ne_or =>
-    sorry
-  case and_ne_imp =>
-    sorry
-  case and_ne_all =>
-    sorry
-  case and_ne_ex =>
-    sorry
-  case or_ne_imp =>
-    sorry
-  case or_ne_all =>
-    sorry
-  case or_ne_ex =>
-    sorry
-  case imp_ne_all =>
-    sorry
-  case imp_ne_ex =>
-    sorry
-  case all_ne_ex =>
-    sorry
+  -- case succ_inj =>
+  --   sorry
+  -- case add_inj =>
+  --   sorry
+  -- case mult_inj =>
+  --   sorry
+  -- case neg_inj =>
+  --   sorry
+  -- case and_inj =>
+  --   sorry
+  -- case or_inj =>
+  --   sorry
+  -- case imp_inj =>
+  --   sorry
+  -- case all_inj =>
+  --   sorry
+  -- case ex_inj =>
+  --   sorry
+  -- case neg_ne_and =>
+  --   sorry
+  -- case neg_ne_or =>
+  --   sorry
+  -- case neg_ne_imp =>
+  --   sorry
+  -- case neg_ne_all =>
+  --   sorry
+  -- case neg_ne_ex =>
+  --   sorry
+  -- case and_ne_or =>
+  --   sorry
+  -- case and_ne_imp =>
+  --   sorry
+  -- case and_ne_all =>
+  --   sorry
+  -- case and_ne_ex =>
+  --   sorry
+  -- case or_ne_imp =>
+  --   sorry
+  -- case or_ne_all =>
+  --   sorry
+  -- case or_ne_ex =>
+  --   sorry
+  -- case imp_ne_all =>
+  --   sorry
+  -- case imp_ne_ex =>
+  --   sorry
+  -- case all_ne_ex =>
+  --   sorry
 
 
--- def syntaxModel : syntax_axioms.ModelType :=
--- {
---   Carrier := ℕ,
---   struc := nat_syntax_structure
---   is_model := nat_models_syntax_axioms
---   nonempty' := ⟨0⟩
--- }
+def syntaxModel : syntax_axioms.ModelType :=
+{
+  Carrier := ℕ,
+  struc := nat_structure
+  is_model := nat_models_syntax_axioms
+  nonempty' := ⟨0⟩
+}
 
 theorem syntax_axioms_satisfiable : (syntax_axioms : ℒ.Theory).IsSatisfiable := by
-  sorry
+  refine ⟨syntaxModel⟩
 
 end Consistency

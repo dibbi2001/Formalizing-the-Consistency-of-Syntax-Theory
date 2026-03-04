@@ -266,7 +266,7 @@ namespace SyntaxStructure
   def imp_repres (k₁ k₂ : ℕ) : ℕ :=
     match TermDecoding.formula_ofnat (L := peanoarithmetic) (n := 0) k₁,
     TermDecoding.formula_ofnat (L := peanoarithmetic) (n := 0) k₂ with
-    | some φ, some ψ => TermEncoding.formula_tonat (L := peanoarithmetic) (φ ⟹ ψ)
+    | some φ, some ψ => TermEncoding.formula_tonat (L := peanoarithmetic) (BoundedFormula.imp φ ψ)
     | some φ, none => TermEncoding.formula_tonat (L := peanoarithmetic) φ
     | none, some ψ => TermEncoding.formula_tonat (L := peanoarithmetic) ψ
     | none, none => Nat.min k₁ k₂
@@ -301,6 +301,8 @@ namespace SyntaxStructure
     match TermDecoding.term_ofnat (L := peanoarithmetic) k with
     | some _ => 1
     | none   => 0
+
+  -- def term_repres (k : ℕ) : Prop :=  ∃ t, (term_ofnat : ℕ → Option (Term ℒ (ℕ ⊕ Fin 0))) k = some t
 
   def const_repres (k : ℕ) : ℕ :=
     match TermDecoding.term_ofnat (L := peanoarithmetic) k with
