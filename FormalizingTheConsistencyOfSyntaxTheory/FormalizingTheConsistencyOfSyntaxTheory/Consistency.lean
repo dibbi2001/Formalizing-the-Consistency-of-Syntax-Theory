@@ -61,20 +61,50 @@ def standardModel : peano_axioms.ModelType :=
 theorem peano_axioms_satisfiable : (peano_axioms : Theory peanoarithmetic).IsSatisfiable := by
   refine ⟨standardModel⟩
 
-theorem nat_models_syntax_axioms : ℕ ⊨ syntax_axioms := by
+
+theorem nat_models_syntax_axioms : @Theory.Model ℒ ℕ nat_syntax_structure syntax_axioms := by
   simp
   intro φ hφ
-  cases hφ <;> intro x <;> aesop
+  cases hφ
+  case bound_var =>
+    sorry
+  case const_zero =>
+    sorry
+  case var_term =>
+    sorry
+  case const_term =>
+    sorry
+  case eq_form =>
+    sorry
+  case succ_term =>
+    sorry
+  case add_term =>
+    sorry
+  case mult_term =>
+    sorry
+  case neg_form =>
+    sorry
+  case and_form =>
+    sorry
+  case or_form =>
+    sorry
+  case imp_form =>
+    sorry
+  case all_form =>
+    sorry
+  case ex_form =>
+    sorry
 
-def syntaxModel : syntax_axioms.ModelType :=
-{
-  Carrier := ℕ,
-  struc := nat_structure
-  is_model := nat_models_syntax_axioms
-  nonempty' := ⟨0⟩
-}
 
-theorem syntax_axioms_satisfiable : (syntax_axioms : ℒ.Theory).IsSatisfiable := by
-  refine ⟨syntaxModel⟩
+-- def syntaxModel : syntax_axioms.ModelType :=
+-- {
+--   Carrier := ℕ,
+--   struc := nat_structure
+--   is_model := nat_models_syntax_axioms
+--   nonempty' := ⟨0⟩
+-- }
+
+-- theorem syntax_axioms_satisfiable : (syntax_axioms : ℒ.Theory).IsSatisfiable := by
+--   refine ⟨syntaxModel⟩
 
 end Consistency
