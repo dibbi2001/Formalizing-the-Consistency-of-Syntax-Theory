@@ -9,6 +9,7 @@ open BoundedFormula
 open TermEncoding
 open TermDecoding
 open SyntaxStructure
+open Languages
 
 
 namespace PeanoArithmetic
@@ -62,15 +63,15 @@ lemma realize_boundedFormula_and (φ ψ : BoundedFormula ℒ ℕ 0) (r : Fin 0 �
   sorry
   sorry
 
-lemma realize_numeral_eq_self (n : ℕ) (r : ℕ → ℕ) :
-  Term.realize r (numeral n) = n := by
-  induction n with
-  | zero =>
-    rfl
-  | succ n ih =>
-    simp [numeral]
-    rw [ih]
-    rfl
+-- lemma realize_numeral_eq_self (n : ℕ) (r : ℕ → ℕ) :
+--   Term.realize r (numeral n) = n := by
+--   induction n with
+--   | zero =>
+--     rfl
+--   | succ n ih =>
+--     simp [numeral]
+--     rw [ih]
+--     rfl
 
 end PeanoArithmetic
 
@@ -82,6 +83,18 @@ end PeanoArithmetic
 
 namespace SyntaxTheory
 -- Formation Rules
+-- def ax_bound_var (n : ℕ): Sentence ℒ :=
+--   Var(&ₛ(numeral n))
+
+-- def ax_free_var (n : ℕ): Sentence ℒ :=
+--   Var(#ₛ(numeral n))
+
+def ax_bound_var : Sentence ℒ :=
+  ∀' (Var(&ₛ(&0)))
+
+def ax_const_zero : Sentence ℒ :=
+  ∀'(Const(&0) ⟹ (&0 =' null))
+
 def ax_var_term : Sentence ℒ :=
   ∀' (Var(&0) ⟹ Term(&0))
 
@@ -113,10 +126,6 @@ def ax_or_form : Sentence ℒ :=
 
 def ax_imp_form : Sentence ℒ :=
   ∀' ∀' ((BdForm(&0) ∧'BdForm(&1)) ⟹ BdForm(&0 ⬝⟹ &1))
-
-theorem n_models_syntax_axioms :  ℕ ⊨ ax_imp_form := by
-  intro x
-  aesop
 
 def ax_all_form : Sentence ℒ :=
   ∀' (BdForm(&0) ⟹ BdForm(⬝∀ &0))
@@ -198,7 +207,23 @@ def ax_imp_ne_ex : Sentence ℒ :=
 def ax_all_ne_ex : Sentence ℒ :=
   ∀' ∀' ∼((⬝∀&0) =' (⬝∃ &1))
 
+-- lemma listDecode_listEncode :
+--   ∀ t : Term ℒ (ℕ ⊕ Fin 0),
+--   Term.listDecode t.listEncode = [t] := by
+--   apply Encodable.encodek
+--   intro t
+--   induction t
+--   case var =>
+--     simp [Term.listEncode, Term.listDecode]
+--   case func =>
+--     unfold Term.listDecode Term.listEncode
+--     apply Encodable.encodek
+--     simp [List.flatMap, List.finRange]
+--     apply Encodable.encodek
+
 inductive syntax_axioms : ℒ.Theory
+  | bound_var     : syntax_axioms ax_bound_var
+  | const_zero    : syntax_axioms ax_const_zero
   | var_term      : syntax_axioms ax_var_term
   | const_term    : syntax_axioms ax_const_term
   | eq_form       : syntax_axioms ax_eq_form

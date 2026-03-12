@@ -58,7 +58,7 @@ instance : IsBdformDot M where
 
 variable [Zero M] [Succ M] [Add M] [Mul M]
 [NegDot M] [MinDot M] [MaxDot M]
-[Imp M] [Eq M] [Univ M] [Ex M]
+[Imp M] [Eq M] [Univ M] [Ex M] [BoundVar M] [FreeVar M]
 [IsVarDot M] [IsConstDot M] [IsTermDot M] [IsBdformDot M]
 [Zeroₛ M] [Succₛ M] [Addₛ M] [Mulₛ M]
 
@@ -79,6 +79,8 @@ instance : peanoarithmetic.Structure M where
   | .eqₛ, v =>  Eq.eq (v 0) (v 1)
   | .allₛ, v => Univ.all (v 0)
   | .exₛ, v => Ex.ex (v 0)
+  | .boundₛ, v => BoundVar.bv (v 0)
+  | .freeₛ, v => FreeVar.fv (v 0)
   RelMap
   | .var, v => IsVarDot.vardot v
   | .const, v => IsConstDot.constdot v
@@ -118,6 +120,12 @@ Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.add v = v 0
 @[simp] theorem funMap_ex {v} :
   Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.exₛ v = Ex.ex (v 0) := rfl
 
+@[simp] theorem funMap_bv {v} :
+  Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.boundₛ v = BoundVar.bv (v 0) := rfl
+
+@[simp] theorem funMap_fv {v} :
+  Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.freeₛ v = FreeVar.fv (v 0) := rfl
+
 
 @[simp] theorem realize_null : Term.realize v (Language.peanoarithmetic.null : peanoarithmetic.Term α) = 0 := rfl
 
@@ -151,6 +159,12 @@ Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.add v = v 0
 @[simp] theorem realize_ex (t : peanoarithmetic.Term α) :
   Term.realize v (Ex.ex t) = Ex.ex (Term.realize v t) := rfl
 
+@[simp] theorem realize_bv (t : peanoarithmetic.Term α) :
+  Term.realize v (BoundVar.bv t) = BoundVar.bv (Term.realize v t) := rfl
+
+@[simp] theorem realize_fv (t : peanoarithmetic.Term α) :
+  Term.realize v (FreeVar.fv t) = FreeVar.fv (Term.realize v t) := rfl
+
 end
 
 namespace PAStructure
@@ -171,6 +185,8 @@ namespace PAStructure
     | .eqₛ, v    => 0
     | .allₛ, v   => 0
     | .exₛ, v    => 0
+    | .boundₛ, v => 0
+    | .freeₛ, v  => 0
 
     RelMap
     | .var, _    => False
@@ -332,12 +348,16 @@ namespace SyntaxStructure
   | .eqₛ, v    => eq_repres (v 0) (v 1)
   | .allₛ, v   => all_repres (v 0)
   | .exₛ, v    => ex_repres (v 0)
+  | .boundₛ, v => 0
+  | .freeₛ, v  => 0
 
   RelMap
   | .var, v    => var_repres (v 0) = 1
   | .term, v   => term_repres (v 0) = 1
   | .const, v  => const_repres (v 0) = 1
   | .bdform, v => bdform_repres (v 0) = 1
+
+  -- instance : peanoarithmetic.Structure ℕ := nat_syntax_structure
 
   def φ : BoundedFormula ℒ ℕ 0 := BoundedFormula.equal (null) (null)
   def ψ : BoundedFormula ℒ Empty 0 := (∀' ∀' ((&1 times S(&0)) =' ((&1 times &0)) add &1))

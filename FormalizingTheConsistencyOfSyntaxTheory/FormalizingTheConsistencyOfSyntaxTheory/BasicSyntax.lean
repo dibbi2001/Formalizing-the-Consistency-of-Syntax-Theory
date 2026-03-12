@@ -110,6 +110,8 @@ inductive peanoarithmeticFunc : ℕ → Type _ where
   | eqₛ : peanoarithmeticFunc 2
   | allₛ : peanoarithmeticFunc 1
   | exₛ : peanoarithmeticFunc 1
+  | boundₛ : peanoarithmeticFunc 1   -- represents &n
+  | freeₛ  : peanoarithmeticFunc 1   -- represents #n
   deriving DecidableEq
 
 inductive peanoarithmeticRel : ℕ → Type _ where
@@ -139,6 +141,8 @@ def funToStr {n}: peanoarithmeticFunc n → String
   | .eqₛ => "𝑒𝑞ₛ"
   | .allₛ => "𝑎𝑙𝑙ₛ"
   | .exₛ => "𝑒𝑥ₛ"
+  | .boundₛ => "&ₛ"  -- represents &n
+  | .freeₛ  => "#ₛ"   -- represents #n
 instance {n : ℕ}: ToString (Language.peanoarithmetic.Functions n) := ⟨funToStr⟩
 
 def relToStr {n} : Language.peanoarithmetic.Relations n → String
@@ -160,9 +164,15 @@ namespace Language.peanoarithmetic
   def nullₛ : Term peanoarithmetic α :=
     Constants.term .zeroₛ
 
-  def numeral : ℕ → peanoarithmetic.Term ℕ
+  def numeral : ℕ → Term peanoarithmetic (Empty ⊕ Fin 0)
     | .zero => null
     | .succ n => Term.func peanoarithmeticFunc.succ (λ _ => numeral n)
+
+  def boundVar (t : Term peanoarithmetic (Empty ⊕ Fin 0)) : Term peanoarithmetic (Empty ⊕ Fin 0) :=
+    Term.func peanoarithmeticFunc.boundₛ (λ _ => t)
+
+  def freeVar (t : Term peanoarithmetic (Empty ⊕ Fin 0)) : Term peanoarithmetic (Empty ⊕ Fin 0) :=
+    Term.func peanoarithmeticFunc.freeₛ (λ _ => t)
 
   -- Syntax
   class Succ (α : Type u) where
@@ -219,6 +229,12 @@ namespace Language.peanoarithmetic
   class Ex (α : Type u) where
     ex : α → α
 
+  class BoundVar (α : Type u) where
+    bv : α → α
+
+  class FreeVar (α : Type u) where
+    fv : α → α
+
   instance : Imp (peanoarithmetic.Term α) where
     imp := Functions.apply₂ .impₛ
 
@@ -230,6 +246,12 @@ namespace Language.peanoarithmetic
 
   instance : Ex (peanoarithmetic.Term α) where
     ex := Functions.apply₁ .exₛ
+
+  instance : BoundVar (peanoarithmetic.Term α) where
+    bv := Functions.apply₁ .boundₛ
+
+  instance : FreeVar (peanoarithmetic.Term α) where
+    fv := Functions.apply₁ .freeₛ
 
   class IsVar (α : Type u) where
     var : α
@@ -270,6 +292,8 @@ namespace Language.peanoarithmetic
   notation n "⬝=" m => Term.func peanoarithmeticFunc.eqₛ ![n, m]
   notation "⬝∀" n => Term.func peanoarithmeticFunc.allₛ ![n]
   notation "⬝∃" n => Term.func peanoarithmeticFunc.exₛ ![n]
+  notation "&ₛ(" n ")" => BoundVar.bv n
+  notation "#ₛ(" n ")" => Term.func peanoarithmeticFunc.freeₛ ![n]
 
   notation "Var(" x ")" =>  BoundedFormula.rel (IsVar.var) ![x]
   notation "Const(" c ")" => BoundedFormula.rel (IsConst.const) ![c]
@@ -277,6 +301,11 @@ namespace Language.peanoarithmetic
   notation "BdForm(" t ")" => BoundedFormula.rel (IsBdform.bdform) ![t]
 
   abbrev ℒ := Language.peanoarithmetic
+
+  def freeVarIdx (n : ℕ) : Term peanoarithmetic (ℕ ⊕ Fin 0) :=
+    Term.var (Sum.inl n)
+
+  scoped[Languages] prefix:arg "#" =>  fun n => (FirstOrder.Language.Term.var (Sum.inl n))
 
   section Coding
     variable {k : ℕ}
@@ -289,6 +318,8 @@ namespace Language.peanoarithmetic
     | .negₛ      => Nat.pair 1 2 + 1
     | .allₛ      => Nat.pair 1 3 + 1
     | .exₛ       => Nat.pair 1 4 + 1
+    | .boundₛ    => Nat.pair 1 5 + 1
+    | .freeₛ     => Nat.pair 1 6 + 1
 
     | .add       => Nat.pair 2 0 + 1
     | .mult      => Nat.pair 2 1 + 1
@@ -315,6 +346,8 @@ namespace Language.peanoarithmetic
               | 2 => some (.negₛ)
               | 3 => some (.allₛ)
               | 4 => some (.exₛ)
+              | 5 => some (.boundₛ)
+              | 6 => some (.freeₛ)
               | _ => none
           | 2 =>
             match e.unpair.2 with
@@ -365,6 +398,8 @@ namespace Language.peanoarithmetic
       encode := Rel_enc
       decode := Rel_dec
       encodek := Rel_enc_dec
+
+  -- add instance encodable term and formula
 
   end Coding
 
