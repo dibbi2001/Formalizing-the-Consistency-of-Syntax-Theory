@@ -96,6 +96,7 @@ theorem nat_models_syntax_axioms : @Theory.Model ℒ ℕ nat_syntax_structure sy
     sorry
 
 
+
 -- def syntaxModel : syntax_axioms.ModelType :=
 -- {
 --   Carrier := ℕ,

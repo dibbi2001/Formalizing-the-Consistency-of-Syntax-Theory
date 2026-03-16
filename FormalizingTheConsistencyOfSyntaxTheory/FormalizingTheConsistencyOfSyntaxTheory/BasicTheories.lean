@@ -93,7 +93,7 @@ def ax_bound_var : Sentence ℒ :=
   ∀' (Var(&ₛ(&0)))
 
 def ax_const_zero : Sentence ℒ :=
-  ∀'(Const(&0) ⟹ (&0 =' null))
+  ∀'(Const(&0) ⇔ (&0 =' nullₛ))
 
 def ax_var_term : Sentence ℒ :=
   ∀' (Var(&0) ⟹ Term(&0))
