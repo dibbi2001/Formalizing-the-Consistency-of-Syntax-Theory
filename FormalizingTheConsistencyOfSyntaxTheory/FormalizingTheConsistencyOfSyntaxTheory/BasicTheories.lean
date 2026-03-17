@@ -90,122 +90,132 @@ namespace SyntaxTheory
 --   Var(#ₛ(numeral n))
 
 def ax_bound_var : Sentence ℒ :=
-  ∀' (Var(&ₛ(&0)))
+  ∀' (Nat(&0) ⟹ Var(&ₛ(&0)))
 
-def ax_const_zero : Sentence ℒ :=
-  ∀'(Const(&0) ⇔ (&0 =' nullₛ))
+-- def ax_const_zero : Sentence ℒ :=
+--   ∀'(Const(&0) ⇔ (&0 =' nullₛ))
 
 def ax_var_term : Sentence ℒ :=
-  ∀' (Var(&0) ⟹ Term(&0))
+  ∀' (Nat(&0) ⟹ (Var(&0) ⟹ Term(&0)))
 
 def ax_const_term : Sentence ℒ :=
-  ∀' (Const(&0) ⟹ Term(&0))
+  ∀' (Nat(&0) ⟹ (Const(&0) ⟹ Term(&0)))
 
 def ax_eq_form : Sentence ℒ :=
-  ∀' ∀' ((Term(&0) ∧' Term(&1)) ⟹ BdForm(&0 ⬝= &1))
+  ∀' ∀' ((Nat(&0) ∧' Nat(&1)) ⟹ ((Term(&0) ∧' Term(&1)) ⟹ BdForm(&0 ⬝= &1)))
 
 -- Arithmetic Operations
 def ax_succ_term : Sentence ℒ :=
-  ∀' (Term(&0) ⟹ Term(Sₛ(&0)))
+  ∀' (Nat(&0) ⟹ (Term(&0) ⟹ Term(Sₛ(&0))))
 
 def ax_add_term : Sentence ℒ :=
-  ∀' ∀' ((Term(&0) ∧' Term(&1)) ⟹ Term(&0 addₛ &1))
+  ∀' ∀' ((Nat(&0) ∧' Nat(&1)) ⟹ ((Term(&0) ∧' Term(&1)) ⟹ Term(&0 +ₛ &1)))
 
 def ax_mult_term : Sentence ℒ :=
-  ∀' ∀' ((Term(&0) ∧' Term(&1)) ⟹ Term(&0 timesₛ &1))
+  ∀' ∀' ((Nat(&0) ∧' Nat(&1)) ⟹ ((Term(&0) ∧' Term(&1)) ⟹ Term(&0 timesₛ &1)))
 
 -- Logical Connectives
 def ax_neg_form : Sentence ℒ :=
-  ∀' (BdForm(&0) ⟹ BdForm(⬝∼ &0))
+  ∀' (Nat(&0) ∧' BdForm(&0) ⟹ BdForm(⬝∼ &0))
 
 def ax_and_form : Sentence ℒ :=
-  ∀' ∀' ((BdForm(&0) ∧' BdForm(&1)) ⟹ BdForm(&0 ⬝∧ &1))
+  ∀' ∀' ((Nat(&0) ∧' Nat(&1)) ⟹ ((BdForm(&0) ∧' BdForm(&1)) ⟹ BdForm(&0 ⬝∧ &1)))
 
 def ax_or_form : Sentence ℒ :=
-  ∀' ∀' ((BdForm(&0) ∧' BdForm(&1)) ⟹ BdForm(&0 ⬝∨ &1))
+  ∀' ∀' ((Nat(&0) ∧' Nat(&1)) ⟹ ((BdForm(&0) ∧' BdForm(&1)) ⟹ BdForm(&0 ⬝∨ &1)))
 
 def ax_imp_form : Sentence ℒ :=
-  ∀' ∀' ((BdForm(&0) ∧'BdForm(&1)) ⟹ BdForm(&0 ⬝⟹ &1))
+  ∀' ∀' ((Nat(&0) ∧' Nat(&1)) ⟹ ((BdForm(&0) ∧'BdForm(&1)) ⟹ BdForm(&0 ⬝⟹ &1)))
 
 def ax_all_form : Sentence ℒ :=
-  ∀' (BdForm(&0) ⟹ BdForm(⬝∀ &0))
+  ∀' (Nat(&0) ⟹ (BdForm(&0) ⟹ BdForm(⬝∀ &0)))
 
 def ax_ex_form : Sentence ℒ :=
-  ∀' (BdForm(&0) ⟹ BdForm(⬝∃ &0))
+  ∀' (Nat(&0) ⟹ (BdForm(&0) ⟹ BdForm(⬝∃ &0)))
 
 -- Injectivity
 def ax_succ_inj : Sentence ℒ :=
-  ∀' ∀' (Sₛ(&0) =' Sₛ(&1) ⟹ (&0 =' &1))
+  ∀' ∀' ((Nat(&0) ∧' Nat(&1)) ⟹ (Sₛ(&0) =' Sₛ(&1) ⟹ (&0 =' &1)))
 
 def ax_add_inj : Sentence ℒ :=
-  ∀' ∀' ∀' ∀'((&0 addₛ &1) =' (&2 addₛ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3)))
+  ∀' ∀' ∀' ∀'
+    (Nat(&0) ∧' Nat(&1) ∧' Nat(&2) ∧' Nat(&3) ⟹
+      ((&0 +ₛ &1) =' (&2 +ₛ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3))))
 
 def ax_mult_inj : Sentence ℒ :=
-  ∀' ∀' ∀' ∀'((&0 timesₛ &1) =' (&2 timesₛ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3)))
+  ∀' ∀' ∀' ∀'
+    (Nat(&0) ∧' Nat(&1) ∧' Nat(&2) ∧' Nat(&3) ⟹
+      ((&0 timesₛ &1) =' (&2 timesₛ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3))))
 
 def ax_neg_inj : Sentence ℒ :=
-  ∀' ∀' ((⬝∼ &0) =' (⬝∼ &1) ⟹ &0 ='&1)
+  ∀' ∀' (Nat(&0) ∧' Nat(&1) ⟹ ((⬝∼ &0) =' (⬝∼ &1) ⟹ (&0 =' &1)))
 
 def ax_and_inj : Sentence ℒ :=
-  ∀' ∀' ∀' ∀'((&0 ⬝∧ &1) =' (&2 ⬝∧ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3)))
+  ∀' ∀' ∀' ∀'
+    (Nat(&0) ∧' Nat(&1) ∧' Nat(&2) ∧' Nat(&3) ⟹
+      ((&0 ⬝∧ &1) =' (&2 ⬝∧ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3))))
 
 def ax_or_inj : Sentence ℒ :=
-  ∀' ∀' ∀' ∀'((&0 ⬝∨ &1) =' (&2 ⬝∨ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3)))
+  ∀' ∀' ∀' ∀'
+    (Nat(&0) ∧' Nat(&1) ∧' Nat(&2) ∧' Nat(&3) ⟹
+      ((&0 ⬝∨ &1) =' (&2 ⬝∨ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3))))
 
 def ax_imp_inj : Sentence ℒ :=
-  ∀' ∀' ∀' ∀'((&0 ⬝⟹ &1) =' (&2 ⬝⟹ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3)))
+  ∀' ∀' ∀' ∀'
+    (Nat(&0) ∧' Nat(&1) ∧' Nat(&2) ∧' Nat(&3) ⟹
+      ((&0 ⬝⟹ &1) =' (&2 ⬝⟹ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3))))
+
 
 def ax_all_inj : Sentence ℒ :=
-  ∀' ∀' ((⬝∀ &0) =' (⬝∀ &1) ⟹ &0 ='&1)
+  ∀' ∀'(Nat(&0) ∧' Nat(&1) ⟹ ((⬝∀ &0) =' (⬝∀ &1) ⟹ (&0 =' &1)))
 
 def ax_ex_inj : Sentence ℒ :=
-  ∀' ∀' ((⬝∃ &0) =' (⬝∃ &1) ⟹ &0 ='&1)
-
+  ∀' ∀' (Nat(&0) ∧' Nat(&1) ⟹ ((⬝∃ &0) =' (⬝∃ &1) ⟹ (&0 =' &1)))
 --Distinctness
-def ax_neg_ne_and : Sentence ℒ :=
-  ∀' ∀' ∀' ∼((⬝∼&0) =' (&1 ⬝∧ &2))
+-- def ax_neg_ne_and : Sentence ℒ :=
+--   ∀' ∀' ∀' ∼((⬝∼&0) =' (&1 ⬝∧ &2))
 
-def ax_neg_ne_or : Sentence ℒ :=
-  ∀' ∀' ∀' ∼((⬝∼&0) =' (&1 ⬝∨ &2))
+-- def ax_neg_ne_or : Sentence ℒ :=
+--   ∀' ∀' ∀' ∼((⬝∼&0) =' (&1 ⬝∨ &2))
 
-def ax_neg_ne_imp : Sentence ℒ :=
-  ∀' ∀' ∀' ∼((⬝∼&0) =' (&1 ⬝⟹ &2))
+-- def ax_neg_ne_imp : Sentence ℒ :=
+--   ∀' ∀' ∀' ∼((⬝∼&0) =' (&1 ⬝⟹ &2))
 
-def ax_neg_ne_all : Sentence ℒ :=
-  ∀' ∀' ∼((⬝∼&0) =' (⬝∀ &1))
+-- def ax_neg_ne_all : Sentence ℒ :=
+--   ∀' ∀' ∼((⬝∼&0) =' (⬝∀ &1))
 
-def ax_neg_ne_ex : Sentence ℒ :=
-  ∀' ∀' ∼((⬝∼&0) =' (⬝∃ &1))
+-- def ax_neg_ne_ex : Sentence ℒ :=
+--   ∀' ∀' ∼((⬝∼&0) =' (⬝∃ &1))
 
-def ax_and_ne_or : Sentence ℒ :=
-  ∀' ∀' ∀' ∀' ∼((&0 ⬝∧ &1) =' (&2 ⬝∨ &3))
+-- def ax_and_ne_or : Sentence ℒ :=
+--   ∀' ∀' ∀' ∀' ∼((&0 ⬝∧ &1) =' (&2 ⬝∨ &3))
 
-def ax_and_ne_imp : Sentence ℒ :=
-  ∀' ∀' ∀' ∀' ∼((&0 ⬝∧ &1) =' (&2 ⬝⟹ &3))
+-- def ax_and_ne_imp : Sentence ℒ :=
+--   ∀' ∀' ∀' ∀' ∼((&0 ⬝∧ &1) =' (&2 ⬝⟹ &3))
 
-def ax_and_ne_all : Sentence ℒ :=
-  ∀' ∀' ∀' ∼((&0 ⬝∧ &1) =' (⬝∀ &2))
+-- def ax_and_ne_all : Sentence ℒ :=
+--   ∀' ∀' ∀' ∼((&0 ⬝∧ &1) =' (⬝∀ &2))
 
-def ax_and_ne_ex : Sentence ℒ :=
-  ∀' ∀' ∀' ∼((&0 ⬝∧ &1) =' (⬝∃ &2))
+-- def ax_and_ne_ex : Sentence ℒ :=
+--   ∀' ∀' ∀' ∼((&0 ⬝∧ &1) =' (⬝∃ &2))
 
-def ax_or_ne_imp : Sentence ℒ :=
-  ∀' ∀' ∀' ∀' ∼((&0 ⬝∨ &1) =' (&2 ⬝⟹ &3))
+-- def ax_or_ne_imp : Sentence ℒ :=
+--   ∀' ∀' ∀' ∀' ∼((&0 ⬝∨ &1) =' (&2 ⬝⟹ &3))
 
-def ax_or_ne_all : Sentence ℒ :=
-  ∀' ∀' ∀' ∼((&0 ⬝∨ &1) =' (⬝∀ &2))
+-- def ax_or_ne_all : Sentence ℒ :=
+--   ∀' ∀' ∀' ∼((&0 ⬝∨ &1) =' (⬝∀ &2))
 
-def ax_or_ne_ex : Sentence ℒ :=
-  ∀' ∀' ∀' ∼((&0 ⬝∨ &1) =' (⬝∃ &2))
+-- def ax_or_ne_ex : Sentence ℒ :=
+--   ∀' ∀' ∀' ∼((&0 ⬝∨ &1) =' (⬝∃ &2))
 
-def ax_imp_ne_all : Sentence ℒ :=
-  ∀' ∀' ∀' ∼((&0 ⬝⟹ &1) =' (⬝∀ &2))
+-- def ax_imp_ne_all : Sentence ℒ :=
+--   ∀' ∀' ∀' ∼((&0 ⬝⟹ &1) =' (⬝∀ &2))
 
-def ax_imp_ne_ex : Sentence ℒ :=
-  ∀' ∀' ∀' ∼((&0 ⬝⟹ &1) =' (⬝∃ &2))
+-- def ax_imp_ne_ex : Sentence ℒ :=
+--   ∀' ∀' ∀' ∼((&0 ⬝⟹ &1) =' (⬝∃ &2))
 
-def ax_all_ne_ex : Sentence ℒ :=
-  ∀' ∀' ∼((⬝∀&0) =' (⬝∃ &1))
+-- def ax_all_ne_ex : Sentence ℒ :=
+--   ∀' ∀' ∼((⬝∀&0) =' (⬝∃ &1))
 
 -- lemma listDecode_listEncode :
 --   ∀ t : Term ℒ (ℕ ⊕ Fin 0),
@@ -223,7 +233,6 @@ def ax_all_ne_ex : Sentence ℒ :=
 
 inductive syntax_axioms : ℒ.Theory
   | bound_var     : syntax_axioms ax_bound_var
-  | const_zero    : syntax_axioms ax_const_zero
   | var_term      : syntax_axioms ax_var_term
   | const_term    : syntax_axioms ax_const_term
   | eq_form       : syntax_axioms ax_eq_form
@@ -239,15 +248,15 @@ inductive syntax_axioms : ℒ.Theory
   | all_form      : syntax_axioms ax_all_form
   | ex_form       : syntax_axioms ax_ex_form
 
-  -- | succ_inj      : syntax_axioms ax_succ_inj
-  -- | add_inj       : syntax_axioms ax_add_inj
-  -- | mult_inj      : syntax_axioms ax_mult_inj
-  -- | neg_inj       : syntax_axioms ax_neg_inj
-  -- | and_inj       : syntax_axioms ax_and_inj
-  -- | or_inj        : syntax_axioms ax_or_inj
-  -- | imp_inj       : syntax_axioms ax_imp_inj
-  -- | all_inj       : syntax_axioms ax_all_inj
-  -- | ex_inj        : syntax_axioms ax_ex_inj
+  | succ_inj      : syntax_axioms ax_succ_inj
+  | add_inj       : syntax_axioms ax_add_inj
+  | mult_inj      : syntax_axioms ax_mult_inj
+  | neg_inj       : syntax_axioms ax_neg_inj
+  | and_inj       : syntax_axioms ax_and_inj
+  | or_inj        : syntax_axioms ax_or_inj
+  | imp_inj       : syntax_axioms ax_imp_inj
+  | all_inj       : syntax_axioms ax_all_inj
+  | ex_inj        : syntax_axioms ax_ex_inj
 
   -- | neg_ne_and    : syntax_axioms ax_neg_ne_and
   -- | neg_ne_or     : syntax_axioms ax_neg_ne_or
@@ -340,7 +349,7 @@ def induction_axiom_syntax_carlo (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence 
 def induction_axiom_syntax_term (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
   (formula_substitution nullₛ φ ∧'
     (∀'(bv_formula_substitution (&0) φ ⟹ bv_formula_substitution (Sₛ(&0)) φ)) ∧'
-      (∀'(bv_formula_substitution (&0) φ) ∧' (∀'(bv_formula_substitution (&0) (liftFormula φ)) ⟹ (bv_formula_substitution ((&1) addₛ(&0)) φ))) ∧'
+      (∀'(bv_formula_substitution (&0) φ) ∧' (∀'(bv_formula_substitution (&0) (liftFormula φ)) ⟹ (bv_formula_substitution ((&1) +ₛ (&0)) φ))) ∧'
         (∀'(bv_formula_substitution (&0) φ) ∧' (∀'(bv_formula_substitution (&0) (liftFormula φ)) ⟹ (bv_formula_substitution ((&1) timesₛ(&0)) φ))) ⟹
            (∀'(bv_formula_substitution (&0) φ))
   )

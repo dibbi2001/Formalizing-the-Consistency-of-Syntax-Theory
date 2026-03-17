@@ -13,6 +13,7 @@ namespace Structure
 
 variable (neg_repres : (Fin 1 → M) → M) (and_repres : (Fin 2 → M) → M) (or_repres : (Fin 2 → M) → M)
 (var_prop : (Fin 1 → M) → Prop) (const_prop : (Fin 1 → M) → Prop) (term_prop : (Fin 1 → M) → Prop) (bdform_prop : (Fin 1 → M) → Prop)
+(nat_prop : (Fin 1 → M) → Prop)
 
 class NegDot (α : Type u) where
   negdot : α → α
@@ -44,6 +45,9 @@ class IsTermDot (α : Type u) where
 class IsBdformDot (α : Type u) where
   bdformdot : (Fin 1 → α) → Prop
 
+class IsNatDot (α : Type u) where
+  natdot : (Fin 1 → α) → Prop
+
 instance : IsVarDot M where
   vardot := var_prop
 
@@ -56,10 +60,14 @@ instance : IsTermDot M where
 instance : IsBdformDot M where
   bdformdot := bdform_prop
 
+instance : IsNatDot M where
+  natdot := nat_prop
+
 variable [Zero M] [Succ M] [Add M] [Mul M]
 [NegDot M] [MinDot M] [MaxDot M]
 [Imp M] [Eq M] [Univ M] [Ex M] [BoundVar M] [FreeVar M]
 [IsVarDot M] [IsConstDot M] [IsTermDot M] [IsBdformDot M]
+[IsNatDot M]
 [Zeroₛ M] [Succₛ M] [Addₛ M] [Mulₛ M]
 
 instance : peanoarithmetic.Structure M where
@@ -86,6 +94,7 @@ instance : peanoarithmetic.Structure M where
   | .const, v => IsConstDot.constdot v
   | .term, v => IsTermDot.termdot v
   | .bdform, v => IsBdformDot.bdformdot v
+  | .nat, v => IsNatDot.natdot v
 
 section
 @[simp] theorem funMap_zero {v} :
@@ -193,6 +202,7 @@ namespace PAStructure
     | .const, _  => False
     | .term, _   => False
     | .bdform, _ => False
+    | .nat, _    => False
 
   instance : peanoarithmetic.Structure ℕ := nat_structure
 
@@ -239,7 +249,7 @@ namespace SyntaxStructure
   def addₛ_repres (k₁ k₂ : ℕ) : ℕ :=
     match term_ofnat k₁, term_ofnat k₂ with
     | some (t : Term ℒ (ℕ ⊕ Fin 0)), some (s : Term ℒ (ℕ ⊕ Fin 0)) =>
-        term_tonat (t addₛ s)
+        term_tonat (t +ₛ s)
     | some (t : Term ℒ (ℕ ⊕ Fin 0)), none =>
         term_tonat t
     | none, some (s : Term ℒ (ℕ ⊕ Fin 0)) =>
@@ -330,6 +340,8 @@ namespace SyntaxStructure
     | some _ => 1
     | none   => 0
 
+  def nat_repres (k : ℕ) : ℕ := k
+
   def nat_syntax_structure : peanoarithmetic.Structure ℕ where
   funMap
   | .zero, _  => 0
@@ -356,7 +368,7 @@ namespace SyntaxStructure
   | .term, v   => term_repres (v 0) = 1
   | .const, v  => const_repres (v 0) = 1
   | .bdform, v => bdform_repres (v 0) = 1
-
+  | .nat, v    => nat_repres (v 0) = 1
   -- instance : peanoarithmetic.Structure ℕ := nat_syntax_structure
 
   def φ : BoundedFormula ℒ ℕ 0 := BoundedFormula.equal (null) (null)
@@ -380,3 +392,242 @@ namespace SyntaxStructure
   -- #eval sent_ofnat (L := ℒ) (sent_tonat (L := ℒ) ψ) --add tostr fun for sentences??
 
 end SyntaxStructure
+
+namespace Homophonic
+open Structure
+-- inductive SynObj (ℒ : Language) where
+-- | nat  : ℕ → SynObj ℒ
+-- | term : FirstOrder.Language.Term ℒ (ℕ ⊕ Fin 0) → SynObj ℒ
+-- | form : FirstOrder.Language.BoundedFormula ℒ Empty 0 → SynObj ℒ
+
+-- instance : Zero (SynObj ℒ) := ⟨SynObj.nat 0⟩
+
+-- instance : Succ (SynObj ℒ) where
+--   succ
+--   | SynObj.nat n => SynObj.nat (Nat.succ n)
+--   | _ => SynObj.nat 0
+
+-- -- instance : Add (SynObj ℒ) where
+-- --   add
+-- --   | SynObj.nat a, SynObj.nat b => SynObj.nat (a + b)
+-- --   | _, _ => SynObj.nat 0
+
+-- instance : Mul (SynObj ℒ) where
+--   mul
+--   | SynObj.nat a, SynObj.nat b => SynObj.nat (a * b)
+--   | _, _ => SynObj.nat 0
+
+-- instance : Addₛ (SynObj ℒ) where
+--   addₛ := fun
+--     | SynObj.term t₁, SynObj.term t₂ => SynObj.term (Term.func peanoarithmeticFunc.addₛ ![t₁,t₂])
+--     | _, _ => SynObj.nat 0
+
+
+-- instance : IsNatDot (SynObj ℒ) where
+--   natdot
+--   | SynObj.nat _ => True
+--   | _ => False
+
+-- instance : IsVarDot (SynObj ℒ) where
+--   vardot
+--   | SynObj.term (Term.var _) => True
+--   | _ => False
+
+abbrev SynDomain (ℒ : Language) :=
+  ℕ ⊕ (FirstOrder.Language.Term ℒ (ℕ ⊕ Fin 0))
+    ⊕ (FirstOrder.Language.BoundedFormula ℒ ℕ 0)
+
+def isNat : SynDomain ℒ → Prop
+| Sum.inl _ => True
+| _ => False
+
+def isTerm : SynDomain ℒ → Prop
+| Sum.inr (Sum.inl _) => True
+| _ => False
+
+def isBdForm : SynDomain ℒ → Prop
+| Sum.inr (Sum.inr _) => True
+| _ => False
+
+instance synNatDot : IsNatDot (SynDomain ℒ) :=
+  { natdot := fun v =>
+      match v 0 with        -- v : Fin 1 → SynDomain ℒ
+      | Sum.inl _ => True
+      | _ => False }
+
+instance synTermDot : IsTermDot (SynDomain ℒ) :=
+  { termdot := fun v =>
+    match v 0 with
+    | Sum.inr (Sum.inl _) => True
+    | _ => False }
+
+instance synBdformDot : IsBdformDot (SynDomain ℒ) :=
+  { bdformdot := fun v =>
+    match v 0 with
+    | Sum.inr (Sum.inr _) => True
+    | _ => False }
+
+instance : IsVarDot (SynDomain ℒ) where
+  vardot v :=
+    match v 0 with
+    | Sum.inr (Sum.inl (Term.var _)) => True
+    | _ => False
+
+instance : IsConstDot (SynDomain ℒ) where
+  constdot v :=
+    match v 0 with
+    | Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.zeroₛ _)) => True
+    | _ => False
+
+instance : Zero (SynDomain ℒ) :=  ⟨Sum.inl 0⟩
+
+instance : Succ (SynDomain ℒ) where
+  succ x :=
+    match x with
+    | Sum.inl n => Sum.inl (n + 1)
+    | _ => Sum.inl 0
+
+instance : Add (SynDomain ℒ) :=
+⟨fun x y =>
+  match x, y with
+  | Sum.inl a, Sum.inl b => Sum.inl (a + b)
+  | _, _ => Sum.inl 0
+⟩
+
+instance : Mul (SynDomain ℒ) :=
+⟨fun x y =>
+  match x, y with
+  | Sum.inl a, Sum.inl b => Sum.inl (a * b)
+  | _, _ => Sum.inl 0
+⟩
+
+instance : Zeroₛ (SynDomain ℒ) where
+  zeroₛ := Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.zeroₛ ![]))
+
+instance : Succₛ (SynDomain ℒ) where
+  succₛ x :=
+    match x with
+    | Sum.inr (Sum.inl t) =>
+        Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.succₛ ![t]))
+    | _ => Sum.inl 0
+
+instance : Addₛ (SynDomain ℒ) where
+  addₛ x y :=
+    match x, y with
+    | Sum.inr (Sum.inl t₁), Sum.inr (Sum.inl t₂) =>
+        Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.addₛ ![t₁,t₂]))
+    | _, _ => Sum.inl 0
+
+instance : Mulₛ (SynDomain ℒ) where
+  mulₛ x y :=
+    match x, y with
+    | Sum.inr (Sum.inl t₁), Sum.inr (Sum.inl t₂) =>
+        Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.multₛ ![t₁,t₂]))
+    | _, _ => Sum.inl 0
+
+instance : MinDot (SynDomain ℒ) where
+  mindot x y :=
+    match x, y with
+    | Sum.inr (Sum.inr φ), Sum.inr (Sum.inr ψ) =>
+        Sum.inr (Sum.inr (φ ∧' ψ))
+    | _, _ => Sum.inl 0
+
+instance : MaxDot (SynDomain ℒ) where
+  maxdot x y :=
+    match x, y with
+    | Sum.inr (Sum.inr φ), Sum.inr (Sum.inr ψ) =>
+        Sum.inr (Sum.inr (φ ∨' ψ))
+    | _, _ => Sum.inl 0
+
+instance : NegDot (SynDomain ℒ) where
+  negdot x :=
+    match x with
+    | Sum.inr (Sum.inl t) => Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.negₛ ![t]))
+    | _ => Sum.inl 0
+
+instance : Imp (SynDomain ℒ) where
+  imp x y :=
+    match x, y with
+    | Sum.inr (Sum.inr φ), Sum.inr (Sum.inr ψ) =>
+        Sum.inr (Sum.inr (BoundedFormula.imp φ ψ))
+    | _, _ => Sum.inl 0
+
+variable {L : Language}
+
+@[simp]
+def liftTerm {α : Type} {n : ℕ} : Term L (α ⊕ Fin n) → Term L (α ⊕ Fin (n + 1))
+  | Term.var v =>
+    match v with
+    | Sum.inl a => Term.var (Sum.inl a)
+    | Sum.inr i => Term.var (Sum.inr (Fin.succ i))
+  | Term.func f ts => Term.func f (fun i => liftTerm (ts i))
+
+@[simp]
+def liftFormula {α : Type} {n : ℕ} : BoundedFormula L α n → BoundedFormula L α (n + 1)
+  | .falsum => .falsum
+  | .equal t1 t2 => .equal (liftTerm t1) (liftTerm t2)
+  | .rel R ts => .rel R (fun i => liftTerm (ts i))
+  | .imp φ ψ => .imp (liftFormula φ) (liftFormula ψ)
+  | .all φ => .all (liftFormula φ)
+
+
+instance : Eq (SynDomain ℒ) where
+  eq x y :=
+    match x, y with
+    | Sum.inr (Sum.inl t), Sum.inr (Sum.inl s) =>
+        Sum.inr (Sum.inr (BoundedFormula.equal t s))
+    | _, _ => Sum.inl 0
+
+instance : Univ (SynDomain ℒ) where
+  all x :=
+    match x with
+    | Sum.inr (Sum.inr φ) => Sum.inr (Sum.inr (∀' liftFormula φ))
+    | _ => Sum.inl 0
+
+instance : Ex (SynDomain ℒ) where
+  ex x :=
+    match x with
+    | Sum.inr (Sum.inr φ) => Sum.inr (Sum.inr (∃' liftFormula φ))
+    | _ => Sum.inl 0
+
+instance : BoundVar (SynDomain ℒ) where
+  bv x :=
+    match x with
+    | Sum.inr (Sum.inl t) => Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.boundₛ ![t]))
+    | _ => Sum.inl 0
+
+instance : FreeVar (SynDomain ℒ) where
+  fv x :=
+    match x with
+    | Sum.inr (Sum.inl t) => Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.freeₛ ![t]))
+    | _ => Sum.inl 0
+
+instance : peanoarithmetic.Structure (SynDomain ℒ) where
+  funMap
+  | .zero, _  => 0
+  | .succ, v  => Succ.succ (v 0)
+  | .add, v   => v 0 + v 1
+  | .mult, v  => v 0 * v 1
+
+  | .zeroₛ, _  => Zeroₛ.zeroₛ
+  | .succₛ, v  => Succₛ.succₛ (v 0)
+  | .addₛ, v   => Addₛ.addₛ (v 0) (v 1)
+  | .multₛ, v  => Mulₛ.mulₛ (v 0) (v 1)
+  | .negₛ, v   => NegDot.negdot (v 0)
+  | .andₛ, v   => MinDot.mindot (v 0) (v 1)
+  | .orₛ, v    => MaxDot.maxdot (v 0) (v 1)
+  | .impₛ, v   => Imp.imp (v 0) (v 1)
+  | .eqₛ, v    => Eq.eq (v 0) (v 1)
+  | .allₛ, v   => Univ.all (v 0)
+  | .exₛ, v    => Ex.ex (v 0)
+  | .boundₛ, v => BoundVar.bv (v 0)
+  | .freeₛ, v  => FreeVar.fv (v 0)
+
+  RelMap
+  | .var, v    => IsVarDot.vardot v
+  | .const, v  => IsConstDot.constdot v
+  | .term, v   => IsTermDot.termdot v
+  | .bdform, v => IsBdformDot.bdformdot v
+  | .nat, v    => IsNatDot.natdot v
+
+end Homophonic

@@ -119,6 +119,7 @@ inductive peanoarithmeticRel : ℕ → Type _ where
   | term : peanoarithmeticRel 1
   | const : peanoarithmeticRel 1
   | bdform : peanoarithmeticRel 1
+  | nat : peanoarithmeticRel 1
   deriving DecidableEq
 
 def Language.peanoarithmetic : Language :=
@@ -150,6 +151,7 @@ def relToStr {n} : Language.peanoarithmetic.Relations n → String
   | .term => "𝑡𝑒𝑟𝑚"
   | .const => "𝑐𝑜𝑛𝑠𝑡"
   | .bdform => "𝑏𝑑𝑓𝑜𝑟𝑚"
+  | .nat => "𝑛𝑎𝑡"
 instance {n} : ToString (Language.peanoarithmetic.Relations n) := ⟨relToStr⟩
 
 namespace Language.peanoarithmetic
@@ -265,6 +267,9 @@ namespace Language.peanoarithmetic
   class IsBdform (α : Type u) where
     bdform : α
 
+  class IsNat (α : Type u) where
+    nat : α
+
   instance : IsVar (Language.peanoarithmetic.Relations 1) where
     var := peanoarithmeticRel.var
 
@@ -277,12 +282,15 @@ namespace Language.peanoarithmetic
   instance : IsBdform (Language.peanoarithmetic.Relations 1) where
     bdform := peanoarithmeticRel.bdform
 
+  instance : IsNat (Language.peanoarithmetic.Relations 1) where
+    nat := peanoarithmeticRel.nat
+
   notation "S(" n ")" => Succ.succ n
   notation n "add" m => Add.add n m
   notation n "times" m => Mul.mul n m
 
   notation "Sₛ(" n ")" => Term.func peanoarithmeticFunc.succₛ ![n]
-  notation n "addₛ" m => Term.func peanoarithmeticFunc.addₛ ![n, m]
+  notation n "+ₛ" m => Addₛ.addₛ n m
   notation n "timesₛ" m => Mulₛ.mulₛ n m
 
   notation n "⬝∧" m => Term.func peanoarithmeticFunc.andₛ ![n, m]
@@ -299,6 +307,7 @@ namespace Language.peanoarithmetic
   notation "Const(" c ")" => BoundedFormula.rel (IsConst.const) ![c]
   notation "Term(" t ")" => BoundedFormula.rel (IsTerm.term) ![t]
   notation "BdForm(" t ")" => BoundedFormula.rel (IsBdform.bdform) ![t]
+  notation "Nat(" t ")" =>  BoundedFormula.rel (IsNat.nat) ![t]
 
   abbrev ℒ := Language.peanoarithmetic
 
@@ -376,6 +385,7 @@ namespace Language.peanoarithmetic
       | .term => Nat.pair 1 1 + 1
       | .const => Nat.pair 1 2 + 1
       | .bdform => Nat.pair 1 3 + 1
+      | .nat => Nat.pair 1 4 + 1
 
     def Rel_dec : (n : ℕ) → Option (peanoarithmetic.Relations k)
       | 0 => none
@@ -387,6 +397,7 @@ namespace Language.peanoarithmetic
               | 1 => some .term
               | 2 => some .const
               | 3 => some .bdform
+              | 4 => some .nat
               | _ => none
           | _ => none
 
