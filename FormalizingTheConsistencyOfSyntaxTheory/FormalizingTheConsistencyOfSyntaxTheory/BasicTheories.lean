@@ -16,6 +16,14 @@ namespace PeanoArithmetic
 variable {α : Type*}
 
 /-- Peano arithemtic -/
+-- inductive peano_axioms : ℒ.Theory where
+--   | first : peano_axioms (∀' (Nat(null) ∧' Nat(&0) ⟹ ∼(null =' S(&0))))
+--   | second :peano_axioms (∀' ∀' (Nat(&0) ∧' Nat(&1) ⟹ (S(&1) =' S(&0)) ⟹ (&1 =' &0)))
+--   | third : peano_axioms (∀' (Nat(null) ∧' Nat(&0) ⟹ (&0 add null) =' &0))
+--   | fourth : peano_axioms (∀' ∀' (Nat(&1) ∧' Nat(&0) ⟹ (&1 add S(&0)) =' S(&1 add &0)))
+--   | fifth : peano_axioms (∀' (Nat(null) ∧' Nat(&0) ⟹ ((&0 times null) =' null)))
+--   | sixth : peano_axioms (∀' ∀' (Nat(&1) ∧' Nat(&0) ⟹ ((&1 times S(&0)) =' ((&1 times &0)) add &1)))
+
 inductive peano_axioms : ℒ.Theory where
   | first : peano_axioms (∀' ∼(null =' S(&0)))
   | second :peano_axioms (∀' ∀' ((S(&1) =' S(&0)) ⟹ (&1 =' &0)))
@@ -83,94 +91,72 @@ end PeanoArithmetic
 
 namespace SyntaxTheory
 -- Formation Rules
--- def ax_bound_var (n : ℕ): Sentence ℒ :=
---   Var(&ₛ(numeral n))
-
--- def ax_free_var (n : ℕ): Sentence ℒ :=
---   Var(#ₛ(numeral n))
-
 def ax_bound_var : Sentence ℒ :=
   ∀' (Nat(&0) ⟹ Var(&ₛ(&0)))
 
--- def ax_const_zero : Sentence ℒ :=
---   ∀'(Const(&0) ⇔ (&0 =' nullₛ))
-
 def ax_var_term : Sentence ℒ :=
-  ∀' (Nat(&0) ⟹ (Var(&0) ⟹ Term(&0)))
-
-def ax_const_term : Sentence ℒ :=
-  ∀' (Nat(&0) ⟹ (Const(&0) ⟹ Term(&0)))
+  ∀' (Var(&0) ⟹ Term(&0))
 
 def ax_eq_form : Sentence ℒ :=
-  ∀' ∀' ((Nat(&0) ∧' Nat(&1)) ⟹ ((Term(&0) ∧' Term(&1)) ⟹ BdForm(&0 ⬝= &1)))
+  ∀' ∀' ((Term(&0) ∧' Term(&1)) ⟹ BdForm(&0 ⬝= &1))
 
 -- Arithmetic Operations
 def ax_succ_term : Sentence ℒ :=
-  ∀' (Nat(&0) ⟹ (Term(&0) ⟹ Term(Sₛ(&0))))
+  ∀' (Term(&0) ⟹ Term(Sₛ(&0)))
 
 def ax_add_term : Sentence ℒ :=
-  ∀' ∀' ((Nat(&0) ∧' Nat(&1)) ⟹ ((Term(&0) ∧' Term(&1)) ⟹ Term(&0 +ₛ &1)))
+  ∀' ∀' ((Term(&0) ∧' Term(&1)) ⟹ Term(&0 +ₛ &1))
 
 def ax_mult_term : Sentence ℒ :=
-  ∀' ∀' ((Nat(&0) ∧' Nat(&1)) ⟹ ((Term(&0) ∧' Term(&1)) ⟹ Term(&0 timesₛ &1)))
+  ∀' ∀' ((Term(&0) ∧' Term(&1)) ⟹ Term(&0 timesₛ &1))
 
 -- Logical Connectives
 def ax_neg_form : Sentence ℒ :=
-  ∀' (Nat(&0) ∧' BdForm(&0) ⟹ BdForm(⬝∼ &0))
+  ∀' (BdForm(&0) ⟹ BdForm(⬝∼ &0))
 
 def ax_and_form : Sentence ℒ :=
-  ∀' ∀' ((Nat(&0) ∧' Nat(&1)) ⟹ ((BdForm(&0) ∧' BdForm(&1)) ⟹ BdForm(&0 ⬝∧ &1)))
+  ∀' ∀' ((BdForm(&0) ∧' BdForm(&1)) ⟹ BdForm(&0 ⬝∧ &1))
 
 def ax_or_form : Sentence ℒ :=
-  ∀' ∀' ((Nat(&0) ∧' Nat(&1)) ⟹ ((BdForm(&0) ∧' BdForm(&1)) ⟹ BdForm(&0 ⬝∨ &1)))
+  ∀' ∀' ((BdForm(&0) ∧' BdForm(&1)) ⟹ BdForm(&0 ⬝∨ &1))
 
 def ax_imp_form : Sentence ℒ :=
-  ∀' ∀' ((Nat(&0) ∧' Nat(&1)) ⟹ ((BdForm(&0) ∧'BdForm(&1)) ⟹ BdForm(&0 ⬝⟹ &1)))
+  ∀' ∀' ((BdForm(&0) ∧'BdForm(&1)) ⟹ BdForm(&0 ⬝⟹ &1))
 
 def ax_all_form : Sentence ℒ :=
-  ∀' (Nat(&0) ⟹ (BdForm(&0) ⟹ BdForm(⬝∀ &0)))
+  ∀' (BdForm(&0) ⟹ BdForm(⬝∀ &0))
 
 def ax_ex_form : Sentence ℒ :=
-  ∀' (Nat(&0) ⟹ (BdForm(&0) ⟹ BdForm(⬝∃ &0)))
+  ∀' (BdForm(&0) ⟹ BdForm(⬝∃ &0))
 
 -- Injectivity
 def ax_succ_inj : Sentence ℒ :=
-  ∀' ∀' ((Nat(&0) ∧' Nat(&1)) ⟹ (Sₛ(&0) =' Sₛ(&1) ⟹ (&0 =' &1)))
+  ∀' ∀' (Sₛ(&0) =' Sₛ(&1) ⟹ (&0 =' &1))
 
 def ax_add_inj : Sentence ℒ :=
-  ∀' ∀' ∀' ∀'
-    (Nat(&0) ∧' Nat(&1) ∧' Nat(&2) ∧' Nat(&3) ⟹
-      ((&0 +ₛ &1) =' (&2 +ₛ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3))))
+  ∀' ∀' ∀' ∀' ((&0 +ₛ &1) =' (&2 +ₛ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3)))
 
 def ax_mult_inj : Sentence ℒ :=
-  ∀' ∀' ∀' ∀'
-    (Nat(&0) ∧' Nat(&1) ∧' Nat(&2) ∧' Nat(&3) ⟹
-      ((&0 timesₛ &1) =' (&2 timesₛ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3))))
+  ∀' ∀' ∀' ∀' ((&0 timesₛ &1) =' (&2 timesₛ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3)))
 
 def ax_neg_inj : Sentence ℒ :=
-  ∀' ∀' (Nat(&0) ∧' Nat(&1) ⟹ ((⬝∼ &0) =' (⬝∼ &1) ⟹ (&0 =' &1)))
+  ∀' ∀' ((⬝∼ &0) =' (⬝∼ &1) ⟹ (&0 =' &1))
 
 def ax_and_inj : Sentence ℒ :=
-  ∀' ∀' ∀' ∀'
-    (Nat(&0) ∧' Nat(&1) ∧' Nat(&2) ∧' Nat(&3) ⟹
-      ((&0 ⬝∧ &1) =' (&2 ⬝∧ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3))))
+  ∀' ∀' ∀' ∀' ((&0 ⬝∧ &1) =' (&2 ⬝∧ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3)))
 
 def ax_or_inj : Sentence ℒ :=
-  ∀' ∀' ∀' ∀'
-    (Nat(&0) ∧' Nat(&1) ∧' Nat(&2) ∧' Nat(&3) ⟹
-      ((&0 ⬝∨ &1) =' (&2 ⬝∨ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3))))
+  ∀' ∀' ∀' ∀' ((&0 ⬝∨ &1) =' (&2 ⬝∨ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3)))
 
 def ax_imp_inj : Sentence ℒ :=
-  ∀' ∀' ∀' ∀'
-    (Nat(&0) ∧' Nat(&1) ∧' Nat(&2) ∧' Nat(&3) ⟹
-      ((&0 ⬝⟹ &1) =' (&2 ⬝⟹ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3))))
-
+  ∀' ∀' ∀' ∀' ((&0 ⬝⟹ &1) =' (&2 ⬝⟹ &3) ⟹ ((&0 =' &2) ∧' (&1 =' &3)))
 
 def ax_all_inj : Sentence ℒ :=
-  ∀' ∀'(Nat(&0) ∧' Nat(&1) ⟹ ((⬝∀ &0) =' (⬝∀ &1) ⟹ (&0 =' &1)))
+  ∀' ∀' ((⬝∀ &0) =' (⬝∀ &1) ⟹ (&0 =' &1))
 
 def ax_ex_inj : Sentence ℒ :=
-  ∀' ∀' (Nat(&0) ∧' Nat(&1) ⟹ ((⬝∃ &0) =' (⬝∃ &1) ⟹ (&0 =' &1)))
+  ∀' ∀' ((⬝∃ &0) =' (⬝∃ &1) ⟹ (&0 =' &1))
+
 --Distinctness
 -- def ax_neg_ne_and : Sentence ℒ :=
 --   ∀' ∀' ∀' ∼((⬝∼&0) =' (&1 ⬝∧ &2))
@@ -234,7 +220,6 @@ def ax_ex_inj : Sentence ℒ :=
 inductive syntax_axioms : ℒ.Theory
   | bound_var     : syntax_axioms ax_bound_var
   | var_term      : syntax_axioms ax_var_term
-  | const_term    : syntax_axioms ax_const_term
   | eq_form       : syntax_axioms ax_eq_form
 
   | succ_term     : syntax_axioms ax_succ_term

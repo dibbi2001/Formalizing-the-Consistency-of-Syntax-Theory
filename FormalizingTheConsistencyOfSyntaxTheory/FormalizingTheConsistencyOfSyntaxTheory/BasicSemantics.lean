@@ -65,7 +65,7 @@ instance : IsNatDot M where
 
 variable [Zero M] [Succ M] [Add M] [Mul M]
 [NegDot M] [MinDot M] [MaxDot M]
-[Imp M] [Eq M] [Univ M] [Ex M] [BoundVar M] [FreeVar M]
+[Imp M] [Eq M] [Univ M] [Ex M] [BoundVar M]
 [IsVarDot M] [IsConstDot M] [IsTermDot M] [IsBdformDot M]
 [IsNatDot M]
 [Zeroₛ M] [Succₛ M] [Addₛ M] [Mulₛ M]
@@ -88,7 +88,6 @@ instance : peanoarithmetic.Structure M where
   | .allₛ, v => Univ.all (v 0)
   | .exₛ, v => Ex.ex (v 0)
   | .boundₛ, v => BoundVar.bv (v 0)
-  | .freeₛ, v => FreeVar.fv (v 0)
   RelMap
   | .var, v => IsVarDot.vardot v
   | .const, v => IsConstDot.constdot v
@@ -132,10 +131,6 @@ Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.add v = v 0
 @[simp] theorem funMap_bv {v} :
   Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.boundₛ v = BoundVar.bv (v 0) := rfl
 
-@[simp] theorem funMap_fv {v} :
-  Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.freeₛ v = FreeVar.fv (v 0) := rfl
-
-
 @[simp] theorem realize_null : Term.realize v (Language.peanoarithmetic.null : peanoarithmetic.Term α) = 0 := rfl
 
 @[simp] theorem realize_succ (t : peanoarithmetic.Term α) :
@@ -171,9 +166,6 @@ Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.add v = v 0
 @[simp] theorem realize_bv (t : peanoarithmetic.Term α) :
   Term.realize v (BoundVar.bv t) = BoundVar.bv (Term.realize v t) := rfl
 
-@[simp] theorem realize_fv (t : peanoarithmetic.Term α) :
-  Term.realize v (FreeVar.fv t) = FreeVar.fv (Term.realize v t) := rfl
-
 end
 
 namespace PAStructure
@@ -195,7 +187,6 @@ namespace PAStructure
     | .allₛ, v   => 0
     | .exₛ, v    => 0
     | .boundₛ, v => 0
-    | .freeₛ, v  => 0
 
     RelMap
     | .var, _    => False
@@ -361,7 +352,6 @@ namespace SyntaxStructure
   | .allₛ, v   => all_repres (v 0)
   | .exₛ, v    => ex_repres (v 0)
   | .boundₛ, v => 0
-  | .freeₛ, v  => 0
 
   RelMap
   | .var, v    => var_repres (v 0) = 1
@@ -434,8 +424,7 @@ open Structure
 --   | _ => False
 
 abbrev SynDomain (ℒ : Language) :=
-  ℕ ⊕ (FirstOrder.Language.Term ℒ (ℕ ⊕ Fin 0))
-    ⊕ (FirstOrder.Language.BoundedFormula ℒ ℕ 0)
+  ℕ ⊕ (FirstOrder.Language.Term ℒ (ℕ ⊕ Fin 0)) ⊕ (FirstOrder.Language.BoundedFormula ℒ ℕ 0)
 
 def isNat : SynDomain ℒ → Prop
 | Sum.inl _ => True
@@ -476,7 +465,7 @@ instance : IsVarDot (SynDomain ℒ) where
 instance : IsConstDot (SynDomain ℒ) where
   constdot v :=
     match v 0 with
-    | Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.zeroₛ _)) => True
+    | Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.zero _)) => True
     | _ => False
 
 instance : Zero (SynDomain ℒ) :=  ⟨Sum.inl 0⟩
@@ -485,72 +474,72 @@ instance : Succ (SynDomain ℒ) where
   succ x :=
     match x with
     | Sum.inl n => Sum.inl (n + 1)
-    | _ => Sum.inl 0
+    | _ => x
 
 instance : Add (SynDomain ℒ) :=
 ⟨fun x y =>
   match x, y with
   | Sum.inl a, Sum.inl b => Sum.inl (a + b)
-  | _, _ => Sum.inl 0
+  | _, _ => x
 ⟩
 
 instance : Mul (SynDomain ℒ) :=
 ⟨fun x y =>
   match x, y with
   | Sum.inl a, Sum.inl b => Sum.inl (a * b)
-  | _, _ => Sum.inl 0
+  | _, _ => x
 ⟩
 
 instance : Zeroₛ (SynDomain ℒ) where
-  zeroₛ := Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.zeroₛ ![]))
+  zeroₛ := Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.zero ![]))
 
 instance : Succₛ (SynDomain ℒ) where
   succₛ x :=
     match x with
     | Sum.inr (Sum.inl t) =>
-        Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.succₛ ![t]))
-    | _ => Sum.inl 0
+        Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.succ ![t]))
+    | _ => x
 
 instance : Addₛ (SynDomain ℒ) where
   addₛ x y :=
     match x, y with
     | Sum.inr (Sum.inl t₁), Sum.inr (Sum.inl t₂) =>
-        Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.addₛ ![t₁,t₂]))
-    | _, _ => Sum.inl 0
+        Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.add ![t₁,t₂]))
+    | _, _ => x
 
 instance : Mulₛ (SynDomain ℒ) where
   mulₛ x y :=
     match x, y with
     | Sum.inr (Sum.inl t₁), Sum.inr (Sum.inl t₂) =>
-        Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.multₛ ![t₁,t₂]))
-    | _, _ => Sum.inl 0
+        Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.mult ![t₁,t₂]))
+    | _, _ => x
 
 instance : MinDot (SynDomain ℒ) where
   mindot x y :=
     match x, y with
     | Sum.inr (Sum.inr φ), Sum.inr (Sum.inr ψ) =>
         Sum.inr (Sum.inr (φ ∧' ψ))
-    | _, _ => Sum.inl 0
+    | _, _ => x
 
 instance : MaxDot (SynDomain ℒ) where
   maxdot x y :=
     match x, y with
     | Sum.inr (Sum.inr φ), Sum.inr (Sum.inr ψ) =>
         Sum.inr (Sum.inr (φ ∨' ψ))
-    | _, _ => Sum.inl 0
+    | _, _ => x
 
 instance : NegDot (SynDomain ℒ) where
   negdot x :=
     match x with
-    | Sum.inr (Sum.inl t) => Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.negₛ ![t]))
-    | _ => Sum.inl 0
+    | Sum.inr (Sum.inr φ) => Sum.inr (Sum.inr (BoundedFormula.not φ))
+    | _ => x
 
 instance : Imp (SynDomain ℒ) where
   imp x y :=
     match x, y with
     | Sum.inr (Sum.inr φ), Sum.inr (Sum.inr ψ) =>
         Sum.inr (Sum.inr (BoundedFormula.imp φ ψ))
-    | _, _ => Sum.inl 0
+    | _, _ => x
 
 variable {L : Language}
 
@@ -576,31 +565,25 @@ instance : Eq (SynDomain ℒ) where
     match x, y with
     | Sum.inr (Sum.inl t), Sum.inr (Sum.inl s) =>
         Sum.inr (Sum.inr (BoundedFormula.equal t s))
-    | _, _ => Sum.inl 0
+    | _, _ => x
 
 instance : Univ (SynDomain ℒ) where
   all x :=
     match x with
     | Sum.inr (Sum.inr φ) => Sum.inr (Sum.inr (∀' liftFormula φ))
-    | _ => Sum.inl 0
+    | _ => x
 
 instance : Ex (SynDomain ℒ) where
   ex x :=
     match x with
     | Sum.inr (Sum.inr φ) => Sum.inr (Sum.inr (∃' liftFormula φ))
-    | _ => Sum.inl 0
+    | _ => x
 
 instance : BoundVar (SynDomain ℒ) where
   bv x :=
     match x with
-    | Sum.inr (Sum.inl t) => Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.boundₛ ![t]))
-    | _ => Sum.inl 0
-
-instance : FreeVar (SynDomain ℒ) where
-  fv x :=
-    match x with
-    | Sum.inr (Sum.inl t) => Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.freeₛ ![t]))
-    | _ => Sum.inl 0
+    | Sum.inl n => Sum.inr (Sum.inl (Term.var (Sum.inl n)))
+    | _ => x
 
 def homophonic_syntax_structure : peanoarithmetic.Structure (SynDomain ℒ) where
   funMap
@@ -621,7 +604,6 @@ def homophonic_syntax_structure : peanoarithmetic.Structure (SynDomain ℒ) wher
   | .allₛ, v   => Univ.all (v 0)
   | .exₛ, v    => Ex.ex (v 0)
   | .boundₛ, v => BoundVar.bv (v 0)
-  | .freeₛ, v  => FreeVar.fv (v 0)
 
   RelMap
   | .var, v    => IsVarDot.vardot v
@@ -661,7 +643,7 @@ rfl
 @[simp] lemma const_realize (v : Fin 1 → SynDomain ℒ) :
   IsConstDot.constdot v =
     match v 0 with
-    | Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.zeroₛ _)) => True
+    | Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.zero _)) => True
     | _ => False :=
 rfl
 
@@ -672,110 +654,103 @@ rfl
   Succ.succ n =
     match n with
     | Sum.inl k => Sum.inl (k + 1)
-    | _ => Sum.inl 0 :=
+    | _ => n :=
 rfl
 
 @[simp] lemma add_realize (x y : SynDomain ℒ) :
   x + y =
     match x, y with
     | Sum.inl a, Sum.inl b => Sum.inl (a + b)
-    | _, _ => Sum.inl 0 :=
+    | _, _ => x :=
 rfl
 
 @[simp] lemma mul_realize (x y : SynDomain ℒ) :
   x * y =
     match x, y with
     | Sum.inl a, Sum.inl b => Sum.inl (a * b)
-    | _, _ => Sum.inl 0 :=
+    | _, _ => x :=
 rfl
 
 @[simp] lemma zeroₛ_realize :
-  Zeroₛ.zeroₛ = (Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.zeroₛ ![])) : SynDomain ℒ) := rfl
+  Zeroₛ.zeroₛ = (Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.zero ![])) : SynDomain ℒ) := rfl
 
 @[simp] lemma succₛ_realize (t : SynDomain ℒ) :
   Succₛ.succₛ t =
     match t with
-    | Sum.inr (Sum.inl u) => Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.succₛ ![u]))
-    | _ => Sum.inl 0 :=
+    | Sum.inr (Sum.inl u) => Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.succ ![u]))
+    | _ => t :=
 rfl
 
 @[simp] lemma addₛ_realize (t₁ t₂ : SynDomain ℒ) :
   Addₛ.addₛ t₁ t₂ =
     match t₁, t₂ with
     | Sum.inr (Sum.inl u₁), Sum.inr (Sum.inl u₂) =>
-        Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.addₛ ![u₁,u₂]))
-    | _, _ => Sum.inl 0 :=
+        Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.add ![u₁,u₂]))
+    | _, _ => t₁ :=
 rfl
 
 @[simp] lemma mulₛ_realize (t₁ t₂ : SynDomain ℒ) :
   Mulₛ.mulₛ t₁ t₂ =
     match t₁, t₂ with
     | Sum.inr (Sum.inl u₁), Sum.inr (Sum.inl u₂) =>
-        Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.multₛ ![u₁,u₂]))
-    | _, _ => Sum.inl 0 :=
+        Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.mult ![u₁,u₂]))
+    | _, _ => t₁ :=
 rfl
 
 @[simp] lemma neg_realize (t : SynDomain ℒ) :
   NegDot.negdot t =
     match t with
-    | Sum.inr (Sum.inl u) => Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.negₛ ![u]))
-    | _ => Sum.inl 0 :=
+    | Sum.inr (Sum.inr u) => Sum.inr (Sum.inr (BoundedFormula.not u))
+    | _ => t :=
 rfl
 
 @[simp] lemma and_realize (φ ψ : SynDomain ℒ) :
   MinDot.mindot φ ψ =
     match φ, ψ with
     | Sum.inr (Sum.inr f₁), Sum.inr (Sum.inr f₂) => Sum.inr (Sum.inr (f₁ ∧' f₂))
-    | _, _ => Sum.inl 0 :=
+    | _, _ => φ :=
 rfl
 
 @[simp] lemma or_realize (φ ψ : SynDomain ℒ) :
   MaxDot.maxdot φ ψ =
     match φ, ψ with
     | Sum.inr (Sum.inr f₁), Sum.inr (Sum.inr f₂) => Sum.inr (Sum.inr (f₁ ∨' f₂))
-    | _, _ => Sum.inl 0 :=
+    | _, _ => φ :=
 rfl
 
 @[simp] lemma imp_realize (φ ψ : SynDomain ℒ) :
   Imp.imp φ ψ =
     match φ, ψ with
     | Sum.inr (Sum.inr f₁), Sum.inr (Sum.inr f₂) => Sum.inr (Sum.inr (BoundedFormula.imp f₁ f₂))
-    | _, _ => Sum.inl 0 :=
+    | _, _ => φ :=
 rfl
 
 @[simp] lemma eq_realize (t₁ t₂ : SynDomain ℒ) :
   Eq.eq t₁ t₂ =
     match t₁, t₂ with
     | Sum.inr (Sum.inl u₁), Sum.inr (Sum.inl u₂) => Sum.inr (Sum.inr (BoundedFormula.equal u₁ u₂))
-    | _, _ => Sum.inl 0 :=
+    | _, _ => t₁ :=
 rfl
 
 @[simp] lemma all_realize (φ : SynDomain ℒ) :
   Univ.all φ =
     match φ with
     | Sum.inr (Sum.inr f) => Sum.inr (Sum.inr (∀' liftFormula f))
-    | _ => Sum.inl 0 :=
+    | _ => φ :=
 rfl
 
 @[simp] lemma ex_realize (φ : SynDomain ℒ) :
   Ex.ex φ =
     match φ with
     | Sum.inr (Sum.inr f) => Sum.inr (Sum.inr (∃' liftFormula f))
-    | _ => Sum.inl 0 :=
+    | _ => φ :=
 rfl
 
 @[simp] lemma bv_realize (t : SynDomain ℒ) :
   BoundVar.bv t =
     match t with
-    | Sum.inr (Sum.inl u) => Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.boundₛ ![u]))
-    | _ => Sum.inl 0 :=
-rfl
-
-@[simp] lemma fv_realize (t : SynDomain ℒ) :
-  FreeVar.fv t =
-    match t with
-    | Sum.inr (Sum.inl u) => Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.freeₛ ![u]))
-    | _ => Sum.inl 0 :=
+    | Sum.inl n => Sum.inr (Sum.inl (Term.var (Sum.inl n)))
+    | _ => t :=
 rfl
 
 @[simp] lemma funMap_zero {v} :
@@ -825,8 +800,6 @@ Structure.funMap (L := peanoarithmetic) (M := SynDomain ℒ) peanoarithmeticFunc
 @[simp] theorem funMap_bv {v} :
   Structure.funMap (L := peanoarithmetic) (M := SynDomain ℒ) peanoarithmeticFunc.boundₛ v = BoundVar.bv (v 0) := rfl
 
-@[simp] theorem funMap_fv {v} :
-  Structure.funMap (L := peanoarithmetic) (M := SynDomain ℒ) peanoarithmeticFunc.freeₛ v = FreeVar.fv (v 0) := rfl
 
 @[simp] lemma nat_inl (n : ℕ) : isNat (Sum.inl n : SynDomain ℒ) := trivial
 
@@ -879,9 +852,6 @@ Structure.funMap (L := peanoarithmetic) (M := SynDomain ℒ) peanoarithmeticFunc
 @[simp] lemma isBound_var (t : ℒ.Term (ℕ ⊕ Fin 0)) :
   isTerm (Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.boundₛ ![t])) : SynDomain ℒ) := by trivial
 
-@[simp] lemma isFree_var (t : ℒ.Term (ℕ ⊕ Fin 0)) :
-  isTerm (Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.freeₛ ![t])) : SynDomain ℒ) := by trivial
-
 @[simp] lemma bdform_imp (φ ψ) :
   isBdForm (Sum.inr (Sum.inr (BoundedFormula.imp φ ψ)) : SynDomain ℒ) := by trivial
 
@@ -917,5 +887,6 @@ open Classical
 --   let v : Fin 1 → SynDomain ℒ := fun i => Sum.inl 0
 --   Var(&ₛ(var (Sum.inr 0))).Realize  (Structure ℒ : (SynDomain ℒ) ) v = False := by
 --   rfl
+
 
 end Homophonic

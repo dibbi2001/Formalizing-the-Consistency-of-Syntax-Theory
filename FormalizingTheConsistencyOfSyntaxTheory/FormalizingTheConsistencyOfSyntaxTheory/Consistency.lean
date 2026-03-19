@@ -73,8 +73,6 @@ theorem nat_models_syntax_axioms : @Theory.Model ℒ ℕ nat_syntax_structure sy
   --   sorry
   case var_term =>
     sorry
-  case const_term =>
-    sorry
   case eq_form =>
     sorry
   case succ_term =>
@@ -122,17 +120,24 @@ theorem homophonic_models_axioms : (SynDomain ℒ) ⊨ syntax_axioms := by
     rw [ax_bound_var]
     simp
     intro x
-    cases x  <;> simp <;> first | trivial | tauto |
-    rw [Fin.snoc_zero]
-    simp
-    intro _
-    sorry
-  -- case const_zero =>
-  --   sorry
+    cases x
+    case inl =>
+      simp
+      tauto
+    case inr =>
+      simp
+      tauto
   case var_term =>
-    sorry
-  case const_term =>
-    sorry
+    rw [ax_var_term]
+    simp
+    intro x
+    cases x
+    case inl =>
+      simp
+      tauto
+    case inr =>
+      simp
+      sorry
   case eq_form =>
     sorry
   case succ_term =>
@@ -140,36 +145,67 @@ theorem homophonic_models_axioms : (SynDomain ℒ) ⊨ syntax_axioms := by
   case add_term =>
     sorry
   case mult_term =>
+    rw [ax_mult_term]
     sorry
   case neg_form =>
+    rw [ax_neg_form]
+    simp
     sorry
   case and_form =>
+    rw [ax_and_form]
+    simp
     sorry
   case or_form =>
+    rw [ax_or_form]
+    simp
     sorry
   case imp_form =>
+    rw [ax_imp_form]
+    simp
     sorry
   case all_form =>
+    rw [ax_all_form]
+    simp
     sorry
   case ex_form =>
+    rw [ax_ex_form]
+    simp
     sorry
   case succ_inj =>
+    rw [ax_succ_inj]
+    simp
     sorry
   case add_inj =>
+    rw [ax_add_inj]
+    simp
     sorry
   case mult_inj =>
+    rw [ax_mult_inj]
+    simp
     sorry
   case neg_inj =>
+    rw [ax_neg_inj]
+    simp
     sorry
   case and_inj =>
+    rw [ax_and_inj]
+    simp
     sorry
   case or_inj =>
+    rw [ax_or_inj]
+    simp
     sorry
   case imp_inj =>
+    rw [ax_imp_inj]
+    simp
     sorry
   case all_inj =>
+    rw [ax_all_inj]
+    simp
     sorry
   case ex_inj =>
+    rw [ax_ex_inj]
+    simp
     sorry
 
 -- def syntaxModel : syntax_axioms.ModelType :=

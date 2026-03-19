@@ -111,7 +111,6 @@ inductive peanoarithmeticFunc : ℕ → Type _ where
   | allₛ : peanoarithmeticFunc 1
   | exₛ : peanoarithmeticFunc 1
   | boundₛ : peanoarithmeticFunc 1   -- represents &n
-  | freeₛ  : peanoarithmeticFunc 1   -- represents #n
   deriving DecidableEq
 
 inductive peanoarithmeticRel : ℕ → Type _ where
@@ -143,7 +142,6 @@ def funToStr {n}: peanoarithmeticFunc n → String
   | .allₛ => "𝑎𝑙𝑙ₛ"
   | .exₛ => "𝑒𝑥ₛ"
   | .boundₛ => "&ₛ"  -- represents &n
-  | .freeₛ  => "#ₛ"   -- represents #n
 instance {n : ℕ}: ToString (Language.peanoarithmetic.Functions n) := ⟨funToStr⟩
 
 def relToStr {n} : Language.peanoarithmetic.Relations n → String
@@ -172,9 +170,6 @@ namespace Language.peanoarithmetic
 
   def boundVar (t : Term peanoarithmetic (Empty ⊕ Fin 0)) : Term peanoarithmetic (Empty ⊕ Fin 0) :=
     Term.func peanoarithmeticFunc.boundₛ (λ _ => t)
-
-  def freeVar (t : Term peanoarithmetic (Empty ⊕ Fin 0)) : Term peanoarithmetic (Empty ⊕ Fin 0) :=
-    Term.func peanoarithmeticFunc.freeₛ (λ _ => t)
 
   -- Syntax
   class Succ (α : Type u) where
@@ -252,9 +247,6 @@ namespace Language.peanoarithmetic
   instance : BoundVar (peanoarithmetic.Term α) where
     bv := Functions.apply₁ .boundₛ
 
-  instance : FreeVar (peanoarithmetic.Term α) where
-    fv := Functions.apply₁ .freeₛ
-
   class IsVar (α : Type u) where
     var : α
 
@@ -328,7 +320,6 @@ namespace Language.peanoarithmetic
     | .allₛ      => Nat.pair 1 3 + 1
     | .exₛ       => Nat.pair 1 4 + 1
     | .boundₛ    => Nat.pair 1 5 + 1
-    | .freeₛ     => Nat.pair 1 6 + 1
 
     | .add       => Nat.pair 2 0 + 1
     | .mult      => Nat.pair 2 1 + 1
@@ -356,7 +347,6 @@ namespace Language.peanoarithmetic
               | 3 => some (.allₛ)
               | 4 => some (.exₛ)
               | 5 => some (.boundₛ)
-              | 6 => some (.freeₛ)
               | _ => none
           | 2 =>
             match e.unpair.2 with
