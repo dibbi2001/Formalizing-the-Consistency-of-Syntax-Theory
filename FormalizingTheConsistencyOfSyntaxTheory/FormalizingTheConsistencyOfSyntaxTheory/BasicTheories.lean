@@ -27,10 +27,10 @@ variable {α : Type*}
 inductive peano_axioms : ℒ.Theory where
   | first : peano_axioms (∀' ∼(null =' S(&0)))
   | second :peano_axioms (∀' ∀' ((S(&1) =' S(&0)) ⟹ (&1 =' &0)))
-  | third : peano_axioms (∀' ((&0 add null) =' &0))
-  | fourth : peano_axioms (∀' ∀' ((&1 add S(&0)) =' S(&1 add &0)))
+  | third : peano_axioms (∀' ((&0 addi null) =' &0))
+  | fourth : peano_axioms (∀' ∀' ((&1 addi S(&0)) =' S(&1 addi &0)))
   | fifth : peano_axioms (∀' ((&0 times null) =' null))
-  | sixth : peano_axioms (∀' ∀' ((&1 times S(&0)) =' ((&1 times &0)) add &1))
+  | sixth : peano_axioms (∀' ∀' ((&1 times S(&0)) =' ((&1 times &0)) addi &1))
 
 /-- all Peano axioms hold in `nat_structure` (ℕ). -/
 theorem peano_axioms_hold (r : Empty → ℕ) :
@@ -95,7 +95,7 @@ def ax_bound_var : Sentence ℒ :=
   ∀' (Nat(&0) ⟹ Var(&ₛ(&0)))
 
 def ax_var_term : Sentence ℒ :=
-  ∀' (Var(&0) ⟹ Term(&0))
+  ∀' ((Var(&0)) ⟹ (Term(&0)))
 
 def ax_eq_form : Sentence ℒ :=
   ∀' ∀' ((Term(&0) ∧' Term(&1)) ⟹ BdForm(&0 ⬝= &1))

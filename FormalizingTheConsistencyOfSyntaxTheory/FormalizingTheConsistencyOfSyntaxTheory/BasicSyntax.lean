@@ -278,7 +278,7 @@ namespace Language.peanoarithmetic
     nat := peanoarithmeticRel.nat
 
   notation "S(" n ")" => Succ.succ n
-  notation n "add" m => Add.add n m
+  notation n "addi" m => Add.add n m
   notation n "times" m => Mul.mul n m
 
   notation "Sₛ(" n ")" => Term.func peanoarithmeticFunc.succₛ ![n]
