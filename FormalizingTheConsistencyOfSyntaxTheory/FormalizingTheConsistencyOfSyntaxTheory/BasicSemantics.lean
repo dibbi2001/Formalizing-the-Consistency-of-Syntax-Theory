@@ -440,7 +440,7 @@ def isBdForm : SynDomain ℒ → Prop
 
 instance synNatDot : IsNatDot (SynDomain ℒ) :=
   { natdot := fun v =>
-      match v 0 with        -- v : Fin 1 → SynDomain ℒ
+      match v 0 with
       | Sum.inl _ => True
       | _ => False }
 
@@ -565,7 +565,7 @@ instance : Eq (SynDomain ℒ) where
     match x, y with
     | Sum.inr (Sum.inl t), Sum.inr (Sum.inl s) =>
         Sum.inr (Sum.inr (BoundedFormula.equal t s))
-    | _, _ => x
+    | _, _ => Sum.inl 0
 
 instance : Univ (SynDomain ℒ) where
   all x :=
@@ -729,7 +729,7 @@ rfl
   Eq.eq t₁ t₂ =
     match t₁, t₂ with
     | Sum.inr (Sum.inl u₁), Sum.inr (Sum.inl u₂) => Sum.inr (Sum.inr (BoundedFormula.equal u₁ u₂))
-    | _, _ => t₁ :=
+    | _, _ => Sum.inl 0 :=
 rfl
 
 @[simp] lemma all_realize (φ : SynDomain ℒ) :

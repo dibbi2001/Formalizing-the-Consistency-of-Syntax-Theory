@@ -95,7 +95,10 @@ def ax_bound_var : Sentence ℒ :=
   ∀' (Nat(&0) ⟹ Var(&ₛ(&0)))
 
 def ax_var_term : Sentence ℒ :=
-  ∀' (Var(&0) ⟹ Term(&0))
+  ∀' ((Var(&0)) ⟹ (Term(&0)))
+
+def ax_null_term : Sentence ℒ :=
+  Term(nullₛ)
 
 def ax_eq_form : Sentence ℒ :=
   ∀' ∀' ((Term(&0) ∧' Term(&1)) ⟹ BdForm(&0 ⬝= &1))
@@ -220,6 +223,7 @@ def ax_ex_inj : Sentence ℒ :=
 inductive syntax_axioms : ℒ.Theory
   | bound_var     : syntax_axioms ax_bound_var
   | var_term      : syntax_axioms ax_var_term
+  | null_term     : syntax_axioms ax_null_term
   | eq_form       : syntax_axioms ax_eq_form
 
   | succ_term     : syntax_axioms ax_succ_term

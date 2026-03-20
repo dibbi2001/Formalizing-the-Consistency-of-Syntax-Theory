@@ -73,6 +73,8 @@ theorem nat_models_syntax_axioms : @Theory.Model ℒ ℕ nat_syntax_structure sy
   --   sorry
   case var_term =>
     sorry
+  case null_term =>
+    sorry
   case eq_form =>
     sorry
   case succ_term =>
@@ -135,53 +137,180 @@ theorem homophonic_models_axioms : (SynDomain ℒ) ⊨ syntax_axioms := by
     case inl =>
       simp
       tauto
-    case inr =>
-      simp
-      sorry
+    case inr val =>
+      cases val
+      case inl t =>
+        simp
+        tauto
+      tauto
+  case null_term =>
+    rw [ax_null_term]
+    trivial
   case eq_form =>
-    sorry
+    rw [ax_eq_form]
+    simp
+    intro x
+    cases x
+    case inl =>
+      simp
+      tauto
+    case inr val =>
+      cases val
+      case inl t =>
+        simp
+        tauto
+      tauto
   case succ_term =>
-    sorry
+    rw [ax_succ_term]
+    simp
+    intro x
+    cases x
+    case inl =>
+      simp
+      tauto
+    case inr val =>
+      cases val
+      case inl t =>
+        simp
+        tauto
+      tauto
   case add_term =>
-    sorry
+    rw [ax_add_term]
+    simp
+    intro x
+    cases x
+    case inl =>
+      simp
+      tauto
+    case inr val =>
+      cases val
+      case inl t =>
+        simp
+        tauto
+      tauto
   case mult_term =>
     rw [ax_mult_term]
-    sorry
+    simp
+    intro x
+    cases x
+    case inl =>
+      simp
+      tauto
+    case inr val =>
+      cases val
+      case inl t =>
+        simp
+        tauto
+      tauto
   case neg_form =>
     rw [ax_neg_form]
     simp
-    sorry
+    intro x
+    cases x
+    case inl =>
+      simp
+      tauto
+    case inr val =>
+      cases val
+      case inl t =>
+        simp
+        tauto
+      tauto
   case and_form =>
     rw [ax_and_form]
     simp
-    sorry
+    intro x
+    cases x
+    case inl =>
+      simp
+      tauto
+    case inr val =>
+      cases val
+      case inl t =>
+        simp
+        tauto
+      simp
+      tauto
   case or_form =>
     rw [ax_or_form]
     simp
-    sorry
+    intro x
+    cases x
+    case inl =>
+      simp
+      tauto
+    case inr val =>
+      cases val
+      case inl t =>
+        simp
+        tauto
+      simp
+      tauto
   case imp_form =>
     rw [ax_imp_form]
     simp
-    sorry
+    intro x
+    cases x
+    case inl =>
+      simp
+      tauto
+    case inr val =>
+      cases val
+      case inl t =>
+        simp
+        tauto
+      simp
+      tauto
   case all_form =>
     rw [ax_all_form]
     simp
-    sorry
+    intro x
+    cases x
+    case inl =>
+      simp
+      tauto
+    case inr val =>
+      cases val
+      case inl t =>
+        simp
+        tauto
+      tauto
   case ex_form =>
     rw [ax_ex_form]
     simp
-    sorry
+    intro x
+    cases x
+    case inl =>
+      simp
+      tauto
+    case inr val =>
+      cases val
+      case inl t =>
+        simp
+        tauto
+      tauto
   case succ_inj =>
     rw [ax_succ_inj]
     simp
-    sorry
+    intro x
+    cases x
+    case inl =>
+      simp
+      tauto
+    case inr val =>
+      cases val
+      case inl t =>
+        simp
+        simp [Fin.snoc] at *
+      case inr t =>
+        simp
+        simp [Fin.snoc] at *
   case add_inj =>
     rw [ax_add_inj]
     simp
     sorry
   case mult_inj =>
     rw [ax_mult_inj]
-    simp
     sorry
   case neg_inj =>
     rw [ax_neg_inj]
@@ -202,11 +331,69 @@ theorem homophonic_models_axioms : (SynDomain ℒ) ⊨ syntax_axioms := by
   case all_inj =>
     rw [ax_all_inj]
     simp
-    sorry
+    intro x
+    cases x
+    case inl =>
+      simp
+      tauto
+    case inr val =>
+      cases val
+      case inl t =>
+        simp
+        simp [Fin.snoc] at *
+      case inr t =>
+        simp
+        simp [Fin.snoc] at *
+        rw [Homophonic.liftFormula.eq_def]
+        cases t
+        case falsum =>
+          simp
+          sorry
+        case equal =>
+          simp
+          sorry
+        case rel =>
+          simp
+          sorry
+        case imp =>
+          simp
+          sorry
+        case all =>
+          simp
+          sorry
   case ex_inj =>
     rw [ax_ex_inj]
     simp
-    sorry
+    intro x
+    cases x
+    case inl =>
+      simp
+      tauto
+    case inr val =>
+      cases val
+      case inl t =>
+        simp
+        simp [Fin.snoc] at *
+      case inr t =>
+        simp
+        simp [Fin.snoc] at *
+        rw [Homophonic.liftFormula.eq_def]
+        cases t
+        case falsum =>
+          simp
+          sorry
+        case equal =>
+          simp
+          sorry
+        case rel =>
+          simp
+          sorry
+        case imp =>
+          simp
+          sorry
+        case all =>
+          simp
+          sorry
 
 -- def syntaxModel : syntax_axioms.ModelType :=
 -- {
