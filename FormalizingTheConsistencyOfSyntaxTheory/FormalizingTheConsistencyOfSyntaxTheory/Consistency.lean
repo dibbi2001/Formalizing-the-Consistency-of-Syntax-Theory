@@ -114,7 +114,7 @@ theorem nat_models_syntax_axioms : @Theory.Model ℒ ℕ nat_syntax_structure sy
   case ex_inj =>
     sorry
 
-theorem homophonic_models_axioms : (SynDomain ℒ) ⊨ syntax_axioms := by
+theorem homophonic_models_axioms : @Theory.Model ℒ (SynDomain ℒ) homophonic_syntax_structure syntax_axioms := by
   simp
   intro φ hφ
   cases hφ
@@ -302,9 +302,11 @@ theorem homophonic_models_axioms : (SynDomain ℒ) ⊨ syntax_axioms := by
       case inl t =>
         simp
         simp [Fin.snoc] at *
+        sorry
       case inr t =>
         simp
         simp [Fin.snoc] at *
+        sorry
   case add_inj =>
     rw [ax_add_inj]
     simp
@@ -341,26 +343,28 @@ theorem homophonic_models_axioms : (SynDomain ℒ) ⊨ syntax_axioms := by
       case inl t =>
         simp
         simp [Fin.snoc] at *
+        sorry
       case inr t =>
         simp
         simp [Fin.snoc] at *
-        rw [Homophonic.liftFormula.eq_def]
-        cases t
-        case falsum =>
-          simp
-          sorry
-        case equal =>
-          simp
-          sorry
-        case rel =>
-          simp
-          sorry
-        case imp =>
-          simp
-          sorry
-        case all =>
-          simp
-          sorry
+        sorry
+        -- rw [Homophonic.liftFormula.eq_def]
+        -- cases t
+        -- case falsum =>
+        --   simp
+        --   sorry
+        -- case equal =>
+        --   simp
+        --   sorry
+        -- case rel =>
+        --   simp
+        --   sorry
+        -- case imp =>
+        --   simp
+        --   sorry
+        -- case all =>
+        --   simp
+        --   sorry
   case ex_inj =>
     rw [ax_ex_inj]
     simp
@@ -374,36 +378,38 @@ theorem homophonic_models_axioms : (SynDomain ℒ) ⊨ syntax_axioms := by
       case inl t =>
         simp
         simp [Fin.snoc] at *
+        sorry
       case inr t =>
         simp
         simp [Fin.snoc] at *
-        rw [Homophonic.liftFormula.eq_def]
-        cases t
-        case falsum =>
-          simp
-          sorry
-        case equal =>
-          simp
-          sorry
-        case rel =>
-          simp
-          sorry
-        case imp =>
-          simp
-          sorry
-        case all =>
-          simp
-          sorry
+        sorry
+        -- rw [Homophonic.liftFormula.eq_def]
+        -- cases t
+        -- case falsum =>
+        --   simp
+        --   sorry
+        -- case equal =>
+        --   simp
+        --   sorry
+        -- case rel =>
+        --   simp
+        --   sorry
+        -- case imp =>
+        --   simp
+        --   sorry
+        -- case all =>
+        --   simp
+        --   sorry
 
--- def syntaxModel : syntax_axioms.ModelType :=
--- {
---   Carrier := ℕ,
---   struc := nat_structure
---   is_model := nat_models_syntax_axioms
---   nonempty' := ⟨0⟩
--- }
+def syntaxModel : syntax_axioms.ModelType :=
+{
+  Carrier := (SynDomain ℒ),
+  struc := homophonic_syntax_structure
+  is_model := homophonic_models_axioms
+  nonempty' := ⟨0⟩
+}
 
--- theorem syntax_axioms_satisfiable : (syntax_axioms : ℒ.Theory).IsSatisfiable := by
---   refine ⟨syntaxModel⟩
+theorem syntax_axioms_satisfiable : (syntax_axioms : ℒ.Theory).IsSatisfiable := by
+  refine ⟨syntaxModel⟩
 
 end Consistency
