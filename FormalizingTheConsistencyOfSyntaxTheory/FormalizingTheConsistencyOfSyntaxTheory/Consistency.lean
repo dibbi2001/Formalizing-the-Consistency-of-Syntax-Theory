@@ -302,15 +302,40 @@ theorem homophonic_models_axioms : @Theory.Model ℒ (SynDomain ℒ) homophonic_
       case inl t =>
         simp
         simp [Fin.snoc] at *
-        sorry
+        and_intros
+        intro a h
+        simp [homophonic_syntax_structure, Succₛ.succₛ] at h
+        intro b h
+        simp [homophonic_syntax_structure, Succₛ.succₛ] at h
+        trivial
+        intro b h
+        simp [homophonic_syntax_structure, Succₛ.succₛ] at h
       case inr t =>
         simp
         simp [Fin.snoc] at *
-        sorry
+        and_intros
+        intro a h
+        simp [homophonic_syntax_structure, Succₛ.succₛ] at h
+        intro h
+        simp [homophonic_syntax_structure, Succₛ.succₛ]
+        intro b h
+        simp [homophonic_syntax_structure, Succₛ.succₛ] at h
+        trivial
   case add_inj =>
     rw [ax_add_inj]
-    simp
-    sorry
+    intro x y z
+    cases x
+    case inl =>
+      intro a
+      simp
+      intro h
+      sorry
+    case inr val =>
+      cases val
+      case inl t =>
+        intro a h
+        sorry
+      sorry
   case mult_inj =>
     rw [ax_mult_inj]
     sorry
@@ -343,28 +368,23 @@ theorem homophonic_models_axioms : @Theory.Model ℒ (SynDomain ℒ) homophonic_
       case inl t =>
         simp
         simp [Fin.snoc] at *
+        and_intros
+        intro a h
+        simp [homophonic_syntax_structure, Univ.all] at h
+        intro b h
+        simp [homophonic_syntax_structure, Univ.all] at h
+        trivial
+        intro b h
         sorry
       case inr t =>
         simp
-        simp [Fin.snoc] at *
+        and_intros
+        intro a h
+        cases h
+        intro b h
+        cases h
+        intro b h
         sorry
-        -- rw [Homophonic.liftFormula.eq_def]
-        -- cases t
-        -- case falsum =>
-        --   simp
-        --   sorry
-        -- case equal =>
-        --   simp
-        --   sorry
-        -- case rel =>
-        --   simp
-        --   sorry
-        -- case imp =>
-        --   simp
-        --   sorry
-        -- case all =>
-        --   simp
-        --   sorry
   case ex_inj =>
     rw [ax_ex_inj]
     simp
@@ -378,28 +398,24 @@ theorem homophonic_models_axioms : @Theory.Model ℒ (SynDomain ℒ) homophonic_
       case inl t =>
         simp
         simp [Fin.snoc] at *
+        and_intros
+        intro a h
+        trivial
+        intro b h
+        cases h
+        rfl
+        intro b h
         sorry
       case inr t =>
         simp
-        simp [Fin.snoc] at *
+        and_intros
+        intro a h
+        cases h
+        intro b h
+        cases h
+        intro b h
         sorry
-        -- rw [Homophonic.liftFormula.eq_def]
-        -- cases t
-        -- case falsum =>
-        --   simp
-        --   sorry
-        -- case equal =>
-        --   simp
-        --   sorry
-        -- case rel =>
-        --   simp
-        --   sorry
-        -- case imp =>
-        --   simp
-        --   sorry
-        -- case all =>
-        --   simp
-        --   sorry
+
 
 def syntaxModel : syntax_axioms.ModelType :=
 {

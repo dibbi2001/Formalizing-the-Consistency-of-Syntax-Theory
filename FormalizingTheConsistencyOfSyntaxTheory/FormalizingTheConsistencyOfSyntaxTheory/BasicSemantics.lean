@@ -544,6 +544,7 @@ instance : Imp (SynDomain ℒ) where
 variable {L : Language}
 
 @[simp]
+-- @[match_pattern]
 def liftTerm {α : Type} {n : ℕ} : Term L (α ⊕ Fin n) → Term L (α ⊕ Fin (n + 1))
   | Term.var v =>
     match v with
@@ -869,6 +870,29 @@ Structure.funMap (L := peanoarithmetic) (M := SynDomain ℒ) peanoarithmeticFunc
 
 @[simp] lemma bdform_ex (t ) :
   isBdForm (Sum.inr (Sum.inr (∃' t)) : SynDomain ℒ) := by trivial
+
+
+lemma liftFormula_injective :
+  Function.Injective (@liftFormula ℒ ℕ n) := by
+  intro φ ψ h
+  cases φ <;> cases ψ <;> simp [liftFormula] at h
+  cases h
+  rfl
+  sorry
+  sorry
+  simp
+  and_intros
+  cases h with
+  | intro h₁ h₂ =>
+    apply liftFormula_injective at h₁
+    exact h₁
+  cases h with
+  | intro h₁ h₂ =>
+    apply liftFormula_injective at h₂
+    exact h₂
+  simp
+  sorry
+
 
 open Classical
 @[simp] lemma imp_true_intro (P : Prop) : (P → True) := by
