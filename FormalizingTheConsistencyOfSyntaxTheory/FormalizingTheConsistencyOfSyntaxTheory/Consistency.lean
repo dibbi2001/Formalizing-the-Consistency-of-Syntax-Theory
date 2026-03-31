@@ -229,8 +229,10 @@ theorem homophonic_models_axioms : @Theory.Model ℒ (SynDomain ℒ) homophonic_
       case inl t =>
         simp
         tauto
-      simp
+      simp [FirstOrder.Language.BoundedFormula.Realize] at *
+      apply And.intro
       tauto
+      sorry
   case or_form =>
     rw [ax_or_form]
     simp
@@ -244,8 +246,10 @@ theorem homophonic_models_axioms : @Theory.Model ℒ (SynDomain ℒ) homophonic_
       case inl t =>
         simp
         tauto
-      simp
+      simp [FirstOrder.Language.BoundedFormula.Realize] at *
+      apply And.intro
       tauto
+      sorry
   case imp_form =>
     rw [ax_imp_form]
     simp
@@ -259,8 +263,10 @@ theorem homophonic_models_axioms : @Theory.Model ℒ (SynDomain ℒ) homophonic_
       case inl t =>
         simp
         tauto
-      simp
+      simp [FirstOrder.Language.BoundedFormula.Realize] at *
+      apply And.intro
       tauto
+      sorry
   case all_form =>
     rw [ax_all_form]
     simp
@@ -370,11 +376,9 @@ theorem homophonic_models_axioms : @Theory.Model ℒ (SynDomain ℒ) homophonic_
         simp [Fin.snoc] at *
         and_intros
         intro a h
-        simp [homophonic_syntax_structure, Univ.all] at h
+        sorry
         intro b h
-        simp [homophonic_syntax_structure, Univ.all] at h
-        trivial
-        intro b h
+        sorry
         sorry
       case inr t =>
         simp
@@ -396,27 +400,30 @@ theorem homophonic_models_axioms : @Theory.Model ℒ (SynDomain ℒ) homophonic_
     case inr val =>
       cases val
       case inl t =>
-        simp
-        simp [Fin.snoc] at *
-        and_intros
-        intro a h
-        trivial
-        intro b h
-        cases h
-        rfl
-        intro b h
         sorry
+        -- simp
+        -- simp [Fin.snoc] at *
+        -- and_intros
+        -- intro a h
+        -- trivial
+        -- intro b h
+        -- cases h
+        -- rfl
+        -- intro b h
+        -- sorry
       case inr t =>
-        simp
-        and_intros
-        intro a h
-        cases h
-        intro b h
-        cases h
-        intro b h
         sorry
+        -- simp
+        -- and_intros
+        -- intro a h
+        -- cases h
+        -- intro b h
+        -- cases h
+        -- intro b h
+        -- sorry
 
---change
+--look at congruence proof strategy x = y => fx = fy
+--prove lift lemma
 
 def syntaxModel : syntax_axioms.ModelType :=
 {

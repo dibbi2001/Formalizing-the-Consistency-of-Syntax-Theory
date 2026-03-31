@@ -424,8 +424,15 @@ open Structure
 --   | _ => False
 
 abbrev SynDomain (ℒ : Language) :=
-  ℕ ⊕ (FirstOrder.Language.Term ℒ (ℕ ⊕ Fin 0)) ⊕ (FirstOrder.Language.BoundedFormula ℒ ℕ 0)
+  ℕ ⊕ (FirstOrder.Language.Term ℒ (ℕ ⊕ Fin 0)) ⊕ (Σ n : ℕ, FirstOrder.Language.BoundedFormula ℒ ℕ n)
 
+-- Nat ⊕ Term ⊕ BdForm 0 ⊕ BdForm 1 ⊕ BdForm2... (BdForm n)
+-- Σn : Nat, (FirstOrder.Language.BoundedFormula ℒ ℕ n)
+-- in chc, dependent typing is what allows you to do quantification
+
+
+-- other option is to just only change the domain, interpret BdForm as a whole union
+-- will maybe make proofs more complicated
 def isNat : SynDomain ℒ → Prop
 | Sum.inl _ => True
 | _ => False
@@ -455,6 +462,8 @@ instance synBdformDot : IsBdformDot (SynDomain ℒ) :=
     match v 0 with
     | Sum.inr (Sum.inr _) => True
     | _ => False }
+
+-- function from pairs to truth values, such that the first is a number and the second lives in BdForm L N n
 
 instance : IsVarDot (SynDomain ℒ) where
   vardot v :=
@@ -517,28 +526,41 @@ instance : Mulₛ (SynDomain ℒ) where
 instance : MinDot (SynDomain ℒ) where
   mindot x y :=
     match x, y with
-    | Sum.inr (Sum.inr φ), Sum.inr (Sum.inr ψ) =>
-        Sum.inr (Sum.inr (φ ∧' ψ))
+    | Sum.inr (Sum.inr ⟨n, φ⟩), Sum.inr (Sum.inr ⟨m, ψ⟩) =>
+        if h : n = m then
+          Sum.inr (Sum.inr ⟨n, by
+            cases h
+            exact φ ∧' ψ⟩)
+        else x
     | _, _ => x
 
 instance : MaxDot (SynDomain ℒ) where
   maxdot x y :=
     match x, y with
-    | Sum.inr (Sum.inr φ), Sum.inr (Sum.inr ψ) =>
-        Sum.inr (Sum.inr (φ ∨' ψ))
+    | Sum.inr (Sum.inr ⟨n, φ⟩), Sum.inr (Sum.inr ⟨m, ψ⟩) =>
+        if h : n = m then
+          Sum.inr (Sum.inr ⟨n, by
+            cases h
+            exact φ ∨' ψ⟩)
+        else x
     | _, _ => x
 
 instance : NegDot (SynDomain ℒ) where
   negdot x :=
     match x with
-    | Sum.inr (Sum.inr φ) => Sum.inr (Sum.inr (BoundedFormula.not φ))
+    | Sum.inr (Sum.inr ⟨n, φ⟩) =>
+        Sum.inr (Sum.inr ⟨n, BoundedFormula.not φ⟩)
     | _ => x
 
 instance : Imp (SynDomain ℒ) where
   imp x y :=
     match x, y with
-    | Sum.inr (Sum.inr φ), Sum.inr (Sum.inr ψ) =>
-        Sum.inr (Sum.inr (BoundedFormula.imp φ ψ))
+    | Sum.inr (Sum.inr ⟨n, φ⟩), Sum.inr (Sum.inr ⟨m, ψ⟩) =>
+        if h : n = m then
+          Sum.inr (Sum.inr ⟨n, by
+            cases h
+            exact BoundedFormula.imp φ ψ⟩)
+        else x
     | _, _ => x
 
 variable {L : Language}
@@ -565,19 +587,21 @@ instance : Eq (SynDomain ℒ) where
   eq x y :=
     match x, y with
     | Sum.inr (Sum.inl t), Sum.inr (Sum.inl s) =>
-        Sum.inr (Sum.inr (BoundedFormula.equal t s))
+        Sum.inr (Sum.inr ⟨0, BoundedFormula.equal t s⟩)
     | _, _ => Sum.inl 0
 
 instance : Univ (SynDomain ℒ) where
   all x :=
     match x with
-    | Sum.inr (Sum.inr φ) => Sum.inr (Sum.inr (∀' liftFormula φ))
+    | Sum.inr (Sum.inr ⟨n, φ⟩) =>
+        Sum.inr (Sum.inr ⟨n + 1, liftFormula φ⟩)
     | _ => x
 
 instance : Ex (SynDomain ℒ) where
   ex x :=
     match x with
-    | Sum.inr (Sum.inr φ) => Sum.inr (Sum.inr (∃' liftFormula φ))
+    | Sum.inr (Sum.inr ⟨n, φ⟩) =>
+        Sum.inr (Sum.inr ⟨n + 1, liftFormula φ⟩)
     | _ => x
 
 instance : BoundVar (SynDomain ℒ) where
@@ -701,49 +725,59 @@ rfl
 @[simp] lemma neg_realize (t : SynDomain ℒ) :
   NegDot.negdot t =
     match t with
-    | Sum.inr (Sum.inr u) => Sum.inr (Sum.inr (BoundedFormula.not u))
+    | Sum.inr (Sum.inr ⟨n, u⟩) => Sum.inr (Sum.inr ⟨n, BoundedFormula.not u⟩)
     | _ => t :=
 rfl
 
 @[simp] lemma and_realize (φ ψ : SynDomain ℒ) :
   MinDot.mindot φ ψ =
     match φ, ψ with
-    | Sum.inr (Sum.inr f₁), Sum.inr (Sum.inr f₂) => Sum.inr (Sum.inr (f₁ ∧' f₂))
+    | Sum.inr (Sum.inr ⟨n, f₁⟩), Sum.inr (Sum.inr ⟨m, f₂⟩) =>
+        if h : n = m then
+          Sum.inr (Sum.inr ⟨n, by cases h; exact f₁ ∧' f₂⟩)
+        else φ
     | _, _ => φ :=
 rfl
 
 @[simp] lemma or_realize (φ ψ : SynDomain ℒ) :
   MaxDot.maxdot φ ψ =
     match φ, ψ with
-    | Sum.inr (Sum.inr f₁), Sum.inr (Sum.inr f₂) => Sum.inr (Sum.inr (f₁ ∨' f₂))
+    | Sum.inr (Sum.inr ⟨n, f₁⟩), Sum.inr (Sum.inr ⟨m, f₂⟩) =>
+        if h : n = m then
+          Sum.inr (Sum.inr ⟨n, by cases h; exact f₁ ∨' f₂⟩)
+        else φ
     | _, _ => φ :=
 rfl
 
 @[simp] lemma imp_realize (φ ψ : SynDomain ℒ) :
   Imp.imp φ ψ =
     match φ, ψ with
-    | Sum.inr (Sum.inr f₁), Sum.inr (Sum.inr f₂) => Sum.inr (Sum.inr (BoundedFormula.imp f₁ f₂))
+    | Sum.inr (Sum.inr ⟨n, f₁⟩), Sum.inr (Sum.inr ⟨m, f₂⟩) =>
+        if h : n = m then
+          Sum.inr (Sum.inr ⟨n, by cases h; exact BoundedFormula.imp f₁ f₂⟩)
+        else φ
     | _, _ => φ :=
 rfl
 
 @[simp] lemma eq_realize (t₁ t₂ : SynDomain ℒ) :
   Eq.eq t₁ t₂ =
     match t₁, t₂ with
-    | Sum.inr (Sum.inl u₁), Sum.inr (Sum.inl u₂) => Sum.inr (Sum.inr (BoundedFormula.equal u₁ u₂))
+    | Sum.inr (Sum.inl u₁), Sum.inr (Sum.inl u₂) =>
+        Sum.inr (Sum.inr ⟨0, BoundedFormula.equal u₁ u₂⟩)
     | _, _ => Sum.inl 0 :=
 rfl
 
 @[simp] lemma all_realize (φ : SynDomain ℒ) :
   Univ.all φ =
     match φ with
-    | Sum.inr (Sum.inr f) => Sum.inr (Sum.inr (∀' liftFormula f))
+    | Sum.inr (Sum.inr ⟨n, f⟩) => Sum.inr (Sum.inr ⟨n+1, liftFormula f⟩)
     | _ => φ :=
 rfl
 
 @[simp] lemma ex_realize (φ : SynDomain ℒ) :
   Ex.ex φ =
     match φ with
-    | Sum.inr (Sum.inr f) => Sum.inr (Sum.inr (∃' liftFormula f))
+    | Sum.inr (Sum.inr ⟨n, f⟩) => Sum.inr (Sum.inr ⟨n+1, liftFormula f⟩)
     | _ => φ :=
 rfl
 
@@ -853,23 +887,23 @@ Structure.funMap (L := peanoarithmetic) (M := SynDomain ℒ) peanoarithmeticFunc
 @[simp] lemma isBound_var (t : ℒ.Term (ℕ ⊕ Fin 0)) :
   isTerm (Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.boundₛ ![t])) : SynDomain ℒ) := by trivial
 
-@[simp] lemma bdform_imp (φ ψ) :
-  isBdForm (Sum.inr (Sum.inr (BoundedFormula.imp φ ψ)) : SynDomain ℒ) := by trivial
+@[simp] lemma bdform_imp (n) (φ ψ : ℒ.BoundedFormula ℕ n) :
+  isBdForm (Sum.inr (Sum.inr ⟨n, BoundedFormula.imp φ ψ⟩) : SynDomain ℒ) := by trivial
 
 @[simp] lemma bdform_eq (t s : ℒ.Term (ℕ ⊕ Fin 0)) :
-  isBdForm (Sum.inr (Sum.inr (BoundedFormula.equal t s)) : SynDomain ℒ) := by trivial
+  isBdForm (Sum.inr (Sum.inr ⟨0, BoundedFormula.equal t s⟩) : SynDomain ℒ) := by trivial
 
-@[simp] lemma bdform_and (t s) :
-  isBdForm (Sum.inr (Sum.inr (t ∧' s)) : SynDomain ℒ) := by trivial
+@[simp] lemma bdform_and (n) (φ ψ : ℒ.BoundedFormula ℕ n) :
+  isBdForm (Sum.inr (Sum.inr ⟨n, φ ∧' ψ⟩) : SynDomain ℒ) := by trivial
 
-@[simp] lemma bdform_or (t s) :
-  isBdForm (Sum.inr (Sum.inr (t ∨' s)) : SynDomain ℒ) := by trivial
+@[simp] lemma bdform_or (n) (φ ψ : ℒ.BoundedFormula ℕ n) :
+  isBdForm (Sum.inr (Sum.inr ⟨n, φ ∨' ψ⟩) : SynDomain ℒ) := by trivial
 
-@[simp] lemma bdform_all (t ) :
-  isBdForm (Sum.inr (Sum.inr (∀' t)) : SynDomain ℒ) := by trivial
+@[simp] lemma bdform_all (n) (φ : ℒ.BoundedFormula ℕ (n + 1)) :
+  isBdForm (Sum.inr (Sum.inr ⟨n + 1, ∀' liftFormula φ⟩) : SynDomain ℒ) := by trivial
 
-@[simp] lemma bdform_ex (t ) :
-  isBdForm (Sum.inr (Sum.inr (∃' t)) : SynDomain ℒ) := by trivial
+@[simp] lemma bdform_ex (n) (φ : ℒ.BoundedFormula ℕ (n + 1)) :
+  isBdForm (Sum.inr (Sum.inr ⟨n + 1, ∃' liftFormula φ⟩) : SynDomain ℒ) := by trivial
 
 
 lemma liftFormula_injective :

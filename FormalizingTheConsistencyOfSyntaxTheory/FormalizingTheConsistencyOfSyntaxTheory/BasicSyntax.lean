@@ -117,9 +117,16 @@ inductive peanoarithmeticRel : ℕ → Type _ where
   | var : peanoarithmeticRel 1
   | term : peanoarithmeticRel 1
   | const : peanoarithmeticRel 1
-  | bdform : peanoarithmeticRel 1
+  | bdform : peanoarithmeticRel 1 --change bdform to arity 2
   | nat : peanoarithmeticRel 1
   deriving DecidableEq
+
+-- BdForm(x, y)
+-- y : BdForm x
+-- make extra axiom for one of it's extra arguments, which is that it should always be a numeral
+-- add axiom similar to ax_bound_var
+-- ∀' ∀' BdForm(&0, &1) => Nat(&0)
+-- maybe add lift/subst function to the syntax
 
 def Language.peanoarithmetic : Language :=
   { Functions := peanoarithmeticFunc

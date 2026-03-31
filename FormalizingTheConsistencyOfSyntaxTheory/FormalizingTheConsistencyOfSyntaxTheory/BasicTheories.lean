@@ -94,6 +94,8 @@ namespace SyntaxTheory
 def ax_bound_var : Sentence ℒ :=
   ∀' (Nat(&0) ⟹ Var(&ₛ(&0)))
 
+-- make it an iff
+
 def ax_var_term : Sentence ℒ :=
   ∀' ((Var(&0)) ⟹ (Term(&0)))
 
