@@ -12,7 +12,7 @@ universe u
 namespace Structure
 
 variable (neg_repres : (Fin 1 → M) → M) (and_repres : (Fin 2 → M) → M) (or_repres : (Fin 2 → M) → M)
-(var_prop : (Fin 1 → M) → Prop) (const_prop : (Fin 1 → M) → Prop) (term_prop : (Fin 1 → M) → Prop) (bdform_prop : (Fin 1 → M) → Prop)
+(var_prop : (Fin 1 → M) → Prop) (const_prop : (Fin 1 → M) → Prop) (term_prop : (Fin 1 → M) → Prop) (bdform_prop : (Fin 2 → M) → Prop)
 (nat_prop : (Fin 1 → M) → Prop)
 
 class NegDot (α : Type u) where
@@ -43,7 +43,7 @@ class IsTermDot (α : Type u) where
   termdot : (Fin 1 → α) → Prop
 
 class IsBdformDot (α : Type u) where
-  bdformdot : (Fin 1 → α) → Prop
+  bdformdot : (Fin 2 → α) → Prop
 
 class IsNatDot (α : Type u) where
   natdot : (Fin 1 → α) → Prop
@@ -442,7 +442,7 @@ def isTerm : SynDomain ℒ → Prop
 | _ => False
 
 def isBdForm : SynDomain ℒ → Prop
-| Sum.inr (Sum.inr _) => True
+| Sum.inr (Sum.inr ⟨_, _⟩) => True
 | _ => False
 
 instance synNatDot : IsNatDot (SynDomain ℒ) :=
@@ -458,11 +458,11 @@ instance synTermDot : IsTermDot (SynDomain ℒ) :=
     | _ => False }
 
 instance synBdformDot : IsBdformDot (SynDomain ℒ) :=
-  { bdformdot := fun v =>
-    match v 0 with
-    | Sum.inr (Sum.inr _) => True
-    | _ => False }
-
+{ bdformdot := fun v =>
+    match v 0, v 1 with
+    | Sum.inl n, Sum.inr (Sum.inr ⟨m, _⟩) => n = m
+    | _, _ => False
+}
 -- function from pairs to truth values, such that the first is a number and the second lives in BdForm L N n
 
 instance : IsVarDot (SynDomain ℒ) where
@@ -651,11 +651,11 @@ rfl
     | _ => False :=
 rfl
 
-@[simp] lemma bdform_realize (v : Fin 1 → SynDomain ℒ) :
+@[simp] lemma bdform_realize (v : Fin 2 → SynDomain ℒ) :
   IsBdformDot.bdformdot v =
-    match v 0 with
-    | Sum.inr (Sum.inr _) => True
-    | _ => False :=
+    match v 0, v 1 with
+    | Sum.inl n, Sum.inr (Sum.inr ⟨m, _⟩) => n = m
+    | _, _ => False :=
 rfl
 
 @[simp] lemma var_realize (v : Fin 1 → SynDomain ℒ) :

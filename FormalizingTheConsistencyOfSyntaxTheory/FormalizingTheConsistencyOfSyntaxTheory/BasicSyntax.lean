@@ -117,7 +117,7 @@ inductive peanoarithmeticRel : ℕ → Type _ where
   | var : peanoarithmeticRel 1
   | term : peanoarithmeticRel 1
   | const : peanoarithmeticRel 1
-  | bdform : peanoarithmeticRel 1 --change bdform to arity 2
+  | bdform : peanoarithmeticRel 2 --change bdform to arity 2
   | nat : peanoarithmeticRel 1
   deriving DecidableEq
 
@@ -278,7 +278,7 @@ namespace Language.peanoarithmetic
   instance : IsTerm (Language.peanoarithmetic.Relations 1) where
     term := peanoarithmeticRel.term
 
-  instance : IsBdform (Language.peanoarithmetic.Relations 1) where
+  instance : IsBdform (Language.peanoarithmetic.Relations 2) where
     bdform := peanoarithmeticRel.bdform
 
   instance : IsNat (Language.peanoarithmetic.Relations 1) where
@@ -305,7 +305,7 @@ namespace Language.peanoarithmetic
   notation "Var(" x ")" =>  BoundedFormula.rel (IsVar.var) ![x]
   notation "Const(" c ")" => BoundedFormula.rel (IsConst.const) ![c]
   notation "Term(" t ")" => BoundedFormula.rel (IsTerm.term) ![t]
-  notation "BdForm(" t ")" => BoundedFormula.rel (IsBdform.bdform) ![t]
+  notation "BdForm(" n "," y ")" => BoundedFormula.rel (IsBdform.bdform) ![n, y]
   notation "Nat(" t ")" =>  BoundedFormula.rel (IsNat.nat) ![t]
 
   abbrev ℒ := Language.peanoarithmetic
@@ -381,8 +381,8 @@ namespace Language.peanoarithmetic
       | .var => Nat.pair 1 0 + 1
       | .term => Nat.pair 1 1 + 1
       | .const => Nat.pair 1 2 + 1
-      | .bdform => Nat.pair 1 3 + 1
-      | .nat => Nat.pair 1 4 + 1
+      | .bdform => Nat.pair 2 0 + 1
+      | .nat => Nat.pair 1 3 + 1
 
     def Rel_dec : (n : ℕ) → Option (peanoarithmetic.Relations k)
       | 0 => none
@@ -393,8 +393,11 @@ namespace Language.peanoarithmetic
               | 0 => some .var
               | 1 => some .term
               | 2 => some .const
-              | 3 => some .bdform
-              | 4 => some .nat
+              | 3 => some .nat
+              | _ => none
+          | 2 =>
+            match e.unpair.2 with
+              | 0 => some .bdform
               | _ => none
           | _ => none
 
