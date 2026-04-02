@@ -92,9 +92,7 @@ end PeanoArithmetic
 namespace SyntaxTheory
 -- Formation Rules
 def ax_bound_var : Sentence ℒ :=
-  ∀' (Nat(&0) ⟹ Var(&ₛ(&0)))
-
--- make it an iff
+  ∀' (Nat(&0) ⇔ Var(&ₛ(&0)))
 
 def ax_var_term : Sentence ℒ :=
   ∀' ((Var(&0)) ⟹ (Term(&0)))
@@ -103,7 +101,7 @@ def ax_null_term : Sentence ℒ :=
   Term(nullₛ)
 
 def ax_eq_form : Sentence ℒ :=
-  ∀' ∀' ((Term(&0) ∧' Term(&1)) ⟹ BdForm(&0 ⬝= &1))
+  ∀' ∀' ((Term(&0) ∧' Term(&1)) ⟹ BdForm(0, &0 ⬝= &1))
 
 -- Arithmetic Operations
 def ax_succ_term : Sentence ℒ :=
@@ -117,22 +115,28 @@ def ax_mult_term : Sentence ℒ :=
 
 -- Logical Connectives
 def ax_neg_form : Sentence ℒ :=
-  ∀' (BdForm(&0) ⟹ BdForm(⬝∼ &0))
+  ∀' ∀' (BdForm(&0, &1) ⟹ BdForm(&0, ⬝∼ &1))
 
 def ax_and_form : Sentence ℒ :=
-  ∀' ∀' ((BdForm(&0) ∧' BdForm(&1)) ⟹ BdForm(&0 ⬝∧ &1))
+  ∀' ∀' ∀' ((BdForm(&0, &1) ∧' BdForm(&0, &2)) ⟹ BdForm(&0, &1 ⬝∧ &2))
 
 def ax_or_form : Sentence ℒ :=
-  ∀' ∀' ((BdForm(&0) ∧' BdForm(&1)) ⟹ BdForm(&0 ⬝∨ &1))
+  ∀' ∀' ∀' ((BdForm(&0, &1) ∧' BdForm(&0, &2)) ⟹ BdForm(&0, &1 ⬝∨ &2))
 
 def ax_imp_form : Sentence ℒ :=
-  ∀' ∀' ((BdForm(&0) ∧'BdForm(&1)) ⟹ BdForm(&0 ⬝⟹ &1))
+  ∀' ∀' ∀' ((BdForm(&0, &1) ∧' BdForm(&0, &2)) ⟹ BdForm(&0, &1 ⬝⟹ &2))
+
+-- def ax_all_form : Sentence ℒ :=
+--   ∀' ∀' (BdForm(&0 + 1, &1) ⟹ BdForm(&0, ⬝∀ &1))
 
 def ax_all_form : Sentence ℒ :=
-  ∀' (BdForm(&0) ⟹ BdForm(⬝∀ &0))
+  ∀' ∀' (BdForm(Sₛ(&0), &1) ⟹  BdForm(&0, ⬝∀ &1))
+
+-- def ax_ex_form : Sentence ℒ :=
+--   ∀' ∀' (BdForm(&0 + 1, &1) ⟹ BdForm(&0, ⬝∃ &1))
 
 def ax_ex_form : Sentence ℒ :=
-  ∀' (BdForm(&0) ⟹ BdForm(⬝∃ &0))
+  ∀' ∀' (BdForm(Sₛ(&0), &1) ⟹ BdForm(&0, ⬝∃ &1))
 
 -- Injectivity
 def ax_succ_inj : Sentence ℒ :=

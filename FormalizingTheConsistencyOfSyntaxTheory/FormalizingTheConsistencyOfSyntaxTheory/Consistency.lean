@@ -117,310 +117,321 @@ theorem nat_models_syntax_axioms : @Theory.Model ℒ ℕ nat_syntax_structure sy
 theorem homophonic_models_axioms : @Theory.Model ℒ (SynDomain ℒ) homophonic_syntax_structure syntax_axioms := by
   simp
   intro φ hφ
-  cases hφ
-  case bound_var =>
-    rw [ax_bound_var]
-    simp
-    intro x
-    cases x
-    case inl =>
-      simp
-      tauto
-    case inr =>
-      simp
-      tauto
-  case var_term =>
-    rw [ax_var_term]
-    simp
-    intro x
-    cases x
-    case inl =>
-      simp
-      tauto
-    case inr val =>
-      cases val
-      case inl t =>
-        simp
-        tauto
-      tauto
-  case null_term =>
-    rw [ax_null_term]
-    trivial
-  case eq_form =>
-    rw [ax_eq_form]
-    simp
-    intro x
-    cases x
-    case inl =>
-      simp
-      tauto
-    case inr val =>
-      cases val
-      case inl t =>
-        simp
-        tauto
-      tauto
-  case succ_term =>
-    rw [ax_succ_term]
-    simp
-    intro x
-    cases x
-    case inl =>
-      simp
-      tauto
-    case inr val =>
-      cases val
-      case inl t =>
-        simp
-        tauto
-      tauto
-  case add_term =>
-    rw [ax_add_term]
-    simp
-    intro x
-    cases x
-    case inl =>
-      simp
-      tauto
-    case inr val =>
-      cases val
-      case inl t =>
-        simp
-        tauto
-      tauto
-  case mult_term =>
-    rw [ax_mult_term]
-    simp
-    intro x
-    cases x
-    case inl =>
-      simp
-      tauto
-    case inr val =>
-      cases val
-      case inl t =>
-        simp
-        tauto
-      tauto
-  case neg_form =>
-    rw [ax_neg_form]
-    simp
-    intro x
-    cases x
-    case inl =>
-      simp
-      tauto
-    case inr val =>
-      cases val
-      case inl t =>
-        simp
-        tauto
-      tauto
-  case and_form =>
-    rw [ax_and_form]
-    simp
-    intro x
-    cases x
-    case inl =>
-      simp
-      tauto
-    case inr val =>
-      cases val
-      case inl t =>
-        simp
-        tauto
-      simp [FirstOrder.Language.BoundedFormula.Realize] at *
-      apply And.intro
-      tauto
-      sorry
-  case or_form =>
-    rw [ax_or_form]
-    simp
-    intro x
-    cases x
-    case inl =>
-      simp
-      tauto
-    case inr val =>
-      cases val
-      case inl t =>
-        simp
-        tauto
-      simp [FirstOrder.Language.BoundedFormula.Realize] at *
-      apply And.intro
-      tauto
-      sorry
-  case imp_form =>
-    rw [ax_imp_form]
-    simp
-    intro x
-    cases x
-    case inl =>
-      simp
-      tauto
-    case inr val =>
-      cases val
-      case inl t =>
-        simp
-        tauto
-      simp [FirstOrder.Language.BoundedFormula.Realize] at *
-      apply And.intro
-      tauto
-      sorry
-  case all_form =>
-    rw [ax_all_form]
-    simp
-    intro x
-    cases x
-    case inl =>
-      simp
-      tauto
-    case inr val =>
-      cases val
-      case inl t =>
-        simp
-        tauto
-      tauto
-  case ex_form =>
-    rw [ax_ex_form]
-    simp
-    intro x
-    cases x
-    case inl =>
-      simp
-      tauto
-    case inr val =>
-      cases val
-      case inl t =>
-        simp
-        tauto
-      tauto
-  case succ_inj =>
-    rw [ax_succ_inj]
-    simp
-    intro x
-    cases x
-    case inl =>
-      simp
-      tauto
-    case inr val =>
-      cases val
-      case inl t =>
-        simp
-        simp [Fin.snoc] at *
-        and_intros
-        intro a h
-        simp [homophonic_syntax_structure, Succₛ.succₛ] at h
-        intro b h
-        simp [homophonic_syntax_structure, Succₛ.succₛ] at h
-        trivial
-        intro b h
-        simp [homophonic_syntax_structure, Succₛ.succₛ] at h
-      case inr t =>
-        simp
-        simp [Fin.snoc] at *
-        and_intros
-        intro a h
-        simp [homophonic_syntax_structure, Succₛ.succₛ] at h
-        intro h
-        simp [homophonic_syntax_structure, Succₛ.succₛ]
-        intro b h
-        simp [homophonic_syntax_structure, Succₛ.succₛ] at h
-        trivial
-  case add_inj =>
-    rw [ax_add_inj]
-    intro x y z
-    cases x
-    case inl =>
-      intro a
-      simp
-      intro h
-      sorry
-    case inr val =>
-      cases val
-      case inl t =>
-        intro a h
-        sorry
-      sorry
-  case mult_inj =>
-    rw [ax_mult_inj]
-    sorry
-  case neg_inj =>
-    rw [ax_neg_inj]
-    simp
-    sorry
-  case and_inj =>
-    rw [ax_and_inj]
-    simp
-    sorry
-  case or_inj =>
-    rw [ax_or_inj]
-    simp
-    sorry
-  case imp_inj =>
-    rw [ax_imp_inj]
-    simp
-    sorry
-  case all_inj =>
-    rw [ax_all_inj]
-    simp
-    intro x
-    cases x
-    case inl =>
-      simp
-      tauto
-    case inr val =>
-      cases val
-      case inl t =>
-        simp
-        simp [Fin.snoc] at *
-        and_intros
-        intro a h
-        sorry
-        intro b h
-        sorry
-        sorry
-      case inr t =>
-        simp
-        and_intros
-        intro a h
-        cases h
-        intro b h
-        cases h
-        intro b h
-        sorry
-  case ex_inj =>
-    rw [ax_ex_inj]
-    simp
-    intro x
-    cases x
-    case inl =>
-      simp
-      tauto
-    case inr val =>
-      cases val
-      case inl t =>
-        sorry
-        -- simp
-        -- simp [Fin.snoc] at *
-        -- and_intros
-        -- intro a h
-        -- trivial
-        -- intro b h
-        -- cases h
-        -- rfl
-        -- intro b h
-        -- sorry
-      case inr t =>
-        sorry
-        -- simp
-        -- and_intros
-        -- intro a h
-        -- cases h
-        -- intro b h
-        -- cases h
-        -- intro b h
-        -- sorry
+  sorry
+  -- cases hφ
+  -- case bound_var =>
+  --   rw [ax_bound_var]
+  --   simp
+  --   sorry
+
+
+  -- simp
+  -- intro φ hφ
+  -- cases hφ
+  -- case bound_var =>
+  --   rw [ax_bound_var]
+  --   simp
+  --   intro x
+  --   cases x
+  --   case inl =>
+  --     simp
+  --     tauto
+  --   case inr =>
+  --     simp
+  --     sorry
+  -- case var_term =>
+  --   rw [ax_var_term]
+  --   simp
+  --   intro x
+  --   cases x
+  --   case inl =>
+  --     simp
+  --     tauto
+  --   case inr val =>
+  --     cases val
+  --     case inl t =>
+  --       simp
+  --       tauto
+  --     tauto
+  -- case null_term =>
+  --   rw [ax_null_term]
+  --   trivial
+  -- case eq_form =>
+  --   rw [ax_eq_form]
+  --   simp
+  --   intro x
+  --   cases x
+  --   case inl =>
+  --     simp
+  --     tauto
+  --   case inr val =>
+  --     cases val
+  --     case inl t =>
+  --       simp
+  --       tauto
+  --     tauto
+  -- case succ_term =>
+  --   rw [ax_succ_term]
+  --   simp
+  --   intro x
+  --   cases x
+  --   case inl =>
+  --     simp
+  --     tauto
+  --   case inr val =>
+  --     cases val
+  --     case inl t =>
+  --       simp
+  --       tauto
+  --     tauto
+  -- case add_term =>
+  --   rw [ax_add_term]
+  --   simp
+  --   intro x
+  --   cases x
+  --   case inl =>
+  --     simp
+  --     tauto
+  --   case inr val =>
+  --     cases val
+  --     case inl t =>
+  --       simp
+  --       tauto
+  --     tauto
+  -- case mult_term =>
+  --   rw [ax_mult_term]
+  --   simp
+  --   intro x
+  --   cases x
+  --   case inl =>
+  --     simp
+  --     tauto
+  --   case inr val =>
+  --     cases val
+  --     case inl t =>
+  --       simp
+  --       tauto
+  --     tauto
+  -- case neg_form =>
+  --   rw [ax_neg_form]
+  --   simp
+  --   intro x
+  --   cases x
+  --   case inl =>
+  --     simp
+  --     tauto
+  --   case inr val =>
+  --     cases val
+  --     case inl t =>
+  --       simp
+  --       tauto
+  --     tauto
+  -- case and_form =>
+  --   rw [ax_and_form]
+  --   simp
+  --   intro x
+  --   cases x
+  --   case inl =>
+  --     simp
+  --     sorry
+  --   case inr val =>
+  --     cases val
+  --     case inl t =>
+  --       simp
+  --       tauto
+  --     simp [FirstOrder.Language.BoundedFormula.Realize] at *
+  --     apply And.intro
+  --     tauto
+  --     sorry
+  -- case or_form =>
+  --   rw [ax_or_form]
+  --   simp
+  --   intro x
+  --   cases x
+  --   case inl =>
+  --     simp
+  --     sorry
+  --   case inr val =>
+  --     cases val
+  --     case inl t =>
+  --       simp
+  --       tauto
+  --     simp [FirstOrder.Language.BoundedFormula.Realize] at *
+  --     apply And.intro
+  --     tauto
+  --     sorry
+  -- case imp_form =>
+  --   rw [ax_imp_form]
+  --   simp
+  --   intro x
+  --   cases x
+  --   case inl =>
+  --     simp
+  --     sorry
+  --   case inr val =>
+  --     cases val
+  --     case inl t =>
+  --       simp
+  --       tauto
+  --     simp [FirstOrder.Language.BoundedFormula.Realize] at *
+  --     apply And.intro
+  --     tauto
+  --     sorry
+  -- case all_form =>
+  --   rw [ax_all_form]
+  --   simp
+  --   intro x
+  --   cases x
+  --   case inl =>
+  --     simp
+  --     sorry
+  --   case inr val =>
+  --     cases val
+  --     case inl t =>
+  --       simp
+  --       tauto
+  --     tauto
+  -- case ex_form =>
+  --   rw [ax_ex_form]
+  --   simp
+  --   intro x
+  --   cases x
+  --   case inl =>
+  --     simp
+  --     sorry
+  --   case inr val =>
+  --     cases val
+  --     case inl t =>
+  --       simp
+  --       tauto
+  --     tauto
+  -- case succ_inj =>
+  --   rw [ax_succ_inj]
+  --   simp
+  --   intro x
+  --   cases x
+  --   case inl =>
+  --     simp
+  --     tauto
+  --   case inr val =>
+  --     cases val
+  --     case inl t =>
+  --       simp
+  --       simp [Fin.snoc] at *
+  --       and_intros
+  --       intro a h
+  --       simp [homophonic_syntax_structure, Succₛ.succₛ] at h
+  --       intro b h
+  --       simp [homophonic_syntax_structure, Succₛ.succₛ] at h
+  --       trivial
+  --       intro b h
+  --       simp [homophonic_syntax_structure, Succₛ.succₛ] at h
+  --     case inr t =>
+  --       simp
+  --       simp [Fin.snoc] at *
+  --       and_intros
+  --       intro a h
+  --       simp [homophonic_syntax_structure, Succₛ.succₛ] at h
+  --       intro h
+  --       sorry
+  --       -- simp [homophonic_syntax_structure, Succₛ.succₛ]
+  --       intro b h
+  --       simp [homophonic_syntax_structure, Succₛ.succₛ] at h
+  --       trivial
+  -- case add_inj =>
+  --   rw [ax_add_inj]
+  --   intro x y z
+  --   cases x
+  --   case inl =>
+  --     intro a
+  --     simp
+  --     intro h
+  --     sorry
+  --   case inr val =>
+  --     cases val
+  --     case inl t =>
+  --       intro a h
+  --       sorry
+  --     sorry
+  -- case mult_inj =>
+  --   rw [ax_mult_inj]
+  --   sorry
+  -- case neg_inj =>
+  --   rw [ax_neg_inj]
+  --   simp
+  --   sorry
+  -- case and_inj =>
+  --   rw [ax_and_inj]
+  --   simp
+  --   sorry
+  -- case or_inj =>
+  --   rw [ax_or_inj]
+  --   simp
+  --   sorry
+  -- case imp_inj =>
+  --   rw [ax_imp_inj]
+  --   simp
+  --   sorry
+  -- case all_inj =>
+  --   rw [ax_all_inj]
+  --   simp
+  --   intro x
+  --   cases x
+  --   case inl =>
+  --     simp
+  --     tauto
+  --   case inr val =>
+  --     cases val
+  --     case inl t =>
+  --       simp
+  --       simp [Fin.snoc] at *
+  --       and_intros
+  --       intro a h
+  --       sorry
+  --       intro b h
+  --       sorry
+  --       sorry
+  --     case inr t =>
+  --       simp
+  --       and_intros
+  --       intro a h
+  --       cases h
+  --       intro b h
+  --       cases h
+  --       intro b h
+  --       sorry
+  -- case ex_inj =>
+  --   rw [ax_ex_inj]
+  --   simp
+  --   intro x
+  --   cases x
+  --   case inl =>
+  --     simp
+  --     tauto
+  --   case inr val =>
+  --     cases val
+  --     case inl t =>
+  --       sorry
+  --       -- simp
+  --       -- simp [Fin.snoc] at *
+  --       -- and_intros
+  --       -- intro a h
+  --       -- trivial
+  --       -- intro b h
+  --       -- cases h
+  --       -- rfl
+  --       -- intro b h
+  --       -- sorry
+  --     case inr t =>
+  --       sorry
+  --       -- simp
+  --       -- and_intros
+  --       -- intro a h
+  --       -- cases h
+  --       -- intro b h
+  --       -- cases h
+  --       -- intro b h
+  --       -- sorry
 
 --look at congruence proof strategy x = y => fx = fy
 --prove lift lemma
