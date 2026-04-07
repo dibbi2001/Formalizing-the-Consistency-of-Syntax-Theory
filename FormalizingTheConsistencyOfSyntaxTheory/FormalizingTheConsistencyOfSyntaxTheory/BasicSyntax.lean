@@ -115,7 +115,7 @@ inductive peanoarithmeticFunc : ℕ → Type _ where
 
 inductive peanoarithmeticRel : ℕ → Type _ where
   | var : peanoarithmeticRel 1
-  | term : peanoarithmeticRel 1
+  | term : peanoarithmeticRel 2
   | const : peanoarithmeticRel 1
   | bdform : peanoarithmeticRel 2 --change bdform to arity 2
   | nat : peanoarithmeticRel 1
@@ -171,12 +171,12 @@ namespace Language.peanoarithmetic
   def nullₛ : Term peanoarithmetic α :=
     Constants.term .zeroₛ
 
-  def numeral : ℕ → Term peanoarithmetic (Empty ⊕ Fin 0)
+  def numeral : ℕ → Term peanoarithmetic (ℕ ⊕ Fin n)
     | .zero => null
     | .succ n => Term.func peanoarithmeticFunc.succ (λ _ => numeral n)
 
-  def boundVar (t : Term peanoarithmetic (Empty ⊕ Fin 0)) : Term peanoarithmetic (Empty ⊕ Fin 0) :=
-    Term.func peanoarithmeticFunc.boundₛ (λ _ => t)
+def boundVar {n : ℕ} (t : Term peanoarithmetic (ℕ ⊕ Fin n)) : Term peanoarithmetic (ℕ ⊕ Fin n) :=
+  Term.func peanoarithmeticFunc.boundₛ (λ _ => t)
 
   -- Syntax
   class Succ (α : Type u) where
@@ -275,7 +275,7 @@ namespace Language.peanoarithmetic
   instance : IsConst (Language.peanoarithmetic.Relations 1) where
     const := peanoarithmeticRel.const
 
-  instance : IsTerm (Language.peanoarithmetic.Relations 1) where
+  instance : IsTerm (Language.peanoarithmetic.Relations 2) where
     term := peanoarithmeticRel.term
 
   instance : IsBdform (Language.peanoarithmetic.Relations 2) where
@@ -304,7 +304,7 @@ namespace Language.peanoarithmetic
 
   notation "Var(" x ")" =>  BoundedFormula.rel (IsVar.var) ![x]
   notation "Const(" c ")" => BoundedFormula.rel (IsConst.const) ![c]
-  notation "Term(" t ")" => BoundedFormula.rel (IsTerm.term) ![t]
+  notation "Term(" n "," t ")" => BoundedFormula.rel (IsTerm.term) ![n, t]
   notation "BdForm(" n "," y ")" => BoundedFormula.rel (IsBdform.bdform) ![n, y]
   notation "Nat(" t ")" =>  BoundedFormula.rel (IsNat.nat) ![t]
 
@@ -379,10 +379,12 @@ namespace Language.peanoarithmetic
 
     def Rel_enc : peanoarithmetic.Relations k → ℕ
       | .var => Nat.pair 1 0 + 1
-      | .term => Nat.pair 1 1 + 1
-      | .const => Nat.pair 1 2 + 1
-      | .bdform => Nat.pair 2 0 + 1
-      | .nat => Nat.pair 1 3 + 1
+      | .const => Nat.pair 1 1 + 1
+      | .nat => Nat.pair 1 2 + 1
+
+      | .term => Nat.pair 2 0 + 1
+      | .bdform => Nat.pair 2 1 + 1
+
 
     def Rel_dec : (n : ℕ) → Option (peanoarithmetic.Relations k)
       | 0 => none
@@ -391,13 +393,13 @@ namespace Language.peanoarithmetic
           | 1 =>
             match e.unpair.2 with
               | 0 => some .var
-              | 1 => some .term
-              | 2 => some .const
-              | 3 => some .nat
+              | 1 => some .const
+              | 2 => some .nat
               | _ => none
           | 2 =>
             match e.unpair.2 with
-              | 0 => some .bdform
+              | 0 => some .term
+              | 1 => some .bdform
               | _ => none
           | _ => none
 
@@ -488,7 +490,7 @@ open TermEncoding
 
 #check (∀' ∼(null =' S(&0)))
 #check (∀' Var(&0) : BoundedFormula ℒ ℕ 0)
-#check (∀' Term(&0 ⬝∧ &0) : BoundedFormula ℒ ℕ 0)
+-- #check (∀' Term(&0 ⬝∧ &0) : BoundedFormula ℒ ℕ 0)
 #check S(S(null))
 #check (null + peanoarithmetic.null)
 

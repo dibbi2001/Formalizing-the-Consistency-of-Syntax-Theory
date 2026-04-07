@@ -71,8 +71,8 @@ theorem nat_models_syntax_axioms : @Theory.Model ℒ ℕ nat_syntax_structure sy
     sorry
   -- case const_zero =>
   --   sorry
-  case var_term =>
-    sorry
+  -- case var_term =>
+  --   sorry
   case null_term =>
     sorry
   case eq_form =>

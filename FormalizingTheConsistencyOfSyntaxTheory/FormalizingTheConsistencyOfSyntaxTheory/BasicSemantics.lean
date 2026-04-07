@@ -12,7 +12,7 @@ universe u
 namespace Structure
 
 variable (neg_repres : (Fin 1 → M) → M) (and_repres : (Fin 2 → M) → M) (or_repres : (Fin 2 → M) → M)
-(var_prop : (Fin 1 → M) → Prop) (const_prop : (Fin 1 → M) → Prop) (term_prop : (Fin 1 → M) → Prop) (bdform_prop : (Fin 2 → M) → Prop)
+(var_prop : (Fin 1 → M) → Prop) (const_prop : (Fin 1 → M) → Prop) (term_prop : (Fin 2 → M) → Prop) (bdform_prop : (Fin 2 → M) → Prop)
 (nat_prop : (Fin 1 → M) → Prop)
 
 class NegDot (α : Type u) where
@@ -40,7 +40,7 @@ class IsConstDot (α : Type u) where
   constdot : (Fin 1 → α) → Prop
 
 class IsTermDot (α : Type u) where
-  termdot : (Fin 1 → α) → Prop
+  termdot : (Fin 2 → α) → Prop
 
 class IsBdformDot (α : Type u) where
   bdformdot : (Fin 2 → α) → Prop
@@ -424,7 +424,7 @@ open Structure
 --   | _ => False
 
 abbrev SynDomain (ℒ : Language) :=
-  ℕ ⊕ (FirstOrder.Language.Term ℒ (ℕ ⊕ Fin 0)) ⊕ (Σ n : ℕ, FirstOrder.Language.BoundedFormula ℒ ℕ n)
+  ℕ ⊕ (Σ n : ℕ, Term ℒ (ℕ ⊕ Fin n)) ⊕ (Σ n : ℕ, BoundedFormula ℒ ℕ n)
 
 -- Nat ⊕ Term ⊕ BdForm 0 ⊕ BdForm 1 ⊕ BdForm2... (BdForm n)
 -- Σn : Nat, (FirstOrder.Language.BoundedFormula ℒ ℕ n)
@@ -438,7 +438,7 @@ def isNat : SynDomain ℒ → Prop
 | _ => False
 
 def isTerm : SynDomain ℒ → Prop
-| Sum.inr (Sum.inl _) => True
+| Sum.inr (Sum.inl ⟨_, _⟩) => True
 | _ => False
 
 def isBdForm : SynDomain ℒ → Prop
@@ -452,10 +452,11 @@ instance synNatDot : IsNatDot (SynDomain ℒ) :=
       | _ => False }
 
 instance synTermDot : IsTermDot (SynDomain ℒ) :=
-  { termdot := fun v =>
-    match v 0 with
-    | Sum.inr (Sum.inl _) => True
-    | _ => False }
+{ termdot := fun v =>
+    match v 0, v 1 with
+    | Sum.inl n, Sum.inr (Sum.inl ⟨m, _⟩) => n = m
+    | _, _ => False
+}
 
 instance synBdformDot : IsBdformDot (SynDomain ℒ) :=
 { bdformdot := fun v =>
@@ -468,13 +469,13 @@ instance synBdformDot : IsBdformDot (SynDomain ℒ) :=
 instance : IsVarDot (SynDomain ℒ) where
   vardot v :=
     match v 0 with
-    | Sum.inr (Sum.inl (Term.var _)) => True
+    | Sum.inr (Sum.inl ⟨_, Term.var _⟩) => True
     | _ => False
 
 instance : IsConstDot (SynDomain ℒ) where
   constdot v :=
     match v 0 with
-    | Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.zero _)) => True
+    | Sum.inr (Sum.inl ⟨_, Term.func peanoarithmeticFunc.zero _⟩) => True
     | _ => False
 
 instance : Zero (SynDomain ℒ) :=  ⟨Sum.inl 0⟩
@@ -500,27 +501,37 @@ instance : Mul (SynDomain ℒ) :=
 ⟩
 
 instance : Zeroₛ (SynDomain ℒ) where
-  zeroₛ := Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.zero ![]))
+  zeroₛ := Sum.inr (Sum.inl ⟨0, Term.func peanoarithmeticFunc.zero ![]⟩)
 
 instance : Succₛ (SynDomain ℒ) where
   succₛ x :=
     match x with
-    | Sum.inr (Sum.inl t) =>
-        Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.succ ![t]))
+    | Sum.inr (Sum.inl ⟨n, t⟩) =>
+        Sum.inr (Sum.inl ⟨n, Term.func peanoarithmeticFunc.succ ![t]⟩)
     | _ => x
 
 instance : Addₛ (SynDomain ℒ) where
   addₛ x y :=
     match x, y with
-    | Sum.inr (Sum.inl t₁), Sum.inr (Sum.inl t₂) =>
-        Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.add ![t₁,t₂]))
+    | Sum.inr (Sum.inl ⟨n₁, t₁⟩), Sum.inr (Sum.inl ⟨n₂, t₂⟩) =>
+        if h : n₁ = n₂ then
+          let t₂' : Term ℒ (ℕ ⊕ Fin n₁) := by
+            cases h
+            exact t₂
+          Sum.inr (Sum.inl ⟨n₁, Term.func peanoarithmeticFunc.add ![t₁, t₂']⟩)
+        else x
     | _, _ => x
 
 instance : Mulₛ (SynDomain ℒ) where
   mulₛ x y :=
     match x, y with
-    | Sum.inr (Sum.inl t₁), Sum.inr (Sum.inl t₂) =>
-        Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.mult ![t₁,t₂]))
+    | Sum.inr (Sum.inl ⟨n₁, t₁⟩), Sum.inr (Sum.inl ⟨n₂, t₂⟩) =>
+        if h : n₁ = n₂ then
+          let t₂' : Term ℒ (ℕ ⊕ Fin n₁) := by
+            cases h
+            exact t₂
+          Sum.inr (Sum.inl ⟨n₁, Term.func peanoarithmeticFunc.mult ![t₁, t₂']⟩)
+        else x
     | _, _ => x
 
 instance : MinDot (SynDomain ℒ) where
@@ -586,8 +597,14 @@ def liftFormula {α : Type} {n : ℕ} : BoundedFormula L α n → BoundedFormula
 instance : Eq (SynDomain ℒ) where
   eq x y :=
     match x, y with
-    | Sum.inr (Sum.inl t), Sum.inr (Sum.inl s) =>
-        Sum.inr (Sum.inr ⟨0, BoundedFormula.equal t s⟩)
+    | Sum.inr (Sum.inl ⟨n₁, t₁⟩), Sum.inr (Sum.inl ⟨n₂, t₂⟩) =>
+        if h : n₁ = n₂ then
+          let t₂' : ℒ.Term (ℕ ⊕ Fin n₁) := by
+            cases h
+            exact t₂
+          Sum.inr (Sum.inr ⟨n₁, BoundedFormula.equal t₁ t₂'⟩)
+        else
+          Sum.inl 0
     | _, _ => Sum.inl 0
 
 instance : Univ (SynDomain ℒ) where
@@ -607,7 +624,8 @@ instance : Ex (SynDomain ℒ) where
 instance : BoundVar (SynDomain ℒ) where
   bv x :=
     match x with
-    | Sum.inl n => Sum.inr (Sum.inl (Term.var (Sum.inl n)))
+    | Sum.inl n => Sum.inr (Sum.inl ⟨n, boundVar (numeral n)⟩)
+    | Sum.inr (Sum.inl ⟨k, u⟩) => Sum.inr (Sum.inl ⟨k, u⟩)
     | _ => x
 
 def homophonic_syntax_structure : peanoarithmetic.Structure (SynDomain ℒ) where
@@ -644,12 +662,17 @@ def homophonic_syntax_structure : peanoarithmetic.Structure (SynDomain ℒ) wher
     | _ => False :=
 rfl
 
-@[simp] lemma term_realize (v : Fin 1 → SynDomain ℒ) :
+@[simp] lemma term_realize (v : Fin 2 → SynDomain ℒ) :
   IsTermDot.termdot v =
-    match v 0 with
-    | Sum.inr (Sum.inl _) => True
-    | _ => False :=
+    match v 0, v 1 with
+    | Sum.inl n, Sum.inr (Sum.inl ⟨m, _⟩) => n = m
+    | _, _ => False :=
 rfl
+
+-- @[simp] lemma term_realize_mk
+--   (n m : ℕ) (t : ℒ.Term (ℕ ⊕ Fin m)) :
+--   IsTermDot.termdot ![Sum.inl n, Sum.inr (Sum.inl ⟨m, t⟩)] = (n = m) :=
+-- rfl
 
 @[simp] lemma bdform_realize (v : Fin 2 → SynDomain ℒ) :
   IsBdformDot.bdformdot v =
@@ -659,16 +682,16 @@ rfl
 rfl
 
 @[simp] lemma var_realize (v : Fin 1 → SynDomain ℒ) :
-IsVarDot.vardot v =
+  IsVarDot.vardot v =
     match v 0 with
-    | Sum.inr (Sum.inl (Term.var _)) => True
+    | Sum.inr (Sum.inl ⟨_, Term.var _⟩) => True
     | _ => False :=
 rfl
 
 @[simp] lemma const_realize (v : Fin 1 → SynDomain ℒ) :
   IsConstDot.constdot v =
     match v 0 with
-    | Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.zero _)) => True
+    | Sum.inr (Sum.inl ⟨_, Term.func peanoarithmeticFunc.zero _⟩) => True
     | _ => False :=
 rfl
 
@@ -697,28 +720,41 @@ rfl
 rfl
 
 @[simp] lemma zeroₛ_realize :
-  Zeroₛ.zeroₛ = (Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.zero ![])) : SynDomain ℒ) := rfl
+  Zeroₛ.zeroₛ =
+    (Sum.inr (Sum.inl ⟨0, Term.func peanoarithmeticFunc.zero ![]⟩) : SynDomain ℒ) :=
+rfl
 
 @[simp] lemma succₛ_realize (t : SynDomain ℒ) :
   Succₛ.succₛ t =
     match t with
-    | Sum.inr (Sum.inl u) => Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.succ ![u]))
+    | Sum.inr (Sum.inl ⟨n, u⟩) =>
+        Sum.inr (Sum.inl ⟨n, Term.func peanoarithmeticFunc.succ ![u]⟩)
     | _ => t :=
 rfl
 
 @[simp] lemma addₛ_realize (t₁ t₂ : SynDomain ℒ) :
   Addₛ.addₛ t₁ t₂ =
     match t₁, t₂ with
-    | Sum.inr (Sum.inl u₁), Sum.inr (Sum.inl u₂) =>
-        Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.add ![u₁,u₂]))
+    | Sum.inr (Sum.inl ⟨n₁, u₁⟩), Sum.inr (Sum.inl ⟨n₂, u₂⟩) =>
+        if h : n₁ = n₂ then
+          let u₂' : Term ℒ (ℕ ⊕ Fin n₁) := by
+            cases h
+            exact u₂
+          Sum.inr (Sum.inl ⟨n₁, Term.func peanoarithmeticFunc.add ![u₁, u₂']⟩)
+        else t₁
     | _, _ => t₁ :=
 rfl
 
 @[simp] lemma mulₛ_realize (t₁ t₂ : SynDomain ℒ) :
   Mulₛ.mulₛ t₁ t₂ =
     match t₁, t₂ with
-    | Sum.inr (Sum.inl u₁), Sum.inr (Sum.inl u₂) =>
-        Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.mult ![u₁,u₂]))
+    | Sum.inr (Sum.inl ⟨n₁, u₁⟩), Sum.inr (Sum.inl ⟨n₂, u₂⟩) =>
+        if h : n₁ = n₂ then
+          let u₂' : Term ℒ (ℕ ⊕ Fin n₁) := by
+            cases h
+            exact u₂
+          Sum.inr (Sum.inl ⟨n₁, Term.func peanoarithmeticFunc.mult ![u₁, u₂']⟩)
+        else t₁
     | _, _ => t₁ :=
 rfl
 
@@ -762,8 +798,14 @@ rfl
 @[simp] lemma eq_realize (t₁ t₂ : SynDomain ℒ) :
   Eq.eq t₁ t₂ =
     match t₁, t₂ with
-    | Sum.inr (Sum.inl u₁), Sum.inr (Sum.inl u₂) =>
-        Sum.inr (Sum.inr ⟨0, BoundedFormula.equal u₁ u₂⟩)
+    | Sum.inr (Sum.inl ⟨n₁, u₁⟩), Sum.inr (Sum.inl ⟨n₂, u₂⟩) =>
+        if h : n₁ = n₂ then
+          let u₂' : ℒ.Term (ℕ ⊕ Fin n₁) := by
+            cases h
+            exact u₂
+          Sum.inr (Sum.inr ⟨n₁, BoundedFormula.equal u₁ u₂'⟩)
+        else
+          Sum.inl 0
     | _, _ => Sum.inl 0 :=
 rfl
 
@@ -784,9 +826,12 @@ rfl
 @[simp] lemma bv_realize (t : SynDomain ℒ) :
   BoundVar.bv t =
     match t with
-    | Sum.inl n => Sum.inr (Sum.inl (Term.var (Sum.inl n)))
+    | Sum.inl n => Sum.inr (Sum.inl ⟨n, boundVar (numeral n)⟩)
+    | Sum.inr (Sum.inl ⟨k, u⟩) => Sum.inr (Sum.inl ⟨k, u⟩)
     | _ => t :=
 rfl
+
+
 
 @[simp] lemma funMap_zero {v} :
   Structure.funMap (L := peanoarithmetic) (M := SynDomain ℒ) peanoarithmeticFunc.zero v = 0 := rfl
@@ -872,20 +917,25 @@ Structure.funMap (L := peanoarithmetic) (M := SynDomain ℒ) peanoarithmeticFunc
 @[simp] lemma mul_nat (a b : ℕ) :
   (Sum.inl a * Sum.inl b : SynDomain ℒ) = Sum.inl (a * b) := rfl
 
-@[simp] lemma isSuccₛ_term (t : ℒ.Term (ℕ ⊕ Fin 0)) :
-  isTerm (Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.succₛ ![t])) : SynDomain ℒ) := by trivial
+@[simp] lemma isSuccₛ_term (n : ℕ) (t : ℒ.Term (ℕ ⊕ Fin n)) :
+  isTerm (Sum.inr (Sum.inl ⟨n, Term.func peanoarithmeticFunc.succₛ ![t]⟩) : SynDomain ℒ) :=
+by trivial
 
-@[simp] lemma isAddₛ_term (t₁ t₂ : ℒ.Term (ℕ ⊕ Fin 0)) :
-  isTerm (Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.addₛ ![t₁, t₂])) : SynDomain ℒ) := by trivial
+@[simp] lemma isAddₛ_term (n : ℕ) (t₁ t₂ : ℒ.Term (ℕ ⊕ Fin n)) :
+  isTerm (Sum.inr (Sum.inl ⟨n, Term.func peanoarithmeticFunc.addₛ ![t₁, t₂]⟩) : SynDomain ℒ) :=
+by trivial
 
-@[simp] lemma isMulₛ_term (t₁ t₂ : ℒ.Term (ℕ ⊕ Fin 0)) :
-  isTerm (Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.multₛ ![t₁, t₂])) : SynDomain ℒ) := by trivial
+@[simp] lemma isMulₛ_term (n : ℕ) (t₁ t₂ : ℒ.Term (ℕ ⊕ Fin n)) :
+  isTerm (Sum.inr (Sum.inl ⟨n, Term.func peanoarithmeticFunc.multₛ ![t₁, t₂]⟩) : SynDomain ℒ) :=
+by trivial
 
-@[simp] lemma isNegₛ_term (t : ℒ.Term (ℕ ⊕ Fin 0)) :
-  isTerm (Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.negₛ ![t])) : SynDomain ℒ) := by trivial
+@[simp] lemma isNegₛ_term (n : ℕ) (t : ℒ.Term (ℕ ⊕ Fin n)) :
+  isTerm (Sum.inr (Sum.inl ⟨n, Term.func peanoarithmeticFunc.negₛ ![t]⟩) : SynDomain ℒ) :=
+by trivial
 
-@[simp] lemma isBound_var (t : ℒ.Term (ℕ ⊕ Fin 0)) :
-  isTerm (Sum.inr (Sum.inl (Term.func peanoarithmeticFunc.boundₛ ![t])) : SynDomain ℒ) := by trivial
+@[simp] lemma isBound_var (n : ℕ) (t : ℒ.Term (ℕ ⊕ Fin n)) :
+  isTerm (Sum.inr (Sum.inl ⟨n, Term.func peanoarithmeticFunc.boundₛ ![t]⟩) : SynDomain ℒ) :=
+by trivial
 
 @[simp] lemma bdform_imp (n) (φ ψ : ℒ.BoundedFormula ℕ n) :
   isBdForm (Sum.inr (Sum.inr ⟨n, BoundedFormula.imp φ ψ⟩) : SynDomain ℒ) := by trivial
