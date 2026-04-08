@@ -477,7 +477,7 @@ instance : IsBdformDot (SynDomain ℒ) :=
 instance : IsVarDot (SynDomain ℒ) where
   vardot v :=
     match v 0 with
-    | Sum.inr (Sum.inl ⟨_, Term.var _⟩) => True
+    | Sum.inr (Sum.inl _) => True
     | _ => False
 
 instance : IsConstDot (SynDomain ℒ) where
@@ -699,9 +699,14 @@ rfl
 @[simp] lemma var_realize (v : Fin 1 → SynDomain ℒ) :
   IsVarDot.vardot v =
     match v 0 with
-    | Sum.inr (Sum.inl ⟨_, Term.var _⟩) => True
+    | Sum.inr (Sum.inl _) => True   -- ← accept all term encodings
     | _ => False :=
 rfl
+
+  -- IsVarDot.vardot v =
+  --   match v 0 with
+  --   | Sum.inr (Sum.inl ⟨_, Term.var _⟩) => True
+  --   | _ => False :=
 
 @[simp] lemma const_realize (v : Fin 1 → SynDomain ℒ) :
   IsConstDot.constdot v =

@@ -71,8 +71,8 @@ theorem nat_models_syntax_axioms : @Theory.Model ℒ ℕ nat_syntax_structure sy
     sorry
   -- case const_zero =>
   --   sorry
-  -- case var_term =>
-  --   sorry
+  case var_term =>
+    sorry
   case null_term =>
     sorry
   case eq_form =>
@@ -117,7 +117,123 @@ theorem nat_models_syntax_axioms : @Theory.Model ℒ ℕ nat_syntax_structure sy
 theorem homophonic_models_axioms : @Theory.Model ℒ (SynDomain ℒ) homophonic_syntax_structure syntax_axioms := by
   simp
   intro φ hφ
-  sorry
+  cases hφ
+  case bound_var =>
+    rw [ax_bound_var]
+    simp
+    intro x
+    cases x
+    case inl =>
+      simp
+      simp [FirstOrder.Language.BoundedFormula.Realize]
+      simp [homophonic_syntax_structure]
+      rfl
+    case inr val =>
+      cases val
+      case inl =>
+        simp
+        simp [FirstOrder.Language.BoundedFormula.Realize]
+        simp [homophonic_syntax_structure]
+        simp [BoundVar.bv]
+        simp [Fin.snoc]
+        sorry
+      case inr =>
+      simp [FirstOrder.Language.BoundedFormula.Realize]
+      simp [homophonic_syntax_structure]
+      rfl
+  case var_term =>
+    rw [ax_var_term]
+    simp
+    intro x
+    cases x
+    case inl =>
+      simp
+      sorry
+    case inr val =>
+      cases val
+      case inl t =>
+        simp
+        tauto
+      tauto
+  case null_term =>
+    rw [ax_null_term]
+    trivial
+  case eq_form =>
+    rw [ax_eq_form]
+    simp
+    intro x
+    cases x
+    case inl =>
+      simp
+      tauto
+    case inr val =>
+      cases val
+      case inl t =>
+        simp
+        tauto
+      tauto
+  case succ_term =>
+    rw [ax_succ_term]
+    simp
+    intro x
+    cases x
+    case inl =>
+      simp
+      tauto
+    case inr val =>
+      cases val
+      case inl t =>
+        simp
+        tauto
+      tauto
+  case add_term =>
+    sorry
+  case mult_term =>
+    sorry
+  case neg_form =>
+    rw [ax_neg_form]
+    simp
+    intro x
+    cases x
+    case inl =>
+      simp
+      tauto
+    case inr val =>
+      cases val
+      case inl t =>
+        simp
+        tauto
+      tauto
+  case and_form =>
+    sorry
+  case or_form =>
+    sorry
+  case imp_form =>
+    sorry
+  case all_form =>
+    sorry
+  case ex_form =>
+    sorry
+  case succ_inj =>
+    sorry
+  case add_inj =>
+    sorry
+  case mult_inj =>
+    sorry
+  case neg_inj =>
+    sorry
+  case and_inj =>
+    sorry
+  case or_inj =>
+    sorry
+  case imp_inj =>
+    sorry
+  case all_inj =>
+    sorry
+  case ex_inj =>
+    sorry
+
+
   -- cases hφ
   -- case bound_var =>
   --   rw [ax_bound_var]
