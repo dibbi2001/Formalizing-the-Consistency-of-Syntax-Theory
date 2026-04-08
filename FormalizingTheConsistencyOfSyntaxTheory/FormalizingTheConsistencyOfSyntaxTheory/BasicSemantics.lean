@@ -13,7 +13,7 @@ namespace Structure
 
 variable (neg_repres : (Fin 1 → M) → M) (and_repres : (Fin 2 → M) → M) (or_repres : (Fin 2 → M) → M)
 (var_prop : (Fin 1 → M) → Prop) (const_prop : (Fin 1 → M) → Prop) (term_prop : (Fin 2 → M) → Prop) (bdform_prop : (Fin 2 → M) → Prop)
-(nat_prop : (Fin 1 → M) → Prop)
+(nat_prop : (Fin 1 → M) → Prop) (le_prop : (Fin 2 → M) → Prop)
 
 class NegDot (α : Type u) where
   negdot : α → α
@@ -48,6 +48,9 @@ class IsBdformDot (α : Type u) where
 class IsNatDot (α : Type u) where
   natdot : (Fin 1 → α) → Prop
 
+class IsLeDot (α : Type u) where
+  ledot : (Fin 2 → α) → Prop
+
 instance : IsVarDot M where
   vardot := var_prop
 
@@ -63,11 +66,14 @@ instance : IsBdformDot M where
 instance : IsNatDot M where
   natdot := nat_prop
 
+instance : IsLeDot M where
+  ledot := le_prop
+
 variable [Zero M] [Succ M] [Add M] [Mul M]
 [NegDot M] [MinDot M] [MaxDot M]
 [Imp M] [Eq M] [Univ M] [Ex M] [BoundVar M]
 [IsVarDot M] [IsConstDot M] [IsTermDot M] [IsBdformDot M]
-[IsNatDot M]
+[IsNatDot M] [IsLeDot M]
 [Zeroₛ M] [Succₛ M] [Addₛ M] [Mulₛ M]
 
 instance : peanoarithmetic.Structure M where
@@ -94,6 +100,7 @@ instance : peanoarithmetic.Structure M where
   | .term, v => IsTermDot.termdot v
   | .bdform, v => IsBdformDot.bdformdot v
   | .nat, v => IsNatDot.natdot v
+  | .le, v => IsLeDot.ledot v
 
 section
 @[simp] theorem funMap_zero {v} :
@@ -194,6 +201,7 @@ namespace PAStructure
     | .term, _   => False
     | .bdform, _ => False
     | .nat, _    => False
+    | .le, _     => False
 
   instance : peanoarithmetic.Structure ℕ := nat_structure
 
@@ -359,6 +367,7 @@ namespace SyntaxStructure
   | .const, v  => const_repres (v 0) = 1
   | .bdform, v => bdform_repres (v 0) = 1
   | .nat, v    => nat_repres (v 0) = 1
+  | .le, v     => True
   -- instance : peanoarithmetic.Structure ℕ := nat_syntax_structure
 
   def φ : BoundedFormula ℒ ℕ 0 := BoundedFormula.equal (null) (null)
@@ -445,26 +454,25 @@ def isBdForm : SynDomain ℒ → Prop
 | Sum.inr (Sum.inr ⟨_, _⟩) => True
 | _ => False
 
-instance synNatDot : IsNatDot (SynDomain ℒ) :=
+instance : IsNatDot (SynDomain ℒ) :=
   { natdot := fun v =>
       match v 0 with
       | Sum.inl _ => True
       | _ => False }
 
-instance synTermDot : IsTermDot (SynDomain ℒ) :=
+instance : IsTermDot (SynDomain ℒ) :=
 { termdot := fun v =>
     match v 0, v 1 with
     | Sum.inl n, Sum.inr (Sum.inl ⟨m, _⟩) => n = m
     | _, _ => False
 }
 
-instance synBdformDot : IsBdformDot (SynDomain ℒ) :=
+instance : IsBdformDot (SynDomain ℒ) :=
 { bdformdot := fun v =>
     match v 0, v 1 with
     | Sum.inl n, Sum.inr (Sum.inr ⟨m, _⟩) => n = m
     | _, _ => False
 }
--- function from pairs to truth values, such that the first is a number and the second lives in BdForm L N n
 
 instance : IsVarDot (SynDomain ℒ) where
   vardot v :=
@@ -477,6 +485,12 @@ instance : IsConstDot (SynDomain ℒ) where
     match v 0 with
     | Sum.inr (Sum.inl ⟨_, Term.func peanoarithmeticFunc.zero _⟩) => True
     | _ => False
+
+instance : IsLeDot (SynDomain ℒ) where
+  ledot v :=
+    match v 0, v 1 with
+    | Sum.inl n, Sum.inl m => n ≤ m
+    | _, _ => False
 
 instance : Zero (SynDomain ℒ) :=  ⟨Sum.inl 0⟩
 
@@ -654,6 +668,7 @@ def homophonic_syntax_structure : peanoarithmetic.Structure (SynDomain ℒ) wher
   | .term, v   => IsTermDot.termdot v
   | .bdform, v => IsBdformDot.bdformdot v
   | .nat, v    => IsNatDot.natdot v
+  | .le, v     => IsLeDot.ledot v
 
 @[simp] lemma nat_realize (v : Fin 1 → SynDomain ℒ) :
   IsNatDot.natdot v =
@@ -693,6 +708,13 @@ rfl
     match v 0 with
     | Sum.inr (Sum.inl ⟨_, Term.func peanoarithmeticFunc.zero _⟩) => True
     | _ => False :=
+rfl
+
+@[simp] lemma le_realize (v : Fin 2 → SynDomain ℒ) :
+  IsLeDot.ledot v =
+    match v 0, v 1 with
+    | Sum.inl n, Sum.inl m => n ≤ m
+    | _, _ => False :=
 rfl
 
 -- Nat constructors

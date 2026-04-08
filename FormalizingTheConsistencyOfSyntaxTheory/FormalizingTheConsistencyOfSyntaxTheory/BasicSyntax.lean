@@ -117,8 +117,9 @@ inductive peanoarithmeticRel : ℕ → Type _ where
   | var : peanoarithmeticRel 1
   | term : peanoarithmeticRel 2
   | const : peanoarithmeticRel 1
-  | bdform : peanoarithmeticRel 2 --change bdform to arity 2
+  | bdform : peanoarithmeticRel 2
   | nat : peanoarithmeticRel 1
+  | le : peanoarithmeticRel 2
   deriving DecidableEq
 
 -- BdForm(x, y)
@@ -157,6 +158,7 @@ def relToStr {n} : Language.peanoarithmetic.Relations n → String
   | .const => "𝑐𝑜𝑛𝑠𝑡"
   | .bdform => "𝑏𝑑𝑓𝑜𝑟𝑚"
   | .nat => "𝑛𝑎𝑡"
+  | .le => "≥"
 instance {n} : ToString (Language.peanoarithmetic.Relations n) := ⟨relToStr⟩
 
 namespace Language.peanoarithmetic
@@ -269,6 +271,9 @@ def boundVar {n : ℕ} (t : Term peanoarithmetic (ℕ ⊕ Fin n)) : Term peanoar
   class IsNat (α : Type u) where
     nat : α
 
+  class IsLe (α : Type u) where
+    le : α
+
   instance : IsVar (Language.peanoarithmetic.Relations 1) where
     var := peanoarithmeticRel.var
 
@@ -283,6 +288,9 @@ def boundVar {n : ℕ} (t : Term peanoarithmetic (ℕ ⊕ Fin n)) : Term peanoar
 
   instance : IsNat (Language.peanoarithmetic.Relations 1) where
     nat := peanoarithmeticRel.nat
+
+  instance : IsLe (Language.peanoarithmetic.Relations 2) where
+    le := peanoarithmeticRel.le
 
   notation "S(" n ")" => Succ.succ n
   notation n "add" m => Add.add n m
@@ -307,6 +315,7 @@ def boundVar {n : ℕ} (t : Term peanoarithmetic (ℕ ⊕ Fin n)) : Term peanoar
   notation "Term(" n "," t ")" => BoundedFormula.rel (IsTerm.term) ![n, t]
   notation "BdForm(" n "," y ")" => BoundedFormula.rel (IsBdform.bdform) ![n, y]
   notation "Nat(" t ")" =>  BoundedFormula.rel (IsNat.nat) ![t]
+  notation x "≤" y => BoundedFormula.rel (IsLe.le) ![x, y]
 
   abbrev ℒ := Language.peanoarithmetic
 
@@ -384,6 +393,7 @@ def boundVar {n : ℕ} (t : Term peanoarithmetic (ℕ ⊕ Fin n)) : Term peanoar
 
       | .term => Nat.pair 2 0 + 1
       | .bdform => Nat.pair 2 1 + 1
+      | .le => Nat.pair 2 2 + 1
 
 
     def Rel_dec : (n : ℕ) → Option (peanoarithmetic.Relations k)
@@ -400,6 +410,7 @@ def boundVar {n : ℕ} (t : Term peanoarithmetic (ℕ ⊕ Fin n)) : Term peanoar
             match e.unpair.2 with
               | 0 => some .term
               | 1 => some .bdform
+              | 2 => some .le
               | _ => none
           | _ => none
 

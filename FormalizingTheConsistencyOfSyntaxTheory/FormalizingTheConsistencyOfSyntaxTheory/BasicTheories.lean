@@ -95,8 +95,8 @@ namespace SyntaxTheory
 def ax_bound_var : Sentence ℒ :=
   ∀' (Nat(&0) ⇔ Var(&ₛ(&0)))
 
--- def ax_var_term : Sentence ℒ :=
---   ∀' ∀' ((Nat(&0) ⟹ Var(&ₛ(&0)) ⟹ ∀' ((Nat(&1) ⟹ (&0 ≥ &1)) ⟹ Term(&0, &1))))
+def ax_var_term : Sentence ℒ :=
+  ∀' ∀' ((Nat(&0) ⟹ Var(&ₛ(&0)) ⟹ ∀' ((Nat(&1) ⟹ (&0 ≤ &1)) ⟹ Term(&0, &1))))
 
 def ax_null_term : Sentence ℒ := Term(0, nullₛ)
 
@@ -106,11 +106,9 @@ def ax_eq_form : Sentence ℒ :=
 def ax_succ_term : Sentence ℒ :=
   ∀' (Term(&0, &0) ⟹ Term(Sₛ(&0), &0))
 
--- Addition preserves termhood and same context
 def ax_add_term : Sentence ℒ :=
   ∀' ∀' ((Term(&0, &0) ∧' Term(&0, &1)) ⟹ Term(&0 +ₛ &1, &0))
 
--- Multiplication preserves termhood and same context
 def ax_mult_term : Sentence ℒ :=
   ∀' ∀' ((Term(&0, &0) ∧' Term(&0, &1)) ⟹ Term(&0 timesₛ &1, &0))
 
@@ -127,14 +125,8 @@ def ax_or_form : Sentence ℒ :=
 def ax_imp_form : Sentence ℒ :=
   ∀' ∀' ∀' ((BdForm(&0, &1) ∧' BdForm(&0, &2)) ⟹ BdForm(&0, &1 ⬝⟹ &2))
 
--- def ax_all_form : Sentence ℒ :=
---   ∀' ∀' (BdForm(&0 + 1, &1) ⟹ BdForm(&0, ⬝∀ &1))
-
 def ax_all_form : Sentence ℒ :=
   ∀' ∀' (BdForm(Sₛ(&0), &1) ⟹  BdForm(&0, ⬝∀ &1))
-
--- def ax_ex_form : Sentence ℒ :=
---   ∀' ∀' (BdForm(&0 + 1, &1) ⟹ BdForm(&0, ⬝∃ &1))
 
 def ax_ex_form : Sentence ℒ :=
   ∀' ∀' (BdForm(Sₛ(&0), &1) ⟹ BdForm(&0, ⬝∃ &1))
@@ -229,7 +221,7 @@ def ax_ex_inj : Sentence ℒ :=
 
 inductive syntax_axioms : ℒ.Theory
   | bound_var     : syntax_axioms ax_bound_var
-  -- | var_term      : syntax_axioms ax_var_term
+  | var_term      : syntax_axioms ax_var_term
   | null_term     : syntax_axioms ax_null_term
   | eq_form       : syntax_axioms ax_eq_form
 
