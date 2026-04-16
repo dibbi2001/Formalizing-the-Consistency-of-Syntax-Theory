@@ -436,7 +436,7 @@ namespace TermEncoding
   def sentence_term_tonat : Term L (Empty ⊕ Fin 0) → ℕ :=
     fun t => Encodable.encodeList (Term.listEncode t)
 
-/-- Encodes BoundedFormulas as natural numbers -/
+  /-- Encodes BoundedFormulas as natural numbers -/
   def sent_tonat : BoundedFormula L Empty 0 → ℕ :=
     fun f => Encodable.encodeList (BoundedFormula.listEncode f)
   def formula_tonat {n : ℕ} : BoundedFormula L ℕ n → ℕ :=
@@ -449,7 +449,7 @@ notation "⌜" φ "⌝" => peanoarithmetic.numeral (formula_tonat φ)
 end TermEncoding
 
 namespace TermDecoding
- def term_ofnat : ℕ → Option (Term L (ℕ ⊕ Fin 0))
+  def term_ofnat : ℕ → Option (Term L (ℕ ⊕ Fin 0))
     | k =>
       match Encodable.decodeList k with
       | none      => none
@@ -507,6 +507,8 @@ open TermEncoding
 
 #eval ((S(null) + S(S(null)) : Term peanoarithmetic ℕ))
 #eval (peanoarithmetic.null + peanoarithmetic.null : Term peanoarithmetic ℕ)
+
+-- #check (&0 =' (Sum.inl 0 : Term peanoarithmetic ℕ))
 
 namespace BoundedFormula
   variable {L : Language}{α : Type}{n : ℕ}

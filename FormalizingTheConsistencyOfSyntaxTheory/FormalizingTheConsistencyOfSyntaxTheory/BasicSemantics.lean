@@ -467,6 +467,7 @@ instance : IsTermDot (SynDomain ℒ) :=
     | _, _ => False
 }
 
+
 instance : IsBdformDot (SynDomain ℒ) :=
 { bdformdot := fun v =>
     match v 0, v 1 with
@@ -677,6 +678,7 @@ def homophonic_syntax_structure : peanoarithmetic.Structure (SynDomain ℒ) wher
     | _ => False :=
 rfl
 
+
 @[simp] lemma term_realize (v : Fin 2 → SynDomain ℒ) :
   IsTermDot.termdot v =
     match v 0, v 1 with
@@ -702,11 +704,6 @@ rfl
     | Sum.inr (Sum.inl _) => True   -- ← accept all term encodings
     | _ => False :=
 rfl
-
-  -- IsVarDot.vardot v =
-  --   match v 0 with
-  --   | Sum.inr (Sum.inl ⟨_, Term.var _⟩) => True
-  --   | _ => False :=
 
 @[simp] lemma const_realize (v : Fin 1 → SynDomain ℒ) :
   IsConstDot.constdot v =
@@ -858,7 +855,66 @@ rfl
     | _ => t :=
 rfl
 
+@[simp]
+lemma isBdForm_iff (φ : SynDomain ℒ) :
+  isBdForm φ ↔ ∃ n f, φ = Sum.inr (Sum.inr ⟨n, f⟩) := by
+    cases φ
+    case inl =>
+      simp [isBdForm]
+    case inr val =>
+      cases val
+      case inl =>
+        simp [isBdForm]
+      case inr t =>
+        simp [isBdForm]
+        cases t with
+        | mk n f =>
+          exact ⟨n, f, rfl⟩
 
+@[simp]
+lemma bdformdot_iff (v : Fin 2 → SynDomain ℒ) :
+  IsBdformDot.bdformdot v ↔
+    ∃ n f, v 1 = Sum.inr (Sum.inr ⟨n, f⟩) ∧ v 0 = Sum.inl n := by
+  cases v 0
+  case inl n =>
+    cases v 1
+    case inl m =>
+      simp [IsBdformDot.bdformdot]
+      sorry
+    case inr val =>
+      cases val
+      case inl t =>
+        simp [IsBdformDot.bdformdot]
+        sorry
+      case inr t =>
+        cases t with
+        | mk m f =>
+          simp [IsBdformDot.bdformdot]
+          sorry
+  case inr val =>
+    cases val
+    case inl t =>
+      cases v 1 <;> simp [IsBdformDot.bdformdot]
+      sorry
+      sorry
+    case inr t =>
+      cases v 1 <;> simp [IsBdformDot.bdformdot]
+      sorry
+      sorry
+
+
+@[simp]
+lemma natdot_realize_iff (v : Fin 1 → SynDomain ℒ) :
+  IsNatDot.natdot v ↔ ∃ n, v 0 = Sum.inl n := by
+  cases h : v 0 <;> simp [IsNatDot.natdot, h]
+
+@[simp]
+lemma termdot_realize_iff (v : Fin 2 → SynDomain ℒ) :
+  IsTermDot.termdot v ↔  ∃ n m t, v 0 = Sum.inl n ∧ v 1 = Sum.inr (Sum.inl ⟨m, t⟩) ∧ n = m := by
+  cases h0 : v 0 <;>
+  cases h1 : v 1 <;>
+  simp [IsTermDot.termdot, h0, h1]
+  sorry
 
 @[simp] lemma funMap_zero {v} :
   Structure.funMap (L := peanoarithmetic) (M := SynDomain ℒ) peanoarithmeticFunc.zero v = 0 := rfl

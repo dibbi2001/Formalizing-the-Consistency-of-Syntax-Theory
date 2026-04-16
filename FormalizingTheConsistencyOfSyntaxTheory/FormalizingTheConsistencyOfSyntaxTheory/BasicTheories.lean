@@ -96,21 +96,21 @@ def ax_bound_var : Sentence ℒ :=
   ∀' (Nat(&0) ⇔ Var(&ₛ(&0)))
 
 def ax_var_term : Sentence ℒ :=
-  ∀' ∀' ((Nat(&0) ⟹ Var(&ₛ(&0)) ⟹ ∀' ((Nat(&1) ⟹ (&0 ≤ &1)) ⟹ Term(&0, &1))))
+  ∀' ((Nat(&0) ⟹ Var(&ₛ(&0)) ⟹ ∀' ((Nat(&1) ⟹ (&1 ≤ &0)) ⟹ Term(&0, &ₛ(&1)))))
 
 def ax_null_term : Sentence ℒ := Term(0, nullₛ)
 
 def ax_eq_form : Sentence ℒ :=
-  ∀' ∀' ((Term(&0, &0) ∧' Term(&0, &1)) ⟹ Term(&0, &0 ⬝= &1))
+  ∀' ∀' ((Term(&0, &0) ∧' Term(&0, &1)) ⟹ BdForm(&0, &0 ⬝= &1))
 
 def ax_succ_term : Sentence ℒ :=
   ∀' (Term(&0, &0) ⟹ Term(Sₛ(&0), &0))
 
 def ax_add_term : Sentence ℒ :=
-  ∀' ∀' ((Term(&0, &0) ∧' Term(&0, &1)) ⟹ Term(&0 +ₛ &1, &0))
+  ∀' ∀' ((Term(&0, &0) ∧' Term(&0, &1)) ⟹ Term(&0, &0 +ₛ &1))
 
 def ax_mult_term : Sentence ℒ :=
-  ∀' ∀' ((Term(&0, &0) ∧' Term(&0, &1)) ⟹ Term(&0 timesₛ &1, &0))
+  ∀' ∀' ((Term(&0, &0) ∧' Term(&0, &1)) ⟹ Term(&0, &0 timesₛ &1))
 
 -- Logical Connectives
 def ax_neg_form : Sentence ℒ :=
@@ -352,6 +352,9 @@ def induction_axiom_syntax_formula (φ : BoundedFormula ℒ (Fin 1) 0) : Sentenc
               (∀'(bv_formula_substitution (&0) φ ⟹ bv_formula_substitution (⬝∃ &0) φ)) ⟹
                 (∀'(bv_formula_substitution (&0) φ))
   )
+
+def induction_sentence (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
+ (∀'(bv_formula_substitution (&0) φ) ∧' (∀'(bv_formula_substitution (&0) (liftFormula φ))))
 
 end Induction
 
