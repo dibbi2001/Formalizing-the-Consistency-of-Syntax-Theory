@@ -13,9 +13,6 @@ namespace String
   def vecToStr : ∀ {n}, (Fin n → String) → String
   | 0,     _ => ""
   | n + 1, s => if n = 0 then s 0 else s 0 ++ ", " ++ @vecToStr n (fun i => s (Fin.succ i))
-
-  #eval vecToStr !["a","b","c"]
-
 end String
 
 namespace Term
@@ -77,21 +74,11 @@ namespace BoundedFormula
 
 end BoundedFormula
 
-
--- instance toStringEmpty : ToString Empty :=
---   {toString := fun e => Empty.elim e}
--- instance reprEmpty : Repr Empty :=
---   {reprPrec := fun e _ => Empty.elim e}
-
--- instance toStringFin {n : Nat} : ToString (Fin n) := { toString := fun f => toString (Fin.toNat f) }
--- instance reprFin {n : Nat} : Repr (Fin n) := { reprPrec := fun f _ => toString (Fin.toNat f) }
-
-
 variable {α : Type*} {n : ℕ}
 universe u
 
 namespace FirstOrder
-
+-- function symbols
 inductive peanoarithmeticFunc : ℕ → Type _ where
 -- PA
   | zero : peanoarithmeticFunc 0
@@ -113,6 +100,7 @@ inductive peanoarithmeticFunc : ℕ → Type _ where
   | boundₛ : peanoarithmeticFunc 1   -- represents &n
   deriving DecidableEq
 
+-- relation predicates
 inductive peanoarithmeticRel : ℕ → Type _ where
   | var : peanoarithmeticRel 1
   | term : peanoarithmeticRel 2
@@ -122,13 +110,7 @@ inductive peanoarithmeticRel : ℕ → Type _ where
   | le : peanoarithmeticRel 2
   deriving DecidableEq
 
--- BdForm(x, y)
--- y : BdForm x
--- make extra axiom for one of it's extra arguments, which is that it should always be a numeral
--- add axiom similar to ax_bound_var
--- ∀' ∀' BdForm(&0, &1) => Nat(&0)
--- maybe add lift/subst function to the syntax
-
+-- the language
 def Language.peanoarithmetic : Language :=
   { Functions := peanoarithmeticFunc
     Relations := peanoarithmeticRel }
@@ -162,11 +144,10 @@ def relToStr {n} : Language.peanoarithmetic.Relations n → String
 instance {n} : ToString (Language.peanoarithmetic.Relations n) := ⟨relToStr⟩
 
 namespace Language.peanoarithmetic
-  -- Syntax
+-- typeclass instances
   instance : Zero (peanoarithmetic.Term α) where
     zero := Constants.term .zero
 
-  -- some nice definitions
   def null : Term peanoarithmetic α :=
     Constants.term .zero
 
@@ -177,10 +158,9 @@ namespace Language.peanoarithmetic
     | .zero => null
     | .succ n => Term.func peanoarithmeticFunc.succ (λ _ => numeral n)
 
-def boundVar {n : ℕ} (t : Term peanoarithmetic (ℕ ⊕ Fin n)) : Term peanoarithmetic (ℕ ⊕ Fin n) :=
-  Term.func peanoarithmeticFunc.boundₛ (λ _ => t)
+  def boundVar {n : ℕ} (t : Term peanoarithmetic (ℕ ⊕ Fin n)) : Term peanoarithmetic (ℕ ⊕ Fin n) :=
+    Term.func peanoarithmeticFunc.boundₛ (λ _ => t)
 
-  -- Syntax
   class Succ (α : Type u) where
     succ : α → α
 
@@ -292,6 +272,8 @@ def boundVar {n : ℕ} (t : Term peanoarithmetic (ℕ ⊕ Fin n)) : Term peanoar
   instance : IsLe (Language.peanoarithmetic.Relations 2) where
     le := peanoarithmeticRel.le
 
+
+-- notation
   notation "S(" n ")" => Succ.succ n
   notation n "add" m => Add.add n m
   notation n "times" m => Mul.mul n m
@@ -423,8 +405,6 @@ def boundVar {n : ℕ} (t : Term peanoarithmetic (ℕ ⊕ Fin n)) : Term peanoar
       decode := Rel_dec
       encodek := Rel_enc_dec
 
-  -- add instance encodable term and formula
-
   end Coding
 
 variable {L : Language}[∀i, Encodable (L.Functions i)][∀i, Encodable (L.Relations i)]
@@ -457,9 +437,6 @@ namespace TermDecoding
         match Term.listDecode lst with
         | []      => none
         | t :: _  => some t    -- first decoded term
-  -- def term_ofnat (k : ℕ) : Option (Term L (ℕ ⊕ Fin 0)) :=
-  --   Encodable.decodeList k >>= fun lst =>
-  --     (Term.listDecode lst).head?
 
   def sentence_term_ofnat : ℕ → Option (Term L (Empty ⊕ Fin 0))
     | k =>
@@ -497,22 +474,10 @@ end TermDecoding
 
 open TermEncoding
 
-#check ⌜(∀' ∼(null =' S(&0)))⌝
-
-#check (∀' ∼(null =' S(&0)))
-#check (∀' Var(&0) : BoundedFormula ℒ ℕ 0)
--- #check (∀' Term(&0 ⬝∧ &0) : BoundedFormula ℒ ℕ 0)
-#check S(S(null))
-#check (null + peanoarithmetic.null)
-
-#eval ((S(null) + S(S(null)) : Term peanoarithmetic ℕ))
-#eval (peanoarithmetic.null + peanoarithmetic.null : Term peanoarithmetic ℕ)
-
--- #check (&0 =' (Sum.inl 0 : Term peanoarithmetic ℕ))
-
 namespace BoundedFormula
   variable {L : Language}{α : Type}{n : ℕ}
 
+-- notation for boundedformula
   def land (f₁ f₂: BoundedFormula L α n) :=
     ∼(f₁ ⟹ ∼f₂)
   scoped notation f₁ "∧'" f₂ => land f₁ f₂

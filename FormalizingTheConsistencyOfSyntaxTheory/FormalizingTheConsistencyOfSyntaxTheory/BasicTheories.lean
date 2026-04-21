@@ -15,7 +15,9 @@ open Languages
 namespace PeanoArithmetic
 variable {α : Type*}
 
-/-- Peano arithemtic -/
+
+-- More accurate Peano Axioms:
+
 -- inductive peano_axioms : ℒ.Theory where
 --   | first : peano_axioms (∀' (Nat(null) ∧' Nat(&0) ⟹ ∼(null =' S(&0))))
 --   | second :peano_axioms (∀' ∀' (Nat(&0) ∧' Nat(&1) ⟹ (S(&1) =' S(&0)) ⟹ (&1 =' &0)))
@@ -24,6 +26,7 @@ variable {α : Type*}
 --   | fifth : peano_axioms (∀' (Nat(null) ∧' Nat(&0) ⟹ ((&0 times null) =' null)))
 --   | sixth : peano_axioms (∀' ∀' (Nat(&1) ∧' Nat(&0) ⟹ ((&1 times S(&0)) =' ((&1 times &0)) add &1)))
 
+/-- Peano arithemtic -/
 inductive peano_axioms : ℒ.Theory where
   | first : peano_axioms (∀' ∼(null =' S(&0)))
   | second :peano_axioms (∀' ∀' ((S(&1) =' S(&0)) ⟹ (&1 =' &0)))
@@ -71,23 +74,8 @@ lemma realize_boundedFormula_and (φ ψ : BoundedFormula ℒ ℕ 0) (r : Fin 0 �
   sorry
   sorry
 
--- lemma realize_numeral_eq_self (n : ℕ) (r : ℕ → ℕ) :
---   Term.realize r (numeral n) = n := by
---   induction n with
---   | zero =>
---     rfl
---   | succ n ih =>
---     simp [numeral]
---     rw [ih]
---     rfl
-
 end PeanoArithmetic
 
--- conditional intro
--- look into lemma's that use Realize
--- look into how the Realize function works
--- think about what lemma's would be useful to have
--- look at how the model structure works
 
 namespace SyntaxTheory
 
@@ -159,65 +147,6 @@ def ax_all_inj : Sentence ℒ :=
 def ax_ex_inj : Sentence ℒ :=
   ∀' ∀' ((⬝∃ &0) =' (⬝∃ &1) ⟹ (&0 =' &1))
 
---Distinctness
--- def ax_neg_ne_and : Sentence ℒ :=
---   ∀' ∀' ∀' ∼((⬝∼&0) =' (&1 ⬝∧ &2))
-
--- def ax_neg_ne_or : Sentence ℒ :=
---   ∀' ∀' ∀' ∼((⬝∼&0) =' (&1 ⬝∨ &2))
-
--- def ax_neg_ne_imp : Sentence ℒ :=
---   ∀' ∀' ∀' ∼((⬝∼&0) =' (&1 ⬝⟹ &2))
-
--- def ax_neg_ne_all : Sentence ℒ :=
---   ∀' ∀' ∼((⬝∼&0) =' (⬝∀ &1))
-
--- def ax_neg_ne_ex : Sentence ℒ :=
---   ∀' ∀' ∼((⬝∼&0) =' (⬝∃ &1))
-
--- def ax_and_ne_or : Sentence ℒ :=
---   ∀' ∀' ∀' ∀' ∼((&0 ⬝∧ &1) =' (&2 ⬝∨ &3))
-
--- def ax_and_ne_imp : Sentence ℒ :=
---   ∀' ∀' ∀' ∀' ∼((&0 ⬝∧ &1) =' (&2 ⬝⟹ &3))
-
--- def ax_and_ne_all : Sentence ℒ :=
---   ∀' ∀' ∀' ∼((&0 ⬝∧ &1) =' (⬝∀ &2))
-
--- def ax_and_ne_ex : Sentence ℒ :=
---   ∀' ∀' ∀' ∼((&0 ⬝∧ &1) =' (⬝∃ &2))
-
--- def ax_or_ne_imp : Sentence ℒ :=
---   ∀' ∀' ∀' ∀' ∼((&0 ⬝∨ &1) =' (&2 ⬝⟹ &3))
-
--- def ax_or_ne_all : Sentence ℒ :=
---   ∀' ∀' ∀' ∼((&0 ⬝∨ &1) =' (⬝∀ &2))
-
--- def ax_or_ne_ex : Sentence ℒ :=
---   ∀' ∀' ∀' ∼((&0 ⬝∨ &1) =' (⬝∃ &2))
-
--- def ax_imp_ne_all : Sentence ℒ :=
---   ∀' ∀' ∀' ∼((&0 ⬝⟹ &1) =' (⬝∀ &2))
-
--- def ax_imp_ne_ex : Sentence ℒ :=
---   ∀' ∀' ∀' ∼((&0 ⬝⟹ &1) =' (⬝∃ &2))
-
--- def ax_all_ne_ex : Sentence ℒ :=
---   ∀' ∀' ∼((⬝∀&0) =' (⬝∃ &1))
-
--- lemma listDecode_listEncode :
---   ∀ t : Term ℒ (ℕ ⊕ Fin 0),
---   Term.listDecode t.listEncode = [t] := by
---   apply Encodable.encodek
---   intro t
---   induction t
---   case var =>
---     simp [Term.listEncode, Term.listDecode]
---   case func =>
---     unfold Term.listDecode Term.listEncode
---     apply Encodable.encodek
---     simp [List.flatMap, List.finRange]
---     apply Encodable.encodek
 
 inductive syntax_axioms : ℒ.Theory
   | bound_var     : syntax_axioms ax_bound_var
@@ -246,44 +175,13 @@ inductive syntax_axioms : ℒ.Theory
   | all_inj       : syntax_axioms ax_all_inj
   | ex_inj        : syntax_axioms ax_ex_inj
 
-  -- | neg_ne_and    : syntax_axioms ax_neg_ne_and
-  -- | neg_ne_or     : syntax_axioms ax_neg_ne_or
-  -- | neg_ne_imp    : syntax_axioms ax_neg_ne_imp
-  -- | neg_ne_all    : syntax_axioms ax_neg_ne_all
-  -- | neg_ne_ex     : syntax_axioms ax_neg_ne_ex
-  -- | and_ne_or     : syntax_axioms ax_and_ne_or
-  -- | and_ne_imp    : syntax_axioms ax_and_ne_imp
-  -- | and_ne_all    : syntax_axioms ax_and_ne_all
-  -- | and_ne_ex     : syntax_axioms ax_and_ne_ex
-  -- | or_ne_imp     : syntax_axioms ax_or_ne_imp
-  -- | or_ne_all     : syntax_axioms ax_or_ne_all
-  -- | or_ne_ex      : syntax_axioms ax_or_ne_ex
-  -- | imp_ne_all    : syntax_axioms ax_imp_ne_all
-  -- | imp_ne_ex     : syntax_axioms ax_imp_ne_ex
-  -- | all_ne_ex     : syntax_axioms ax_all_ne_ex
-
 end SyntaxTheory
 
 namespace Substitution
-
+open Lifting
 variable {L : Language}
 
-@[simp]
-def liftTerm {α : Type} {n : ℕ} : Term L (α ⊕ Fin n) → Term L (α ⊕ Fin (n + 1))
-  | Term.var v =>
-    match v with
-    | Sum.inl a => Term.var (Sum.inl a)
-    | Sum.inr i => Term.var (Sum.inr (Fin.succ i))
-  | Term.func f ts => Term.func f (fun i => liftTerm (ts i))
-
-@[simp]
-def liftFormula {α : Type} {n : ℕ} : BoundedFormula L α n → BoundedFormula L α (n + 1)
-  | .falsum => .falsum
-  | .equal t1 t2 => .equal (liftTerm t1) (liftTerm t2)
-  | .rel R ts => .rel R (fun i => liftTerm (ts i))
-  | .imp φ ψ => .imp (liftFormula φ) (liftFormula ψ)
-  | .all φ => .all (liftFormula φ)
-
+-- substitution by recursion over the structure of term and boundedformula
 @[simp]
 def term_substitution {α : Type} {n : ℕ} (t : Term L (α ⊕ Fin n)) : Term L (Fin 1 ⊕ Fin n) → Term L (α ⊕ Fin n)
   | Term.var (Sum.inl ⟨0,_⟩) => t
@@ -321,7 +219,9 @@ namespace Induction
 open Substitution
 open Term
 open BoundedFormula
+open Lifting
 
+--induction axiom schemas
 def induction_axiom_PA (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
   (formula_substitution null φ ∧'
     ∀' (bv_formula_substitution (&0) φ ⟹
@@ -352,10 +252,6 @@ def induction_axiom_syntax_formula (φ : BoundedFormula ℒ (Fin 1) 0) : Sentenc
               (∀'(bv_formula_substitution (&0) φ ⟹ bv_formula_substitution (⬝∃ &0) φ)) ⟹
                 (∀'(bv_formula_substitution (&0) φ))
   )
-
-def induction_sentence (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
- (∀'(bv_formula_substitution (&0) φ) ∧' (∀'(bv_formula_substitution (&0) (liftFormula φ))))
-
 end Induction
 
 

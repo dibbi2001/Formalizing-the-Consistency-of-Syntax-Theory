@@ -76,6 +76,7 @@ variable [Zero M] [Succ M] [Add M] [Mul M]
 [IsNatDot M] [IsLeDot M]
 [Zeroₛ M] [Succₛ M] [Addₛ M] [Mulₛ M]
 
+-- the general structure
 instance : peanoarithmetic.Structure M where
   funMap
   | .zero, _  => 0
@@ -103,6 +104,7 @@ instance : peanoarithmetic.Structure M where
   | .le, v => IsLeDot.ledot v
 
 section
+-- some simp lemmas
 @[simp] theorem funMap_zero {v} :
   Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.zero v = 0 := rfl
 
@@ -176,6 +178,7 @@ Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.add v = v 0
 end
 
 namespace PAStructure
+-- the standard model of PA
   def nat_structure : peanoarithmetic.Structure ℕ where
     funMap
     | .zero, _  => 0
@@ -205,26 +208,6 @@ namespace PAStructure
 
   instance : peanoarithmetic.Structure ℕ := nat_structure
 
-  def r : ℕ → ℕ := fun x => x
-
-  def first_axiom : ℒ.BoundedFormula ℕ 0 :=
-    (∀' ∼(null =' S(&0)))
-
-  def p : ℕ → ℕ := id
-
-  #eval Term.realize r (S(S(0) + S(0)) : peanoarithmetic.Term ℕ)
-  #eval Term.realize r (S(S(S(0))) * S(S(S(0))) : peanoarithmetic.Term ℕ)
-  #eval Term.realize r (null + null)
-  #eval Term.realize r (S(null) ⬝⟹ S(null))
-  #eval Term.realize r (.var 2 : peanoarithmetic.Term ℕ)
-  #reduce BoundedFormula.Realize first_axiom p ![]
-
-  #check BoundedFormula.Realize first_axiom r 0
-
-  theorem first_axiomholds : BoundedFormula.Realize first_axiom r 0 := by
-    intro n
-    exact Nat.zero_ne_add_one n
-
 end PAStructure
 end Structure
 
@@ -235,6 +218,7 @@ open BoundedFormula
 variable {L : Language}[∀i, Encodable (L.Functions i)][∀i, Encodable (L.Relations i)]
 
 namespace SyntaxStructure
+-- syntax representations using encoding/decoding functions
   def zeroₛ_repres : ℕ :=
     TermEncoding.term_tonat (L := peanoarithmetic) (Term.func (L := peanoarithmetic) peanoarithmeticFunc.zeroₛ ![])
 
@@ -327,8 +311,6 @@ namespace SyntaxStructure
     | some _ => 1
     | none   => 0
 
-  -- def term_repres (k : ℕ) : Prop :=  ∃ t, (term_ofnat : ℕ → Option (Term ℒ (ℕ ⊕ Fin 0))) k = some t
-
   def const_repres (k : ℕ) : ℕ :=
     match TermDecoding.term_ofnat (L := peanoarithmetic) k with
     | some (.func peanoarithmeticFunc.zeroₛ ![]) => 1
@@ -341,6 +323,7 @@ namespace SyntaxStructure
 
   def nat_repres (k : ℕ) : ℕ := k
 
+-- syntax structure
   def nat_syntax_structure : peanoarithmetic.Structure ℕ where
   funMap
   | .zero, _  => 0
@@ -368,80 +351,37 @@ namespace SyntaxStructure
   | .bdform, v => bdform_repres (v 0) = 1
   | .nat, v    => nat_repres (v 0) = 1
   | .le, v     => True
-  -- instance : peanoarithmetic.Structure ℕ := nat_syntax_structure
-
-  def φ : BoundedFormula ℒ ℕ 0 := BoundedFormula.equal (null) (null)
-  def ψ : BoundedFormula ℒ Empty 0 := (∀' ∀' ((&1 times S(&0)) =' ((&1 times &0)) add &1))
-  def t : Term ℒ (ℕ ⊕ Fin 0) := S(S(null))
-  def s : Term ℒ (Empty ⊕ Fin 0) := null
-
-  #eval formula_tonat φ
-  #eval term_tonat (L := ℒ) t
-  #eval sentence_term_tonat s
-  #eval sent_tonat ψ
-
-  -- #eval (⌜ φ ⌝)
-
-  #eval formula_ofnat (L := ℒ) (n := 1) (formula_tonat (L := ℒ) φ)
-  #eval formula_ofnat (L := ℒ) (n := 1) (13442315822)
-
-  #eval term_ofnat (L := ℒ) (term_tonat t)
-  -- #eval sentence_term_ofnat (L := ℒ) (sentence_term_tonat (L := ℒ) s) --add tostr fun for closed terms?
-
-  -- #eval sent_ofnat (L := ℒ) (sent_tonat (L := ℒ) ψ) --add tostr fun for sentences??
-
 end SyntaxStructure
+
+namespace Lifting
+variable {L : Language}
+
+@[simp]
+-- @[match_pattern]
+def liftTerm {α : Type} {n : ℕ} : Term L (α ⊕ Fin n) → Term L (α ⊕ Fin (n + 1))
+  | Term.var v =>
+    match v with
+    | Sum.inl a => Term.var (Sum.inl a)
+    | Sum.inr i => Term.var (Sum.inr (Fin.succ i))
+  | Term.func f ts => Term.func f (fun i => liftTerm (ts i))
+
+@[simp]
+def liftFormula {α : Type} {n : ℕ} : BoundedFormula L α n → BoundedFormula L α (n + 1)
+  | .falsum => .falsum
+  | .equal t1 t2 => .equal (liftTerm t1) (liftTerm t2)
+  | .rel R ts => .rel R (fun i => liftTerm (ts i))
+  | .imp φ ψ => .imp (liftFormula φ) (liftFormula ψ)
+  | .all φ => .all (liftFormula φ)
+end Lifting
 
 namespace Homophonic
 open Structure
--- inductive SynObj (ℒ : Language) where
--- | nat  : ℕ → SynObj ℒ
--- | term : FirstOrder.Language.Term ℒ (ℕ ⊕ Fin 0) → SynObj ℒ
--- | form : FirstOrder.Language.BoundedFormula ℒ Empty 0 → SynObj ℒ
-
--- instance : Zero (SynObj ℒ) := ⟨SynObj.nat 0⟩
-
--- instance : Succ (SynObj ℒ) where
---   succ
---   | SynObj.nat n => SynObj.nat (Nat.succ n)
---   | _ => SynObj.nat 0
-
--- -- instance : Add (SynObj ℒ) where
--- --   add
--- --   | SynObj.nat a, SynObj.nat b => SynObj.nat (a + b)
--- --   | _, _ => SynObj.nat 0
-
--- instance : Mul (SynObj ℒ) where
---   mul
---   | SynObj.nat a, SynObj.nat b => SynObj.nat (a * b)
---   | _, _ => SynObj.nat 0
-
--- instance : Addₛ (SynObj ℒ) where
---   addₛ := fun
---     | SynObj.term t₁, SynObj.term t₂ => SynObj.term (Term.func peanoarithmeticFunc.addₛ ![t₁,t₂])
---     | _, _ => SynObj.nat 0
-
-
--- instance : IsNatDot (SynObj ℒ) where
---   natdot
---   | SynObj.nat _ => True
---   | _ => False
-
--- instance : IsVarDot (SynObj ℒ) where
---   vardot
---   | SynObj.term (Term.var _) => True
---   | _ => False
-
+open Lifting
+-- domain for homophonic translation
 abbrev SynDomain (ℒ : Language) :=
   ℕ ⊕ (Σ n : ℕ, Term ℒ (ℕ ⊕ Fin n)) ⊕ (Σ n : ℕ, BoundedFormula ℒ ℕ n)
 
--- Nat ⊕ Term ⊕ BdForm 0 ⊕ BdForm 1 ⊕ BdForm2... (BdForm n)
--- Σn : Nat, (FirstOrder.Language.BoundedFormula ℒ ℕ n)
--- in chc, dependent typing is what allows you to do quantification
-
-
--- other option is to just only change the domain, interpret BdForm as a whole union
--- will maybe make proofs more complicated
+-- some nice definitions
 def isNat : SynDomain ℒ → Prop
 | Sum.inl _ => True
 | _ => False
@@ -454,6 +394,7 @@ def isBdForm : SynDomain ℒ → Prop
 | Sum.inr (Sum.inr ⟨_, _⟩) => True
 | _ => False
 
+-- instances for the model
 instance : IsNatDot (SynDomain ℒ) :=
   { natdot := fun v =>
       match v 0 with
@@ -466,7 +407,6 @@ instance : IsTermDot (SynDomain ℒ) :=
     | Sum.inl n, Sum.inr (Sum.inl ⟨m, _⟩) => n = m
     | _, _ => False
 }
-
 
 instance : IsBdformDot (SynDomain ℒ) :=
 { bdformdot := fun v =>
@@ -589,25 +529,6 @@ instance : Imp (SynDomain ℒ) where
         else x
     | _, _ => x
 
-variable {L : Language}
-
-@[simp]
--- @[match_pattern]
-def liftTerm {α : Type} {n : ℕ} : Term L (α ⊕ Fin n) → Term L (α ⊕ Fin (n + 1))
-  | Term.var v =>
-    match v with
-    | Sum.inl a => Term.var (Sum.inl a)
-    | Sum.inr i => Term.var (Sum.inr (Fin.succ i))
-  | Term.func f ts => Term.func f (fun i => liftTerm (ts i))
-
-@[simp]
-def liftFormula {α : Type} {n : ℕ} : BoundedFormula L α n → BoundedFormula L α (n + 1)
-  | .falsum => .falsum
-  | .equal t1 t2 => .equal (liftTerm t1) (liftTerm t2)
-  | .rel R ts => .rel R (fun i => liftTerm (ts i))
-  | .imp φ ψ => .imp (liftFormula φ) (liftFormula ψ)
-  | .all φ => .all (liftFormula φ)
-
 
 instance : Eq (SynDomain ℒ) where
   eq x y :=
@@ -643,6 +564,7 @@ instance : BoundVar (SynDomain ℒ) where
     | Sum.inr (Sum.inl ⟨k, u⟩) => Sum.inr (Sum.inl ⟨k, u⟩)
     | _ => x
 
+-- homophonic structure
 def homophonic_syntax_structure : peanoarithmetic.Structure (SynDomain ℒ) where
   funMap
   | .zero, _  => 0
@@ -671,6 +593,7 @@ def homophonic_syntax_structure : peanoarithmetic.Structure (SynDomain ℒ) wher
   | .nat, v    => IsNatDot.natdot v
   | .le, v     => IsLeDot.ledot v
 
+-- simp lemmas for the homophonic structure
 @[simp] lemma nat_realize (v : Fin 1 → SynDomain ℒ) :
   IsNatDot.natdot v =
     match v 0 with
@@ -678,18 +601,12 @@ def homophonic_syntax_structure : peanoarithmetic.Structure (SynDomain ℒ) wher
     | _ => False :=
 rfl
 
-
 @[simp] lemma term_realize (v : Fin 2 → SynDomain ℒ) :
   IsTermDot.termdot v =
     match v 0, v 1 with
     | Sum.inl n, Sum.inr (Sum.inl ⟨m, _⟩) => n = m
     | _, _ => False :=
 rfl
-
--- @[simp] lemma term_realize_mk
---   (n m : ℕ) (t : ℒ.Term (ℕ ⊕ Fin m)) :
---   IsTermDot.termdot ![Sum.inl n, Sum.inr (Sum.inl ⟨m, t⟩)] = (n = m) :=
--- rfl
 
 @[simp] lemma bdform_realize (v : Fin 2 → SynDomain ℒ) :
   IsBdformDot.bdformdot v =
@@ -719,7 +636,7 @@ rfl
     | _, _ => False :=
 rfl
 
--- Nat constructors
+-- nat constructors
 @[simp] lemma zero_realize : (0 : SynDomain ℒ) = Sum.inl 0 := rfl
 
 @[simp] lemma succ_realize (n : SynDomain ℒ) :
@@ -743,6 +660,7 @@ rfl
     | _, _ => x :=
 rfl
 
+-- syntax constructors
 @[simp] lemma zeroₛ_realize :
   Zeroₛ.zeroₛ =
     (Sum.inr (Sum.inl ⟨0, Term.func peanoarithmeticFunc.zero ![]⟩) : SynDomain ℒ) :=
@@ -1038,7 +956,7 @@ by trivial
 @[simp] lemma bdform_ex (n) (φ : ℒ.BoundedFormula ℕ (n + 1)) :
   isBdForm (Sum.inr (Sum.inr ⟨n + 1, ∃' liftFormula φ⟩) : SynDomain ℒ) := by trivial
 
-
+-- proof of the injectivity of the liftFormula function
 lemma liftFormula_injective :
   Function.Injective (@liftFormula ℒ ℕ n) := by
   intro φ ψ h
@@ -1060,7 +978,6 @@ lemma liftFormula_injective :
   simp
   sorry
 
-
 open Classical
 @[simp] lemma imp_true_intro (P : Prop) : (P → True) := by
   intro _
@@ -1069,15 +986,5 @@ open Classical
 @[simp] lemma imp_from_false (P : Prop) : (False → P) := by
   intro h
   cases h
-
--- @[simp] lemma nat_lookup_inl (M := SynDomain ℒ)  (n : ℕ) :
---   Nat(var (Sum.inr 0)).Realize default (Fin.snoc default (Sum.inl n)) = True :=
--- rfl
-
--- @[simp] lemma var_lookup_inl_fixed :
---   let v : Fin 1 → SynDomain ℒ := fun i => Sum.inl 0
---   Var(&ₛ(var (Sum.inr 0))).Realize  (Structure ℒ : (SynDomain ℒ) ) v = False := by
---   rfl
-
 
 end Homophonic

@@ -16,7 +16,7 @@ open Homophonic
 namespace Consistency
 
 variable {M : Type*}
-
+-- consistency
 abbrev semantically_consistent (T : Theory ℒ) : Prop :=
   T.IsSatisfiable
 
