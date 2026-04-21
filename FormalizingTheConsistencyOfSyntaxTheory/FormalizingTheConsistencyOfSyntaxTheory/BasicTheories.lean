@@ -14,8 +14,6 @@ open Languages
 
 namespace PeanoArithmetic
 variable {α : Type*}
-
-
 -- More accurate Peano Axioms:
 
 -- inductive peano_axioms : ℒ.Theory where

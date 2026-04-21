@@ -423,10 +423,6 @@ theorem homophonic_models_axioms : @Theory.Model ℒ (SynDomain ℒ) homophonic_
         -- intro b h
         -- sorry
 
-
---look at congruence proof strategy x = y => fx = fy
---prove lift lemma
-
 def syntaxModel : syntax_axioms.ModelType :=
 {
   Carrier := (SynDomain ℒ),
