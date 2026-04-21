@@ -78,6 +78,8 @@ variable {α : Type*} {n : ℕ}
 universe u
 
 namespace FirstOrder
+/-- The Language of Peano Arithmetic and Syntax. -/
+
 -- function symbols
 inductive peanoarithmeticFunc : ℕ → Type _ where
 -- PA
@@ -144,7 +146,13 @@ def relToStr {n} : Language.peanoarithmetic.Relations n → String
 instance {n} : ToString (Language.peanoarithmetic.Relations n) := ⟨relToStr⟩
 
 namespace Language.peanoarithmetic
--- typeclass instances
+/--
+Typeclass infrastructure and syntactic sugar for Peano arithmetic terms.
+This section equips `peanoarithmetic.Term` with standard algebraic and logical
+notation by introducing typeclasses and instances.
+Together, these instances provide a uniform interface for constructing and
+manipulating Peano arithmetic syntax.
+-/
   instance : Zero (peanoarithmetic.Term α) where
     zero := Constants.term .zero
 
@@ -273,7 +281,7 @@ namespace Language.peanoarithmetic
     le := peanoarithmeticRel.le
 
 
--- notation
+/-- Notation-/
   notation "S(" n ")" => Succ.succ n
   notation n "add" m => Add.add n m
   notation n "times" m => Mul.mul n m
@@ -308,6 +316,11 @@ namespace Language.peanoarithmetic
 
   section Coding
     variable {k : ℕ}
+
+/-- Gödel encodings for the signature of `peanoarithmetic`.
+This section defines explicit encodings and decodings of the language symbols
+into natural numbers, establishing that the syntax is effectively codable. -/
+
     def Func_enc : peanoarithmetic.Functions k → ℕ
     | .zero      => Nat.pair 0 0 + 1
     | .zeroₛ     => Nat.pair 0 1 + 1
@@ -429,6 +442,24 @@ notation "⌜" φ "⌝" => peanoarithmetic.numeral (formula_tonat φ)
 end TermEncoding
 
 namespace TermDecoding
+/--
+These functions decode natural numbers into syntactic objects:
+
+- `term_ofnat k`:
+  Attempts to decode `k` into a term of type `Term L (ℕ ⊕ Fin 0)`.
+
+- `sentence_term_ofnat k`:
+  Like `term_ofnat`, but for terms over the empty type (sentential context).
+
+- `formula_ofnat_general k`:
+  Decodes `k` into a bounded formula together with its arity.
+
+- `formula_ofnat k`:
+  Specialises `formula_ofnat_general` to formulas of fixed arity `n`.
+
+- `sent_ofnat k`:
+  Extracts sentences (formulas of arity `0`) from encoded data.
+-/
   def term_ofnat : ℕ → Option (Term L (ℕ ⊕ Fin 0))
     | k =>
       match Encodable.decodeList k with
@@ -477,7 +508,8 @@ open TermEncoding
 namespace BoundedFormula
   variable {L : Language}{α : Type}{n : ℕ}
 
--- notation for boundedformula
+/-- Derived connectives for `BoundedFormula`.
+We define conjunction and disjunction in terms of implication and negation: -/
   def land (f₁ f₂: BoundedFormula L α n) :=
     ∼(f₁ ⟹ ∼f₂)
   scoped notation f₁ "∧'" f₂ => land f₁ f₂

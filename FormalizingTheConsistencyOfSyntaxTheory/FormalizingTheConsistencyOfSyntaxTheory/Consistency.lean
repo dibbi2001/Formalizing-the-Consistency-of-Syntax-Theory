@@ -16,17 +16,24 @@ open Homophonic
 namespace Consistency
 
 variable {M : Type*}
--- consistency
+/-- A theory is semantically consistent if it has a model, i.e. it is satisfiable. -/
 abbrev semantically_consistent (T : Theory ℒ) : Prop :=
   T.IsSatisfiable
 
+/-- A theory T semantically implies a sentence φ if adding ¬φ makes the theory unsatisfiable.
+In other words, every model of T must satisfy φ. -/
 def implies (T : Theory ℒ) (φ : Sentence ℒ) :  Prop :=
   ¬ (T ∪ {φ.not}).IsSatisfiable
 
+/-- A simple lemma showing that a contradiction (φ ∧ ¬φ) is not satisfiable.
+It demonstrates that no assignment can satisfy both a statement and its negation. -/
 lemma inconsistent (r : Fin 0 → ℕ):
 ¬ BoundedFormula.Realize ((BoundedFormula.equal null null) ∧' (BoundedFormula.not (BoundedFormula.equal null null))) (fun x => x) r := by
   simp [BoundedFormula.land, BoundedFormula.not]
 
+
+/-- The standard natural numbers ℕ form a model of the Peano axioms.
+Each axiom is verified using standard properties of natural number arithmetic. -/
 theorem nat_models_peano_axioms : ℕ ⊨ peano_axioms := by
   simp
   intro φ hφ
@@ -51,6 +58,12 @@ theorem nat_models_peano_axioms : ℕ ⊨ peano_axioms := by
     intro x y
     exact Nat.mul_succ y x
 
+/--
+The standard model of Peano arithmetic:
+- Carrier: ℕ
+- Structure: standard arithmetic interpretation
+- Proof that it satisfies the Peano axioms
+-/
 def standardModel : peano_axioms.ModelType :=
 {
   Carrier := ℕ,
@@ -59,10 +72,11 @@ def standardModel : peano_axioms.ModelType :=
   nonempty' := ⟨0⟩
 }
 
+/-- The Peano axioms are satisfiable, witnessed by the standard model of ℕ. -/
 theorem peano_axioms_satisfiable : (peano_axioms : Theory peanoarithmetic).IsSatisfiable := by
   refine ⟨standardModel⟩
 
-
+/-- The natural numbers ℕ, with the given syntax structure, form a model of the syntax axioms. -/
 theorem nat_models_syntax_axioms : @Theory.Model ℒ ℕ nat_syntax_structure syntax_axioms := by
   simp
   intro φ hφ
@@ -114,6 +128,8 @@ theorem nat_models_syntax_axioms : @Theory.Model ℒ ℕ nat_syntax_structure sy
   case ex_inj =>
     sorry
 
+/-- The homophonic syntax structure on `SynDomain ℒ` satisfies the syntax axioms.
+This establishes that the constructed interpretation forms a valid model. -/
 theorem homophonic_models_axioms : @Theory.Model ℒ (SynDomain ℒ) homophonic_syntax_structure syntax_axioms := by
   simp
   intro φ hφ
@@ -423,6 +439,13 @@ theorem homophonic_models_axioms : @Theory.Model ℒ (SynDomain ℒ) homophonic_
         -- intro b h
         -- sorry
 
+/--
+The canonical model of the syntax axioms:
+- Carrier: the syntactic domain `SynDomain ℒ`
+- Structure: the homophonic syntax structure
+- Proof that it satisfies the syntax axioms
+- Non-emptiness is witnessed by `⟨0⟩`
+-/
 def syntaxModel : syntax_axioms.ModelType :=
 {
   Carrier := (SynDomain ℒ),
@@ -431,6 +454,10 @@ def syntaxModel : syntax_axioms.ModelType :=
   nonempty' := ⟨0⟩
 }
 
+
+/--
+The syntax axioms are satisfiable, witnessed by the canonical model `syntaxModel`.
+-/
 theorem syntax_axioms_satisfiable : (syntax_axioms : ℒ.Theory).IsSatisfiable := by
   refine ⟨syntaxModel⟩
 

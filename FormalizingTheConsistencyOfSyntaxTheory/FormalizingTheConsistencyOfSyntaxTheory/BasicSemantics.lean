@@ -15,6 +15,11 @@ variable (neg_repres : (Fin 1 → M) → M) (and_repres : (Fin 2 → M) → M) (
 (var_prop : (Fin 1 → M) → Prop) (const_prop : (Fin 1 → M) → Prop) (term_prop : (Fin 2 → M) → Prop) (bdform_prop : (Fin 2 → M) → Prop)
 (nat_prop : (Fin 1 → M) → Prop) (le_prop : (Fin 2 → M) → Prop)
 
+/-- A model interprets syntactic function symbols and relation symbols as actual
+functions and predicates on a structure `M`. This section packages those
+interpretations into typeclasses and instances, providing the semantic
+counterpart of the syntactic constructors defined in the language ℒ. -/
+
 class NegDot (α : Type u) where
   negdot : α → α
 
@@ -76,7 +81,10 @@ variable [Zero M] [Succ M] [Add M] [Mul M]
 [IsNatDot M] [IsLeDot M]
 [Zeroₛ M] [Succₛ M] [Addₛ M] [Mulₛ M]
 
--- the general structure
+/-- The semantic structure for the language of Peano arithmetic on a
+domain `M`. It interprets each function symbol as an actual operation on `M`
+and each relation symbol as a predicate on `M`, thereby specifying how the
+syntactic language ℒ is realized inside the structure. -/
 instance : peanoarithmetic.Structure M where
   funMap
   | .zero, _  => 0
@@ -178,7 +186,13 @@ Structure.funMap (L := peanoarithmetic) (M := M) peanoarithmeticFunc.add v = v 0
 end
 
 namespace PAStructure
--- the standard model of PA
+/-- The standard model of Peano arithmetic on the natural numbers ℕ.
+It interprets the arithmetic function symbols in the usual way on ℕ, while giving
+arbitrary (but fixed) interpretations to the syntactic symbols, and assigning
+constant truth values to relation symbols.
+
+This provides a concrete structure in which the Peano language ℒ is interpreted
+over the natural numbers. -/
   def nat_structure : peanoarithmetic.Structure ℕ where
     funMap
     | .zero, _  => 0
@@ -218,7 +232,12 @@ open BoundedFormula
 variable {L : Language}[∀i, Encodable (L.Functions i)][∀i, Encodable (L.Relations i)]
 
 namespace SyntaxStructure
--- syntax representations using encoding/decoding functions
+/-- Syntactic function and relation symbols of the language ℒ.
+Each function symbol is interpreted as a computable transformation on
+natural numbers encoding syntax trees.
+In most failure cases (non-decodable inputs), the functions default to simple
+fallback values (e.g. identity or `Nat.min`) to ensure totality.
+-/
   def zeroₛ_repres : ℕ :=
     TermEncoding.term_tonat (L := peanoarithmetic) (Term.func (L := peanoarithmetic) peanoarithmeticFunc.zeroₛ ![])
 
@@ -323,7 +342,10 @@ namespace SyntaxStructure
 
   def nat_repres (k : ℕ) : ℕ := k
 
--- syntax structure
+/-- Syntax structure of the Peano language interpreted over ℕ.
+This structure thus internalises the syntax of the language inside ℕ,
+realising a form of arithmetised syntax.
+-/
   def nat_syntax_structure : peanoarithmetic.Structure ℕ where
   funMap
   | .zero, _  => 0
@@ -356,6 +378,22 @@ end SyntaxStructure
 namespace Lifting
 variable {L : Language}
 
+/-- Lifting operations on terms and bounded formulas.
+
+Lifting is used to adjust expressions when the number of bound variables increases,
+ensuring that variable indices remain correct under the introduction of new binders.
+
+- `liftTerm`:
+  Raises a term from context `(α ⊕ Fin n)` to `(α ⊕ Fin (n + 1))` by shifting
+  bound variables (`Fin n`) while leaving free variables unchanged.
+
+- `liftFormula`:
+  Extends lifting to bounded formulas by applying `liftTerm` pointwise to all
+  term occurrences and recursively lifting through logical structure.
+
+These operations are essential for defining capture-avoiding substitution under
+quantifiers. -/
+
 @[simp]
 -- @[match_pattern]
 def liftTerm {α : Type} {n : ℕ} : Term L (α ⊕ Fin n) → Term L (α ⊕ Fin (n + 1))
@@ -377,7 +415,10 @@ end Lifting
 namespace Homophonic
 open Structure
 open Lifting
--- domain for homophonic translation
+
+/-- The homophonic domain, which is used as a unified domain for interpreting both numerical and syntactic
+objects within a single structure. -/
+
 abbrev SynDomain (ℒ : Language) :=
   ℕ ⊕ (Σ n : ℕ, Term ℒ (ℕ ⊕ Fin n)) ⊕ (Σ n : ℕ, BoundedFormula ℒ ℕ n)
 
@@ -564,7 +605,11 @@ instance : BoundVar (SynDomain ℒ) where
     | Sum.inr (Sum.inl ⟨k, u⟩) => Sum.inr (Sum.inl ⟨k, u⟩)
     | _ => x
 
--- homophonic structure
+/-- The homophonic syntax structure on `SynDomain ℒ`.
+The resulting structure allows syntax and semantics to coexist in a single
+domain, enabling homophonic (self-referential) interpretation of the language.
+-/
+
 def homophonic_syntax_structure : peanoarithmetic.Structure (SynDomain ℒ) where
   funMap
   | .zero, _  => 0
@@ -700,6 +745,7 @@ rfl
     | _, _ => t₁ :=
 rfl
 
+-- logical operators
 @[simp] lemma neg_realize (t : SynDomain ℒ) :
   NegDot.negdot t =
     match t with
@@ -765,6 +811,7 @@ rfl
     | _ => φ :=
 rfl
 
+-- bound variables
 @[simp] lemma bv_realize (t : SynDomain ℒ) :
   BoundVar.bv t =
     match t with
