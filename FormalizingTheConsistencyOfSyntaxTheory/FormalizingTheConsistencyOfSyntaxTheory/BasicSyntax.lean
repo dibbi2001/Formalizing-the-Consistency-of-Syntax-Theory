@@ -443,23 +443,7 @@ end TermEncoding
 
 namespace TermDecoding
 /--
-These functions decode natural numbers into syntactic objects:
-
-- `term_ofnat k`:
-  Attempts to decode `k` into a term of type `Term L (ℕ ⊕ Fin 0)`.
-
-- `sentence_term_ofnat k`:
-  Like `term_ofnat`, but for terms over the empty type (sentential context).
-
-- `formula_ofnat_general k`:
-  Decodes `k` into a bounded formula together with its arity.
-
-- `formula_ofnat k`:
-  Specialises `formula_ofnat_general` to formulas of fixed arity `n`.
-
-- `sent_ofnat k`:
-  Extracts sentences (formulas of arity `0`) from encoded data.
--/
+These functions decode natural numbers into syntactic objects. -/
   def term_ofnat : ℕ → Option (Term L (ℕ ⊕ Fin 0))
     | k =>
       match Encodable.decodeList k with

@@ -76,10 +76,7 @@ end PeanoArithmetic
 
 
 namespace SyntaxTheory
-/--
-## Syntax Theory
-
-This section defines a collection of syntactic well-formedness axioms for the
+/-- A collection of syntactic well-formedness axioms for the
 language ℒ.
 
 It includes formation rules for:
@@ -192,10 +189,7 @@ namespace Substitution
 open Lifting
 variable {L : Language}
 
-/--
-## Substitution on terms and bounded formulas
-
-This section defines *capture-avoiding substitution* in the language ℒ.
+/-- Capture-avoiding substitution in the language ℒ.
 Overall, these definitions implement a standard structural recursion
 scheme ensuring substitution is well-defined and respects variable binding.
 -/
@@ -239,7 +233,7 @@ open Term
 open BoundedFormula
 open Lifting
 
-/-- This section defines several versions of the induction principle as sentence schemas
+/-- Several versions of the induction principle as sentence schemas
 in the language ℒ. -/
 
 def induction_axiom_PA (φ : BoundedFormula ℒ (Fin 1) 0) : Sentence ℒ :=
@@ -280,7 +274,7 @@ open Substitution
 open SyntaxTheory
 open PeanoArithmetic
 
-/-- This section collects the various induction schemas and combines them with
+/-- Various induction schemas and combines them with
 axiomatic theories to form full first-order theories of arithmetic and syntax. -/
 
 def induction_schema : ℒ.Theory :=

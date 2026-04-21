@@ -389,10 +389,7 @@ ensuring that variable indices remain correct under the introduction of new bind
 
 - `liftFormula`:
   Extends lifting to bounded formulas by applying `liftTerm` pointwise to all
-  term occurrences and recursively lifting through logical structure.
-
-These operations are essential for defining capture-avoiding substitution under
-quantifiers. -/
+  term occurrences and recursively lifting through logical structure. -/
 
 @[simp]
 -- @[match_pattern]
